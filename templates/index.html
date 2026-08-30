@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DigitalTwin.ai — Spatio-Temporal Graph Intelligence for Vehicle Assembly Lines. Real-time predictive monitoring dashboard.">
+    <title>DigitalTwin.ai — Assembly Line Digital Twin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<header class="header">
+    <div class="header-brand">
+        <span class="header-logo">🏭 DigitalTwin.ai</span>
+        <span class="header-subtitle">Spatio-Temporal Graph Intelligence for Assembly Lines</span>
+    </div>
+    <div class="header-status">
+        <div class="status-badge live">LIVE TWIN</div>
+        <div id="notification" class="status-badge" style="display:none"></div>
+        <span style="font-size:0.75rem;color:var(--text-muted)">Accenture Innovation Challenge 2026 · Piyush Maji</span>
+    </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     SIMULATION CONTROLS
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="sim-controls">
+    <button id="btn-step" class="sim-btn">⏭ Step</button>
+    <button id="btn-autoplay" class="sim-btn primary">▶ Auto-Play</button>
+    <button id="btn-reset" class="sim-btn danger">↺ Reset</button>
+    <div class="sim-progress">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <span class="progress-text" id="progress-text">Step 0/29 — T+0min</span>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     TAB NAVIGATION
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<nav class="tab-nav">
+    <button class="tab-btn active" data-tab="tab-floor">
+        <span class="tab-icon">🔧</span> Floor Supervisor
+    </button>
+    <button class="tab-btn" data-tab="tab-planner">
+        <span class="tab-icon">📊</span> Plant Manager
+    </button>
+    <button class="tab-btn" data-tab="tab-leadership">
+        <span class="tab-icon">💼</span> Leadership
+    </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     TAB 1: FLOOR SUPERVISOR — Real-Time Operations
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-floor" class="tab-content active">
+
+    <!-- Assembly Graph + Alerts -->
+    <div class="grid-2 mb-lg">
+        <div class="card grid-span-2" style="grid-column:1/2">
+            <div class="card-header">
+                <h2 class="card-title">🏗️ Assembly Line — Live Graph</h2>
+                <span class="card-badge" style="background:var(--risk-low-bg);color:var(--risk-low)">40 STATIONS</span>
+            </div>
+            <div class="card-body">
+                <div class="graph-container" id="graph-svg"></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">🚨 Active Alerts</h2>
+            </div>
+            <div class="card-body scroll-container" id="alerts-container">
+                <div class="empty-state">
+                    <div class="empty-state-icon">⏳</div>
+                    <p>Click "Step" or "Auto-Play" to start simulation</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Station Table -->
+    <div class="card mb-lg">
+        <div class="card-header">
+            <h2 class="card-title">📋 Station Status Matrix</h2>
+            <span class="card-badge" style="background:var(--bg-glass);color:var(--text-muted)">ALL STATIONS</span>
+        </div>
+        <div class="card-body">
+            <div class="scroll-container" style="max-height:350px">
+                <table class="station-table" id="station-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Station</th>
+                            <th>Zone</th>
+                            <th>Sensors</th>
+                            <th>Risk</th>
+                            <th>Queue</th>
+                            <th>Anomaly</th>
+                            <th>Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody id="station-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Virtual Sensing -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">👁️ Virtual Sensing — Under-Instrumented Stations</h2>
+            <span class="card-badge" style="background:var(--risk-medium-bg);color:var(--risk-medium)">PARTIAL + MANUAL</span>
+        </div>
+        <div class="card-body">
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:var(--space-md)">
+                GNN neighbor aggregation infers state for stations with incomplete sensor coverage. 
+                Low-confidence stations are flagged for manual inspection.
+            </p>
+            <div class="grid-3" id="virtual-sensing"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     TAB 2: PLANT MANAGER — Shift Planning & Trends
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-planner" class="tab-content">
+
+    <!-- Shift KPIs -->
+    <div class="grid-3 mb-lg" style="grid-template-columns: repeat(6, 1fr)">
+        <div class="kpi-card" id="kpi-high-risk">
+            <div class="kpi-value text-danger">0</div>
+            <div class="kpi-label">High Risk Stations</div>
+            <div class="kpi-delta">—</div>
+        </div>
+        <div class="kpi-card" id="kpi-med-risk">
+            <div class="kpi-value text-warning">0</div>
+            <div class="kpi-label">Medium Risk</div>
+            <div class="kpi-delta">—</div>
+        </div>
+        <div class="kpi-card" id="kpi-avg-queue">
+            <div class="kpi-value text-accent">0</div>
+            <div class="kpi-label">Avg Queue Length</div>
+            <div class="kpi-delta">—</div>
+        </div>
+        <div class="kpi-card" id="kpi-oee">
+            <div class="kpi-value text-success">—</div>
+            <div class="kpi-label">Est. OEE</div>
+            <div class="kpi-delta">—</div>
+        </div>
+        <div class="kpi-card" id="kpi-low-conf">
+            <div class="kpi-value text-warning">0</div>
+            <div class="kpi-label">Low Confidence</div>
+            <div class="kpi-delta">—</div>
+        </div>
+        <div class="kpi-card" id="kpi-anomaly">
+            <div class="kpi-value text-accent">0%</div>
+            <div class="kpi-label">Avg Anomaly Score</div>
+            <div class="kpi-delta">—</div>
+        </div>
+    </div>
+
+    <div class="grid-2 mb-lg">
+        <!-- Risk Heatmap -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">🌡️ Risk Heatmap — Station × Time</h2>
+            </div>
+            <div class="card-body scroll-container" id="risk-heatmap">
+                <div class="empty-state"><div class="empty-state-icon">📊</div><p>Advance simulation to see risk heatmap</p></div>
+            </div>
+        </div>
+
+        <!-- Bottleneck Ranking -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">🔥 Bottleneck Frequency</h2>
+            </div>
+            <div class="card-body" id="bottleneck-chart">
+                <div class="empty-state"><div class="empty-state-icon">📈</div><p>Bottleneck data appears after several steps</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-2 mb-lg">
+        <!-- What-If Simulator -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">🧪 What-If Simulator</h2>
+            </div>
+            <div class="card-body">
+                <div class="whatif-form">
+                    <div>
+                        <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:4px">Target Station</label>
+                        <select class="whatif-select" id="whatif-station">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:4px">Intervention Type</label>
+                        <select class="whatif-select" id="whatif-intervention">
+                            <option value="maintenance">🔧 Perform Maintenance (reset wear + maint timer)</option>
+                            <option value="takt_increase">⏱️ Increase Takt (15% cycle time reduction)</option>
+                            <option value="reroute">🔀 Reroute Batch (reduce queue, boost utilization)</option>
+                        </select>
+                    </div>
+                    <button class="sim-btn primary" id="btn-run-whatif" style="align-self:flex-start">
+                        ▶ Run What-If
+                    </button>
+                </div>
+                <div id="whatif-results"></div>
+            </div>
+        </div>
+
+        <!-- Anomaly Scenarios -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">⚡ Anomaly Scenarios</h2>
+            </div>
+            <div class="card-body scroll-container" id="scenario-status">
+                <div class="empty-state"><p>Scenarios will appear as simulation progresses</p></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     TAB 3: LEADERSHIP — Business Case & ROI
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-leadership" class="tab-content">
+
+    <!-- ROI Cards -->
+    <h2 style="font-size:1.1rem;margin-bottom:var(--space-md);color:var(--text-primary)">💰 Projected Impact (Per Plant, Annually)</h2>
+    <div class="grid-4 mb-lg" id="roi-cards"></div>
+
+    <div class="grid-2 mb-lg">
+        <!-- Validation Metrics -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">✅ Model Validation</h2>
+                <span class="card-badge" style="background:var(--risk-low-bg);color:var(--risk-low)">LIVE METRICS</span>
+            </div>
+            <div class="card-body" id="validation-metrics">
+                <div class="empty-state"><div class="empty-state-icon">📈</div>
+                <p>Run 3+ simulation steps to generate validation metrics</p></div>
+            </div>
+        </div>
+
+        <!-- Multi-Plant Scalability -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">🌍 Multi-Plant Rollout Plan</h2>
+            </div>
+            <div class="card-body" id="multi-plant"></div>
+        </div>
+    </div>
+
+    <!-- Phased Roadmap -->
+    <div class="card mb-lg">
+        <div class="card-header">
+            <h2 class="card-title">🗺️ Implementation Roadmap</h2>
+        </div>
+        <div class="card-body">
+            <div class="roadmap">
+                <div class="roadmap-phase">
+                    <div class="roadmap-dot"></div>
+                    <div class="roadmap-title">Phase 1 — Pilot</div>
+                    <div class="roadmap-desc">
+                        Q1-Q2 2027<br>
+                        Single line deployment<br>
+                        40 stations, 60% sensor coverage<br>
+                        Core prediction + virtual sensing<br>
+                        <strong style="color:var(--zone-body)">$150K investment</strong>
+                    </div>
+                </div>
+                <div class="roadmap-phase">
+                    <div class="roadmap-dot"></div>
+                    <div class="roadmap-title">Phase 2 — Single Plant</div>
+                    <div class="roadmap-desc">
+                        Q3-Q4 2027<br>
+                        All lines in pilot plant<br>
+                        Dashboard rollout to all shifts<br>
+                        What-If simulation enabled<br>
+                        <strong style="color:var(--zone-paint)">$400K cumulative</strong>
+                    </div>
+                </div>
+                <div class="roadmap-phase">
+                    <div class="roadmap-dot"></div>
+                    <div class="roadmap-title">Phase 3 — Enterprise</div>
+                    <div class="roadmap-desc">
+                        2028+<br>
+                        Multi-plant federation<br>
+                        Cross-plant benchmarking<br>
+                        Automated intervention recommendations<br>
+                        <strong style="color:var(--zone-final)">$1.2M cumulative</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technology Architecture -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">🧠 Technical Architecture</h2>
+        </div>
+        <div class="card-body">
+            <div class="grid-3">
+                <div style="padding:var(--space-md);background:var(--bg-glass);border-radius:var(--radius-md)">
+                    <h4 style="color:var(--zone-body);font-size:0.85rem;margin-bottom:8px">Data Layer</h4>
+                    <ul style="font-size:0.75rem;color:var(--text-secondary);list-style:none;line-height:1.8">
+                        <li>• OPC-UA / MQTT from modern PLCs</li>
+                        <li>• Edge gateways for legacy serial/analog</li>
+                        <li>• Apache Kafka streaming pipeline</li>
+                        <li>• TimescaleDB time-series storage</li>
+                        <li>• Virtual sensor gap-filling</li>
+                    </ul>
+                </div>
+                <div style="padding:var(--space-md);background:var(--bg-glass);border-radius:var(--radius-md)">
+                    <h4 style="color:var(--zone-paint);font-size:0.85rem;margin-bottom:8px">Intelligence Layer</h4>
+                    <ul style="font-size:0.75rem;color:var(--text-secondary);list-style:none;line-height:1.8">
+                        <li>• Spatio-Temporal GATv2 + GRU</li>
+                        <li>• Masked-node virtual sensing</li>
+                        <li>• Multi-head prediction (5 heads)</li>
+                        <li>• Root-cause attention extraction</li>
+                        <li>• What-If simulation engine</li>
+                    </ul>
+                </div>
+                <div style="padding:var(--space-md);background:var(--bg-glass);border-radius:var(--radius-md)">
+                    <h4 style="color:var(--zone-final);font-size:0.85rem;margin-bottom:8px">Application Layer</h4>
+                    <ul style="font-size:0.75rem;color:var(--text-secondary);list-style:none;line-height:1.8">
+                        <li>• Multi-stakeholder dashboard</li>
+                        <li>• Real-time alerting (floor view)</li>
+                        <li>• Planning tools (manager view)</li>
+                        <li>• ROI / validation (leadership)</li>
+                        <li>• REST API for integration</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
+<script>
+    // Populate what-if station selector after config loads
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            if (typeof config !== 'undefined' && config && config.stations) {
+                const sel = document.getElementById('whatif-station');
+                if (sel) {
+                    sel.innerHTML = config.stations.map(s =>
+                        `<option value="${s.id}">[${String(s.id).padStart(2,'0')}] ${s.name} (${s.zone})</option>`
+                    ).join('');
+                }
+            }
+        }, 1500);
+    });
+</script>
+<script src="/static/dashboard.js"></script>
+
+</body>
+</html>
