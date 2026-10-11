@@ -2,7 +2,7 @@
 
 ### Spatio-Temporal Graph Intelligence for Vehicle Assembly Lines
 
-> **Accenture Innovation Challenge 2026 — Prototype Submission**
+> **Accenture Innovation Challenge 2026 — Round 2 Prototype Submission**
 > 
 > **Author:** Piyush Maji
 
@@ -12,66 +12,98 @@
 
 Modern vehicle assembly lines are tightly coupled networks where small disruptions cascade rapidly. A brief stoppage upstream ripples downstream into bottlenecks and buffer overflows. Defects go undetected until end-of-line QC, causing expensive rework. Current plant monitoring is **static and retrospective** — dashboards and siloed PLC telemetry only alert *after* thresholds are breached, and sparse sensor coverage on legacy equipment leaves blind spots.
 
+Assembly lines mix **legacy and modern equipment** with highly uneven sensor coverage — some stations are richly instrumented, others rely entirely on manual checklists. Bottlenecks and defects often have **multi-causal, intermittent root causes** (equipment wear, operator variation, upstream part quality, environmental conditions) that are hard to isolate from data alone. A defect introduced early in the line may not surface until a much later inspection point, making **root-cause tracing after the fact especially difficult**.
+
 **There's no live, interconnected model that captures spatial *and* temporal dependencies across stations to predict problems before they cascade.**
 
 ## 💡 Solution
 
-**DigitalTwin.ai** models the entire assembly line as a **dynamic directed graph** — stations as nodes, material flow as edges — powered by a **Spatio-Temporal Graph Neural Network (ST-GNN)**.
+**DigitalTwin.ai** models the entire assembly line as a **dynamic directed graph** — stations as nodes, material/information flow as edges — powered by a **Spatio-Temporal Graph Neural Network (ST-GNN)**. The system provides **three distinct stakeholder views** from the same underlying model.
 
-### Three Core Capabilities
+### Core Capabilities
 
 | Capability | How It Works | Impact |
 |---|---|---|
-| **Predictive Propagation** | GATv2 + GRU layers learn spatial and temporal dependencies, forecasting queue build-ups minutes in advance and classifying defect-propagation risk downstream | Prevents cascading bottlenecks |
-| **Virtual Sensing** | Masked-node training lets the GNN infer state of under-instrumented legacy stations via neighbor aggregation | Extends monitoring to legacy equipment without new hardware |
-| **What-If Simulation** | Learned GNN dynamics overlaid on discrete-event line logic for testing interventions virtually | De-risks operational decisions before execution |
+| **Predictive Propagation** | GATv2 + GRU layers learn spatial and temporal dependencies, forecasting queue build-ups and classifying defect-propagation risk across downstream stations | Prevents cascading bottlenecks with 10-15 min advance warning |
+| **Virtual Sensing** | Masked-node training lets the GNN infer state of under-instrumented legacy stations via neighbor aggregation, with per-node confidence scoring | Extends monitoring to legacy equipment without new hardware |
+| **What-If Simulation** | Learned GNN dynamics overlaid on discrete-event line logic for testing interventions (maintenance, rerouting, takt changes) virtually | De-risks operational decisions before execution |
+| **Multi-Stakeholder UX** | Floor supervisor (real-time alerts), Plant manager (shift planning), Leadership (ROI/validation) views from one model | Drives adoption across organizational levels |
+| **Cascade Detection** | Graph-based anomaly propagation tracking with multi-hop downstream impact analysis | Identifies root causes, not just symptoms |
 
 ## 🏗️ Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                    DigitalTwin.ai Architecture                │
-├──────────────────────────────────────────────────────────────┤
-│                                                               │
-│  Sensor Data ──→ Graph Construction ──→ Spatio-Temporal GNN  │
-│                                             │                 │
-│                                    ┌────────┼────────┐       │
-│                                    ▼        ▼        ▼       │
-│                               Queue    Defect    Virtual     │
-│                              Forecast   Risk     Sensor      │
-│                                             │                │
-│                                    ┌────────┴────────┐       │
-│                                    ▼                 ▼       │
-│                              What-If           Dashboard     │
-│                             Simulation        & Alerts       │
-└──────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────┐
+│                   DigitalTwin.ai Architecture                      │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│  ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐ │
+│  │   DATA LAYER    │   │ INTELLIGENCE    │   │  APPLICATION    │ │
+│  │                 │──▶│     LAYER       │──▶│     LAYER       │ │
+│  │ OPC-UA / MQTT   │   │                 │   │                 │ │
+│  │ Edge Gateways   │   │ ST-GATv2 + GRU  │   │ Multi-Stakeholder│ │
+│  │ Apache Kafka    │   │ 5 Prediction    │   │ Dashboard        │ │
+│  │ Sensor Masking  │   │ Heads           │   │ REST API         │ │
+│  │ Virtual Sensing │   │ What-If Engine  │   │ Real-Time Alerts │ │
+│  └─────────────────┘   └─────────────────┘   └─────────────────┘ │
+│                                                                    │
+│  Prediction Heads:                                                 │
+│  ┌──────────┬──────────┬──────────┬──────────┬──────────────────┐ │
+│  │  Queue   │  Defect  │ Virtual  │ Anomaly  │   Root-Cause     │ │
+│  │ Forecast │   Risk   │  Sensor  │  Score   │  Attribution     │ │
+│  └──────────┴──────────┴──────────┴──────────┴──────────────────┘ │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
-### Model Details
+### Model Details (v2)
 
 | Component | Specification |
 |---|---|
-| **Graph Type** | Dynamic directed graph (12 stations, 14 edges) |
+| **Graph Type** | Dynamic directed graph (40 stations, 48 edges) |
+| **Zones** | Body Construction (13) · Paint Shop (11) · Final Assembly (16) |
 | **Spatial Layer** | GATv2Conv (4 attention heads) |
 | **Temporal Layer** | GRU cell per node |
-| **Stacked Blocks** | 2 × Spatio-Temporal GAT blocks |
-| **Input Features** | 8 per station (queue, cycle time, defect rate, temp, vibration, utilization, throughput, maintenance hours) |
-| **Hidden Dimension** | 64 |
-| **Prediction Heads** | Queue forecast (regression), Defect risk (3-class), Virtual sensor (reconstruction), Confidence (sigmoid) |
+| **Stacked Blocks** | 3 × Spatio-Temporal GAT blocks |
+| **Input Features** | 12 per station (queue, cycle time, defect rate, temp, vibration, torque deviation, utilization, throughput, humidity, power draw, maintenance hours, operator skill) |
+| **Hidden Dimension** | 128 |
+| **Prediction Heads** | Queue forecast (regression), Defect risk (3-class), Virtual sensor (reconstruction), Anomaly score (binary), Root-cause attribution (attention) |
+| **Instrumentation Mix** | FULL: 60% · PARTIAL: 25% · MANUAL: 15% |
+| **Equipment Vintage** | Modern: 60% · Legacy: 40% |
 | **Framework** | PyTorch + PyTorch Geometric |
+
+### Anomaly Scenarios (Built-In)
+
+The simulator includes 5 realistic, multi-causal anomaly scenarios:
+
+| Scenario | Category | Stations | Description |
+|---|---|---|---|
+| Weld Gun Electrode Wear | Equipment Wear | Spot Weld Cell 3 | Progressive electrode degradation, detected downstream at Geometry Check |
+| Paint Booth Humidity | Environmental | Color Booth, Clear Coat | HVAC fault causes orange peel and fish-eye defects |
+| Stamping Die Wear | Equipment Wear | Stamping Press B (legacy) | Dimensional drift in fender panels propagates through welding |
+| Shift Change Operator Drop | Operator | Manual trim stations | B-shift inexperience causes higher defect rates and cycle times |
+| Upstream Part Quality | Supply Chain | Adhesive Bonding | New supplier adhesive with lower viscosity affects bond strength |
 
 ## 📁 Repository Structure
 
 ```
 accentureInnovation/
-├── demo.py                 # Main demo script — run this!
-├── model.py                # DigitalTwinGNN model architecture
+├── app.py                  # Flask web server — interactive dashboard backend
+├── assembly_line.py        # 40-station assembly line definition (3 zones)
+├── simulator.py            # Production data simulator with anomaly injection
+├── model.py                # DigitalTwinGNN — ST-GATv2 + GRU architecture
+├── demo.py                 # Standalone demo script (terminal + visualizations)
 ├── requirements.txt        # Python dependencies
 ├── README.md               # This file
-└── demo_outputs/           # Generated after running demo
+├── templates/
+│   └── index.html          # Dashboard SPA template (multi-stakeholder tabs)
+├── static/
+│   ├── dashboard.js        # Dashboard frontend logic (graph, KPIs, charts)
+│   └── style.css           # Dark-themed dashboard styling
+└── demo_outputs/           # Generated after running demo.py
     ├── 01_assembly_graph_predictions.png
     ├── 02_temporal_dashboard.png
-    └── 03_virtual_sensing.png
+    ├── 03_virtual_sensing.png
+    └── 04_validation_metrics.png
 ```
 
 ## ⚡ Quick Start
@@ -85,8 +117,8 @@ accentureInnovation/
 
 ```bash
 # Clone the repository
-git clone https://github.com/<your-username>/DigitalTwin.ai.git
-cd DigitalTwin.ai
+git clone https://github.com/Piyush314159/DigitalTwinAI.git
+cd DigitalTwinAI
 
 # Install dependencies
 pip install -r requirements.txt
@@ -94,7 +126,20 @@ pip install -r requirements.txt
 
 > **Note on PyTorch Geometric:** If `torch-geometric` installation fails, follow the [official installation guide](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html) for your specific PyTorch + CUDA version.
 
-### Run the Demo
+### Run the Interactive Dashboard
+
+```bash
+python app.py
+```
+
+Open **http://localhost:5001** in your browser. The dashboard provides:
+- **Floor Supervisor** tab — real-time assembly graph, alerts, station matrix, virtual sensing
+- **Plant Manager** tab — shift KPIs, risk heatmap, bottleneck chart, what-if simulator
+- **Leadership** tab — ROI projections, model validation, implementation roadmap
+
+Use the **Step** / **Auto-Play** controls to advance the simulation through a 30-step shift.
+
+### Run the Standalone Demo
 
 ```bash
 python demo.py
@@ -102,41 +147,46 @@ python demo.py
 
 The demo runs in **~15 seconds** and outputs:
 1. **Terminal output** — Step-by-step inference with formatted tables
-2. **3 visualization PNGs** — Saved to `demo_outputs/`
+2. **4 visualization PNGs** — Saved to `demo_outputs/`
 
-## 📊 Demo Walkthrough
+## 📊 Dashboard Views
 
-### Step 1: Graph Construction
-Builds a 12-station directed graph representing a vehicle assembly line with forward material flow edges and QC feedback loops.
+### 🔧 Floor Supervisor — Real-Time Operations
+- **Live Assembly Graph** — 40 stations rendered as an interactive graph, color-coded by risk level (green/amber/red) with real-time prediction overlays
+- **Active Alerts** — Prioritized alert feed showing stations with escalating risk, with root-cause context
+- **Station Status Matrix** — Sortable table with risk, queue, anomaly score, and confidence for all 40 stations
+- **Virtual Sensing Panel** — Highlights under-instrumented (PARTIAL/MANUAL) stations with GNN-inferred confidence scores
 
-### Step 2: Synthetic Telemetry
-Generates realistic sensor data with **injected anomalies** at Paint Booth (Station 3) and Chassis Marry (Station 7) — high queue lengths, elevated defect rates, overdue maintenance.
+### 📊 Plant Manager — Shift Planning & Trends
+- **Shift KPIs** — High/medium risk counts, average queue, estimated OEE, low-confidence stations, anomaly rate
+- **Risk Heatmap** — Station × Time heatmap showing risk evolution across the shift
+- **Bottleneck Frequency** — Ranked bar chart of most frequently flagged stations
+- **What-If Simulator** — Select a station + intervention (maintenance, takt increase, reroute) and see predicted downstream impact
+- **Anomaly Scenario Tracker** — Live status of active anomaly scenarios with progression
 
-### Step 3: Model Loading
-Initializes the Spatio-Temporal GNN with ~27K parameters, featuring GATv2 attention layers and GRU temporal recurrence.
+### 💼 Leadership — Business Case & ROI
+- **ROI Projection Cards** — Downtime reduction, rework savings, bottleneck lead time, sensor cost savings
+- **Model Validation Metrics** — Precision, recall, F1, false alarm rate computed live against ground truth
+- **Multi-Plant Rollout Plan** — Scaling strategy from pilot to enterprise
+- **Implementation Roadmap** — Phased timeline with investment milestones
+- **Technical Architecture** — Data / Intelligence / Application layer breakdown
 
-### Step 4: Temporal Inference
-Runs 10 time steps of inference, demonstrating:
-- **Predictive Propagation:** Detects escalating queue build-ups and rising defect risk
-- **Virtual Sensing:** Assigns confidence scores to each station's predicted state
-- **What-If Simulation:** Tests the effect of resetting maintenance on problem stations
-
-### Step 5: Visualization
-Generates three publication-quality dark-themed visualizations:
-1. Assembly graph with prediction overlays
-2. Temporal evolution dashboard
-3. Virtual sensing confidence analysis
-
-## 🎯 Key Features Demonstrated
+## 🎯 Key Features
 
 ### 1. Predictive Propagation
-The model detects that Paint Booth and Chassis Marry conditions are worsening and predicts downstream impact on Final Assembly and Quality Control — **before** defects cascade.
+The model detects anomalous conditions (e.g., weld gun wear at Station 7, humidity excursion in Paint Booth) and predicts downstream cascade — **before** defects propagate through the line.
 
 ### 2. Virtual Sensing for Legacy Equipment
-Stations with low confidence scores are flagged for manual inspection rather than trusting unreliable sensor data. This extends monitoring to under-instrumented legacy equipment **without** deploying new hardware.
+40% of stations run on legacy equipment with partial or manual-only instrumentation. The GNN infers missing sensor readings via masked-node training and neighbor aggregation, flagging low-confidence stations for manual inspection instead of trusting unreliable data.
 
-### 3. Interactive What-If Simulation
-The demo tests: *"What happens if we perform maintenance on stations 3 and 7?"* — showing predicted queue reduction and risk improvement across the entire line, enabling data-driven maintenance scheduling.
+### 3. What-If Simulation
+Test interventions virtually: *"What happens if we perform maintenance on Station 7?"* — see predicted queue reduction and risk improvement across the entire downstream graph, enabling data-driven maintenance scheduling without disrupting production.
+
+### 4. Multi-Stakeholder Dashboard
+Three purpose-built views — floor supervisor (real-time, in-the-moment), plant manager (shift planning, trends), leadership (ROI, validation) — from the same underlying model, driving adoption at every organizational level.
+
+### 5. Multi-Causal Anomaly Detection
+Five realistic anomaly scenarios covering equipment wear, environmental excursions, operator variation, and upstream supply quality — with cascade propagation through the graph topology.
 
 ## 🔮 Scalability & Future Work
 
@@ -145,24 +195,29 @@ The demo tests: *"What happens if we perform maintenance on stations 3 and 7?"* 
 - **Multi-plant federation** with graph-of-graphs architecture
 - **Reinforcement learning** for automated intervention recommendations
 - **Integration with MES/ERP** systems for closed-loop optimization
+- **Edge deployment** with quantized GNN models on plant-floor hardware
 
 ## 📈 Business Impact
 
 | Metric | Expected Improvement |
 |---|---|
-| Unplanned Downtime | 30-45% reduction |
-| Rework Costs | 25-35% reduction |
-| Bottleneck Detection Lead Time | From reactive to 10-15 min advance warning |
-| Sensor Hardware Costs | 40-60% reduction via virtual sensing |
+| Unplanned Downtime | 30–45% reduction |
+| Rework Costs | 25–35% reduction |
+| Bottleneck Detection Lead Time | From reactive to 10–15 min advance warning |
+| Sensor Hardware Costs | 40–60% reduction via virtual sensing |
+| Annual Savings (per plant) | $2.8M–$4.5M |
+| Pilot Payback Period | ~6–9 months |
 
 ## 🛠️ Technology Stack
 
 - **Python 3.9+**
 - **PyTorch 2.0+** — Deep learning framework
-- **PyTorch Geometric** — Graph neural network library
+- **PyTorch Geometric** — Graph neural network library (GATv2Conv)
+- **Flask** — Web application framework
 - **NetworkX** — Graph construction and analysis
-- **Matplotlib** — Visualization
+- **Matplotlib** — Static visualization (demo mode)
 - **NumPy** — Numerical computing
+- **JavaScript (Vanilla)** — Dashboard frontend
 
 ## 📜 License
 
