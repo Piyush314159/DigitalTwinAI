@@ -1,3 +1,5 @@
+> Historical design notes: some capabilities and numerical claims below are unverified or superseded. Refer to README.md and current code for implementation and evaluation status.
+
 # DigitalTwin.ai — Project Overview
 
 > **Accenture Innovation Challenge 2026 — Round 2 Prototype**

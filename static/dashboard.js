@@ -531,10 +531,10 @@ function renderLeadershipView() {
 }
 
 function renderROICards() {
-    // These are projected values based on model capabilities
+    // Illustrative business assumptions; no measured operational savings.
     const projections = [
-        { label: 'Annual Downtime Reduction', value: '35%', delta: '↓ $1.2M/yr', deltaClass: 'positive' },
-        { label: 'Rework Cost Savings', value: '$2.8M', delta: 'per plant/year', deltaClass: 'positive' },
+        { label: 'Illustrative Downtime Target', value: '35%', delta: '↓ $1.2M/yr', deltaClass: 'positive' },
+        { label: 'Illustrative Rework Target', value: '$2.8M', delta: 'per plant/year', deltaClass: 'positive' },
         { label: 'Bottleneck Lead Time', value: '12 min', delta: 'advance warning', deltaClass: 'positive' },
         { label: 'Sensor HW Savings', value: '45%', delta: 'via virtual sensing', deltaClass: 'positive' },
     ];
@@ -559,6 +559,10 @@ async function renderValidationMetrics() {
         const res = await fetch('/api/validation');
         const data = await res.json();
 
+        if (data.status === 'not_trained') {
+            container.textContent = data.message;
+            return;
+        }
         if (data.status === 'insufficient_data') {
             container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📈</div>
                 <p>Advance simulation to at least 3 steps for validation metrics</p></div>`;
@@ -666,6 +670,10 @@ async function runWhatIf() {
     const data = await res.json();
 
     // Render results
+    if (data.status === 'not_trained') {
+        resultsContainer.textContent = data.message;
+        return;
+    }
     const baseline = data.baseline;
     const whatif = data.whatif;
 

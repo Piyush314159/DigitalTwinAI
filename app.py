@@ -30,7 +30,7 @@ from assembly_line import (
     RISK_LABELS, RISK_COLORS, ZONE_COLORS, print_assembly_stats,
 )
 from simulator import ProductionSimulator, DEFAULT_SCENARIOS, to_torch_tensors
-from model import DigitalTwinGNN, load_model
+from model import DigitalTwinGNN, load_model, prediction_arrays
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # APP SETUP
@@ -67,7 +67,7 @@ h_states = None
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def run_inference(step_data, use_mask=True):
-    """Run GNN inference on a single time step and return domain-aware predictions."""
+    """Decode untrained model heads without simulator outcomes."""
     global h_states
 
     tensors = to_torch_tensors(step_data, DEVICE)
@@ -77,58 +77,12 @@ def run_inference(step_data, use_mask=True):
         output = model(x, edge_index_device, h_states=h_states, mask=sensor_mask if use_mask else None)
         h_states = output['h_states']
 
-    # ── Domain-aware post-processing ──
-    # Blend GNN raw output with simulator ground truth for realistic predictions
-    raw_queue = output['queue_forecast'].squeeze(-1).cpu().numpy()
-    raw_anomaly = output['anomaly_score'].squeeze(-1).cpu().numpy()
-    raw_confidence = output['confidence'].squeeze(-1).cpu().numpy()
-    gt_anomaly = step_data['ground_truth_anomaly']
-    features = step_data['features']
-
-    num = len(stations)
-
-    # Queue: blend GNN signal with actual queue from simulator
-    queue_pred = np.abs(raw_queue) * 2 + features[:, 0]
-
-    # Anomaly score: blend GNN + ground truth signal
-    anomaly_score = np.clip(raw_anomaly * 0.3 + gt_anomaly * 0.7 + np.random.uniform(-0.05, 0.05, num), 0, 1)
-
-    # Risk classification based on anomaly score thresholds
-    risk_classes = np.zeros(num, dtype=int)
-    risk_classes[anomaly_score > 0.3] = 1  # MEDIUM
-    risk_classes[anomaly_score > 0.6] = 2  # HIGH
-
-    # Risk probabilities
-    risk_probs = np.zeros((num, 3))
-    for i in range(num):
-        if risk_classes[i] == 0:
-            risk_probs[i] = [0.82 + np.random.uniform(-0.05, 0.05), 0.13, 0.05]
-        elif risk_classes[i] == 1:
-            risk_probs[i] = [0.15, 0.68 + np.random.uniform(-0.05, 0.05), 0.17]
-        else:
-            risk_probs[i] = [0.05, 0.15, 0.80 + np.random.uniform(-0.05, 0.05)]
-        risk_probs[i] = np.clip(risk_probs[i], 0.01, 0.99)
-        risk_probs[i] /= risk_probs[i].sum()
-
-    # Confidence: based on instrumentation level + GNN output
-    confidence = np.zeros(num)
-    for s in stations:
-        base = {
-            InstrumentationLevel.FULL: 0.90,
-            InstrumentationLevel.PARTIAL: 0.65,
-            InstrumentationLevel.MANUAL: 0.35,
-        }[s.instrumentation]
-        confidence[s.id] = np.clip(base + raw_confidence[s.id] * 0.1, 0.15, 0.98)
-
+    arrays = prediction_arrays(output)
     return {
-        'queue': queue_pred.tolist(),
-        'anomaly_score': anomaly_score.tolist(),
-        'risk_class': risk_classes.tolist(),
-        'risk_probs': risk_probs.tolist(),
-        'confidence': confidence.tolist(),
-        'features': features.tolist(),
+        **{key: value.tolist() for key, value in arrays.items()},
+        'model_status': 'untrained_demo',
+        'features': step_data['features'].tolist(),
         'active_scenarios': step_data['active_scenarios'],
-        'gt_anomaly': gt_anomaly.tolist(),
     }
 
 
@@ -171,6 +125,7 @@ def api_config():
         'riskColors': RISK_COLORS,
         'zoneColors': {z.value: c for z, c in ZONE_COLORS.items()},
         'totalParams': total_params,
+        'modelStatus': 'untrained_demo',
         'scenarios': [
             {'name': s.name, 'category': s.category, 'onset': s.onset_step,
              'stations': s.affected_stations, 'description': s.description}
@@ -247,126 +202,21 @@ def api_whatif():
     Run a what-if simulation.
     Body: {"interventions": {station_id: {feature_idx: new_value, ...}, ...}}
     """
-    global h_states
-
-    data = request.json
-    interventions = data.get('interventions', {})
-
-    # Get current step data
-    step_data = shift_data[min(current_step, len(shift_data) - 1)]
-    tensors = to_torch_tensors(step_data, DEVICE)
-
-    # Build intervention dict with integer keys
-    intervention_dict = {}
-    for sid_str, changes in interventions.items():
-        sid = int(sid_str)
-        intervention_dict[sid] = {int(k): float(v) for k, v in changes.items()}
-
-    with torch.no_grad():
-        whatif_output = model.simulate_intervention(
-            tensors['masked_features'], edge_index_device,
-            intervention_dict, h_states
-        )
-
-    # Post-process what-if results
-    baseline = run_inference(step_data, use_mask=True)
-    whatif_queue = np.abs(whatif_output['queue_forecast'].squeeze(-1).cpu().numpy()) * 2 + step_data['features'][:, 0]
-
-    # Reduce queue/risk at intervened stations
-    for sid in intervention_dict:
-        whatif_queue[sid] *= 0.3
-        # Also reduce nearby downstream
-        for u, v, d in G.edges(data=True):
-            if u == sid and d.get('type') == 'forward':
-                whatif_queue[v] *= 0.6
-
-    whatif_risk = np.array(baseline['risk_class'])
-    for sid in intervention_dict:
-        whatif_risk[sid] = 0
-        for u, v, d in G.edges(data=True):
-            if u == sid and d.get('type') == 'forward':
-                whatif_risk[v] = max(0, whatif_risk[v] - 1)
-
     return jsonify({
-        'baseline': {
-            'queue': baseline['queue'],
-            'risk_class': baseline['risk_class'],
-        },
-        'whatif': {
-            'queue': whatif_queue.tolist(),
-            'risk_class': whatif_risk.tolist(),
-        },
-        'interventions': {str(k): v for k, v in intervention_dict.items()},
-    })
+        'status': 'not_trained',
+        'message': 'Intervention estimates require a trained and independently validated model.',
+    }), 409
 
 
 @app.route('/api/validation')
 def api_validation():
     """
-    Return validation metrics — computed by comparing predictions
-    against ground truth anomaly labels from the simulator.
+    Report that validation is unavailable without a trained checkpoint.
     """
-    if len(timeline) < 3:
-        return jsonify({'status': 'insufficient_data', 'message': 'Need at least 3 time steps'})
-
-    # Aggregate predictions vs ground truth
-    all_pred_anomaly = []
-    all_gt_anomaly = []
-
-    for step_idx in range(min(current_step + 1, len(shift_data))):
-        step_data = shift_data[step_idx]
-        gt = step_data['ground_truth_anomaly']
-
-        # Use timeline predictions if available, otherwise compute
-        if step_idx < len(timeline):
-            pred = np.array(timeline[step_idx]['anomaly_score'])
-        else:
-            continue
-
-        all_pred_anomaly.extend(pred.tolist())
-        all_gt_anomaly.extend(gt.tolist())
-
-    pred = np.array(all_pred_anomaly)
-    gt = np.array(all_gt_anomaly)
-    gt_binary = (gt > 0.3).astype(float)
-    pred_binary = (pred > 0.4).astype(float)
-
-    # Compute metrics
-    tp = np.sum((pred_binary == 1) & (gt_binary == 1))
-    fp = np.sum((pred_binary == 1) & (gt_binary == 0))
-    fn = np.sum((pred_binary == 0) & (gt_binary == 1))
-    tn = np.sum((pred_binary == 0) & (gt_binary == 0))
-
-    precision = tp / max(tp + fp, 1)
-    recall = tp / max(tp + fn, 1)
-    f1 = 2 * precision * recall / max(precision + recall, 0.001)
-    false_alarm_rate = fp / max(fp + tn, 1)
-    accuracy = (tp + tn) / max(tp + tn + fp + fn, 1)
-
     return jsonify({
-        'status': 'ok',
-        'steps_evaluated': min(current_step + 1, len(timeline)),
-        'total_predictions': len(pred),
-        'metrics': {
-            'precision': round(float(precision), 3),
-            'recall': round(float(recall), 3),
-            'f1_score': round(float(f1), 3),
-            'false_alarm_rate': round(float(false_alarm_rate), 3),
-            'accuracy': round(float(accuracy), 3),
-        },
-        'confusion': {
-            'tp': int(tp), 'fp': int(fp), 'fn': int(fn), 'tn': int(tn),
-        },
-        'roi_projections': {
-            'annual_downtime_reduction_pct': 35,
-            'annual_rework_savings_usd': 2_800_000,
-            'bottleneck_lead_time_min': 12,
-            'sensor_hw_savings_pct': 45,
-            'virtual_sensing_coverage_pct': round(
-                sum(1 for s in stations if s.instrumentation != InstrumentationLevel.FULL)
-                / len(stations) * 100
-            ),
-        }
+        'status': 'not_trained',
+        'message': 'No trained checkpoint is supplied. Validation metrics are unavailable.',
+        'metrics': None,
     })
 
 

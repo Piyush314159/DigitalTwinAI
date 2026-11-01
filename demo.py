@@ -14,7 +14,7 @@ vehicle assembly line with:
   2. Virtual Sensing       — inferring state at under-instrumented stations
   3. What-If Simulation    — testing interventions before applying them
   4. Anomaly Detection     — multi-causal scenario detection with cascade
-  5. Validation Metrics    — precision, recall, false alarm rates
+  5. Validation Status     — unavailable without trained weights
 
 For the interactive dashboard:  python app.py
 
@@ -40,7 +40,7 @@ import networkx as nx
 from matplotlib.colors import LinearSegmentedColormap
 
 # ── Local imports ──
-from model import DigitalTwinGNN, load_model
+from model import DigitalTwinGNN, load_model, prediction_arrays
 from assembly_line import (
     build_assembly_graph, build_stations, get_sensor_mask_tensor,
     get_station_positions, get_zone_assignment,
@@ -111,6 +111,7 @@ def main():
     banner("STEP 2 / 6 — Loading Spatio-Temporal GNN Model")
 
     model, total_params, trainable = load_model(DEVICE)
+    print('UNTRAINED DEMO: outputs are not validated predictions or calibrated confidence.')
     edge_index_dev = edge_index.to(DEVICE)
     sensor_mask = get_sensor_mask_tensor(stations).float().to(DEVICE)
 
@@ -148,28 +149,13 @@ def main():
             )
             h_states = output['h_states']
 
-        # ── Domain-aware post-processing ──
-        raw_queue = output['queue_forecast'].squeeze(-1).cpu().numpy()
-        raw_anomaly = output['anomaly_score'].squeeze(-1).cpu().numpy()
-        raw_confidence = output['confidence'].squeeze(-1).cpu().numpy()
-        gt_anomaly = step_data['ground_truth_anomaly']
+        decoded = prediction_arrays(output)
+        queue_pred = decoded['queue']
+        anomaly_score = decoded['anomaly_score']
+        risk_classes = decoded['risk_class']
+        confidence = decoded['confidence']
+        gt_anomaly = step_data['ground_truth_anomaly']  # evaluation-only metadata
         features = step_data['features']
-
-        queue_pred = np.abs(raw_queue) * 2 + features[:, 0]
-        anomaly_score = np.clip(raw_anomaly * 0.3 + gt_anomaly * 0.7, 0, 1)
-
-        risk_classes = np.zeros(num_stations, dtype=int)
-        risk_classes[anomaly_score > 0.3] = 1
-        risk_classes[anomaly_score > 0.6] = 2
-
-        confidence = np.zeros(num_stations)
-        for s in stations:
-            base = {
-                InstrumentationLevel.FULL: 0.90,
-                InstrumentationLevel.PARTIAL: 0.65,
-                InstrumentationLevel.MANUAL: 0.35,
-            }[s.instrumentation]
-            confidence[s.id] = np.clip(base + raw_confidence[s.id] * 0.1, 0.15, 0.98)
 
         pred = {
             'queue': queue_pred,
@@ -199,20 +185,7 @@ def main():
     # ── Step 5: What-If Simulation ──
     banner("STEP 5 / 6 — What-If Simulation")
 
-    # Simulate maintenance on two high-risk stations
-    intervention = {7: {4: 1.0, 5: 0.5, 10: 0.0}, 2: {4: 1.0, 5: 0.5, 10: 0.0}}
-    last_tensors = to_torch_tensors(shift_data[-1], DEVICE)
-
-    with torch.no_grad():
-        baseline = model(last_tensors['masked_features'], edge_index_dev, h_states=h_states, mask=sensor_mask)
-        whatif = model.simulate_intervention(
-            last_tensors['masked_features'], edge_index_dev,
-            intervention, h_states
-        )
-
-    print("    Intervention: Perform maintenance on Spot Weld Cell 3 & Stamping Press B")
-    print("    (simulating completed scheduled maintenance)")
-    print()
+    print('    Unavailable: no trained checkpoint or validated intervention model.')
 
     # ── Step 6: Visualizations ──
     banner("STEP 6 / 6 — Generating Visualizations")
@@ -235,13 +208,13 @@ def main():
     banner("DEMO COMPLETE")
     print(f"""
     ┌──────────────────────────────────────────────────────────────────┐
-    │                    Summary of Findings                          │
+    │                    Untrained Architecture Demonstration                          │
     ├──────────────────────────────────────────────────────────────────┤
     │                                                                  │
     │  • 40-station assembly line across 3 zones                      │
     │    (Body Construction, Paint Shop, Final Assembly)               │
     │                                                                  │
-    │  • 5 multi-causal anomaly scenarios detected:                   │
+    │  • 5 simulated anomaly scenarios injected:                   │
     │    - Weld electrode wear (equipment degradation)                │
     │    - Paint booth humidity excursion (environmental)              │
     │    - Stamping die wear (progressive dimensional drift)          │
@@ -251,8 +224,8 @@ def main():
     │  • Virtual sensing covers {manual} MANUAL + {partial} PARTIAL stations      │
     │    ({(manual+partial)/num_stations*100:.0f}% of line requiring inferred readings)            │
     │                                                                  │
-    │  • What-If shows maintenance would reduce queue by ~70%         │
-    │    and shift risk from HIGH → LOW at target stations            │
+    │  • What-if benefits and model validation are unavailable         │
+    │    until a trained checkpoint is independently evaluated            │
     │                                                                  │
     ├──────────────────────────────────────────────────────────────────┤
     │  Runtime    : {t_end - t_start:.1f}s                                          │
@@ -334,6 +307,7 @@ def generate_assembly_graph_viz(stations, G, predictions):
              ha='center', fontsize=9, color='#64748b')
 
     plt.tight_layout(rect=[0, 0.04, 1, 1])
+    plt.gcf().text(0.5, 0.005, 'UNTRAINED DEMO - SIMULATED DATA - NOT VALIDATED PERFORMANCE', ha='center', fontsize=9, color='#b45309')
     plt.savefig(f"{OUTPUT_DIR}/01_assembly_graph_predictions.png", dpi=150,
                 facecolor='#f8fafc', bbox_inches='tight')
     plt.close()
@@ -436,6 +410,7 @@ def generate_temporal_dashboard(stations, all_predictions, all_gt):
     fig.suptitle("DigitalTwin.ai — Spatio-Temporal Prediction Dashboard",
                  fontsize=14, fontweight='bold', color='#0f172a', y=0.98)
 
+    plt.gcf().text(0.5, 0.005, 'UNTRAINED DEMO - SIMULATED DATA - NOT VALIDATED PERFORMANCE', ha='center', fontsize=9, color='#b45309')
     plt.savefig(f"{OUTPUT_DIR}/02_temporal_dashboard.png", dpi=150,
                 facecolor='#f8fafc', bbox_inches='tight')
     plt.close()
@@ -519,6 +494,7 @@ def generate_virtual_sensing_viz(stations, predictions):
     fig.suptitle("DigitalTwin.ai — Virtual Sensing for Legacy Equipment",
                  fontsize=14, fontweight='bold', color='#0f172a', y=0.98)
     plt.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.gcf().text(0.5, 0.005, 'UNTRAINED DEMO - SIMULATED DATA - NOT VALIDATED PERFORMANCE', ha='center', fontsize=9, color='#b45309')
     plt.savefig(f"{OUTPUT_DIR}/03_virtual_sensing.png", dpi=150,
                 facecolor='#f8fafc', bbox_inches='tight')
     plt.close()
@@ -529,115 +505,12 @@ def generate_virtual_sensing_viz(stations, predictions):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def generate_validation_viz(all_predictions, all_gt, stations):
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6), facecolor='#f8fafc')
-    num_stations = len(stations)
-
-    # Aggregate predictions vs ground truth
-    all_pred_scores = []
-    all_gt_labels = []
-    for t in range(len(all_predictions)):
-        all_pred_scores.extend(all_predictions[t]['anomaly_score'].tolist())
-        all_gt_labels.extend(all_gt[t].tolist())
-
-    pred = np.array(all_pred_scores)
-    gt = np.array(all_gt_labels)
-    gt_binary = (gt > 0.3).astype(float)
-
-    # ── Panel 1: Threshold Sweep ──
-    ax1 = axes[0]
-    ax1.set_facecolor('#ffffff')
-    thresholds = np.arange(0.1, 0.9, 0.05)
-    precisions, recalls, f1s, fars = [], [], [], []
-
-    for thresh in thresholds:
-        pred_binary = (pred > thresh).astype(float)
-        tp = np.sum((pred_binary == 1) & (gt_binary == 1))
-        fp = np.sum((pred_binary == 1) & (gt_binary == 0))
-        fn = np.sum((pred_binary == 0) & (gt_binary == 1))
-        tn = np.sum((pred_binary == 0) & (gt_binary == 0))
-        p = tp / max(tp + fp, 1)
-        r = tp / max(tp + fn, 1)
-        f1 = 2 * p * r / max(p + r, 0.001)
-        far = fp / max(fp + tn, 1)
-        precisions.append(p)
-        recalls.append(r)
-        f1s.append(f1)
-        fars.append(far)
-
-    ax1.plot(thresholds, precisions, '-', color='#0284c7', linewidth=2, label='Precision')
-    ax1.plot(thresholds, recalls, '-', color='#22c55e', linewidth=2, label='Recall')
-    ax1.plot(thresholds, f1s, '-', color='#7c3aed', linewidth=2, label='F1 Score')
-    ax1.plot(thresholds, fars, '--', color='#ef4444', linewidth=1.5, label='False Alarm Rate')
-    ax1.axvline(x=0.4, color='#94a3b8', linestyle=':', alpha=0.5, label='Selected Threshold')
-    ax1.set_xlabel("Detection Threshold", color='#64748b')
-    ax1.set_ylabel("Score", color='#64748b')
-    ax1.set_title("Threshold Analysis", fontsize=11, fontweight='bold', color='#0f172a')
-    ax1.legend(fontsize=7, facecolor='#f1f5f9', edgecolor='#cbd5e1', labelcolor='#1e293b')
-    ax1.tick_params(colors='#94a3b8')
-    ax1.grid(True, alpha=0.1)
-
-    # ── Panel 2: Confusion Matrix ──
-    ax2 = axes[1]
-    ax2.set_facecolor('#ffffff')
-    pred_binary = (pred > 0.4).astype(float)
-    tp = int(np.sum((pred_binary == 1) & (gt_binary == 1)))
-    fp = int(np.sum((pred_binary == 1) & (gt_binary == 0)))
-    fn = int(np.sum((pred_binary == 0) & (gt_binary == 1)))
-    tn = int(np.sum((pred_binary == 0) & (gt_binary == 0)))
-
-    cm = np.array([[tp, fn], [fp, tn]])
-    # Colour by correctness (green = correct, red = error), not by raw count —
-    # a magnitude colourmap paints the large TN cell red and inverts the meaning.
-    cell_rgb = np.array([
-        [[22/255, 163/255, 74/255], [220/255, 38/255, 38/255]],   # TP correct, FN error
-        [[220/255, 38/255, 38/255], [22/255, 163/255, 74/255]],   # FP error,   TN correct
-    ])
-    ax2.imshow(cell_rgb, alpha=0.85)
-    ax2.set_xticks([0, 1])
-    ax2.set_xticklabels(['Pred Anomaly', 'Pred Normal'], fontsize=8, color='#64748b')
-    ax2.set_yticks([0, 1])
-    ax2.set_yticklabels(['Actual Anomaly', 'Actual Normal'], fontsize=8, color='#64748b')
-    ax2.set_title("Confusion Matrix", fontsize=11, fontweight='bold', color='#0f172a')
-
-    for i in range(2):
-        for j in range(2):
-            labels = [['TP', 'FN'], ['FP', 'TN']]
-            ax2.text(j, i, f"{labels[i][j]}\n{cm[i][j]}", ha='center', va='center',
-                     fontsize=14, fontweight='bold', color='#0f172a')
-
-    ax2.tick_params(colors='#94a3b8')
-
-    # ── Panel 3: Per-Station Detection Accuracy ──
-    ax3 = axes[2]
-    ax3.set_facecolor('#ffffff')
-
-    station_accuracy = []
-    for sid in range(num_stations):
-        s_pred = np.array([all_predictions[t]['anomaly_score'][sid] for t in range(len(all_predictions))])
-        s_gt = np.array([all_gt[t][sid] for t in range(len(all_gt))])
-        s_gt_b = (s_gt > 0.3).astype(float)
-        s_pred_b = (s_pred > 0.4).astype(float)
-        acc = np.mean(s_pred_b == s_gt_b)
-        station_accuracy.append(acc)
-
-    sorted_idx = np.argsort(station_accuracy)
-    colors = ['#ef4444' if station_accuracy[i] < 0.7 else '#f59e0b' if station_accuracy[i] < 0.85 else '#22c55e'
-              for i in sorted_idx]
-    ax3.barh(range(num_stations), [station_accuracy[i] for i in sorted_idx],
-             color=colors, alpha=0.8, height=0.7)
-    ax3.set_yticks(range(num_stations))
-    ax3.set_yticklabels([stations[i].short_name for i in sorted_idx], fontsize=5, color='#64748b')
-    ax3.set_xlabel("Detection Accuracy", color='#64748b')
-    ax3.set_title("Per-Station Accuracy", fontsize=11, fontweight='bold', color='#0f172a')
-    ax3.axvline(x=0.85, color='#94a3b8', linestyle=':', alpha=0.3)
-    ax3.tick_params(colors='#94a3b8')
-
-    fig.suptitle("DigitalTwin.ai — Model Validation & Trust Metrics",
-                 fontsize=14, fontweight='bold', color='#0f172a', y=0.98)
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
-    plt.savefig(f"{OUTPUT_DIR}/04_validation_metrics.png", dpi=150,
-                facecolor='#f8fafc', bbox_inches='tight')
-    plt.close()
+    fig, ax = plt.subplots(figsize=(10, 4))
+    ax.axis('off')
+    ax.text(0.5, 0.5, 'Validation unavailable\nNo trained checkpoint is supplied.\nSimulator outcomes are excluded from model predictions.',
+            ha='center', va='center', fontsize=16, transform=ax.transAxes)
+    fig.savefig(f'{OUTPUT_DIR}/04_validation_metrics.png', dpi=150, bbox_inches='tight')
+    plt.close(fig)
 
 
 if __name__ == "__main__":

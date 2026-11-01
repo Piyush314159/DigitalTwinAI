@@ -195,6 +195,8 @@ class DigitalTwinGNN(nn.Module):
             'node_embeddings'   : [num_nodes, hidden_channels]
             'h_states'          : list of updated hidden states
         """
+        # Missing simulated readings are NaN; NaN * 0 is still NaN.
+        x = torch.nan_to_num(x)
         if mask is not None:
             x = x * mask
 
@@ -256,10 +258,9 @@ class DigitalTwinGNN(nn.Module):
 
 def load_model(device="cpu"):
     """
-    Initialize the DigitalTwinGNN and load weights.
+    Initialize DigitalTwinGNN with seeded random weights.
 
-    In production: loads a trained checkpoint.
-    For this demo: initializes with seeded random weights.
+    No trained checkpoint loading is implemented in this prototype.
     """
     torch.manual_seed(42)
     model = DigitalTwinGNN(
@@ -271,8 +272,25 @@ def load_model(device="cpu"):
     )
     model.to(device)
     model.eval()
+    model.is_trained = False
 
     total_params = sum(p.numel() for p in model.parameters())
     trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
     return model, total_params, trainable
+
+
+def prediction_arrays(output):
+    """Decode model heads only; never read simulator outcomes or observations.
+
+    The bundled weights are untrained. These values demonstrate the interface
+    and must not be presented as validated risks or calibrated confidence.
+    """
+    probabilities = output['defect_risk'].softmax(dim=-1).detach().cpu().numpy()
+    return {
+        'queue': output['queue_forecast'].squeeze(-1).clamp_min(0).detach().cpu().numpy(),
+        'anomaly_score': output['anomaly_score'].squeeze(-1).detach().cpu().numpy(),
+        'risk_probs': probabilities,
+        'risk_class': probabilities.argmax(axis=-1),
+        'confidence': output['confidence'].squeeze(-1).detach().cpu().numpy(),
+    }
