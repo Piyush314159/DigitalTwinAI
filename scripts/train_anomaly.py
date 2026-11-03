@@ -1,6 +1,6 @@
 """Train ONE DigitalTwin capability on a laptop: current-station anomalies.
 
-Run: .venv/bin/python train_anomaly.py
+Run from the project root: .venv/bin/python -m scripts.train_anomaly
 No LLM, GPU, new service, or downloaded dataset is required.
 """
 

@@ -243,7 +243,6 @@ The dashboard computes these against simulator ground truth in real-time:
 | [`assembly_line.py`](file:///Users/piyushmaji/Desktop/accentureInnovation/assembly_line.py) | 40-station definition, graph topology, sensor masks | 411 |
 | [`simulator.py`](file:///Users/piyushmaji/Desktop/accentureInnovation/simulator.py) | Synthetic telemetry generation + anomaly injection | 350 |
 | [`app.py`](file:///Users/piyushmaji/Desktop/accentureInnovation/app.py) | Flask backend — inference engine + REST API | 381 |
-| [`demo.py`](file:///Users/piyushmaji/Desktop/accentureInnovation/demo.py) | Standalone terminal demo with 4 visualizations | 893 |
 | [`templates/index.html`](file:///Users/piyushmaji/Desktop/accentureInnovation/templates/index.html) | Dashboard SPA template | — |
 | [`static/dashboard.js`](file:///Users/piyushmaji/Desktop/accentureInnovation/static/dashboard.js) | Frontend logic (graph, KPIs, charts) | — |
 | [`static/style.css`](file:///Users/piyushmaji/Desktop/accentureInnovation/static/style.css) | Dark-themed dashboard styling | — |

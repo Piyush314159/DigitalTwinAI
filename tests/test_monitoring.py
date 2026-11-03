@@ -14,7 +14,7 @@ import torch
 
 import app
 from anomaly import DEFAULT_CHECKPOINT, make_dataset
-from evaluate_robustness import apply_sensor_challenge, summarize
+from scripts.evaluate_robustness import apply_sensor_challenge, summarize
 
 
 class MonitoringTests(unittest.TestCase):

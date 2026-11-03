@@ -1,6 +1,6 @@
 """Evaluate the saved detector under declared challenges, without retraining.
 
-Run: .venv/bin/python evaluate_robustness.py
+Run from the project root: .venv/bin/python -m scripts.evaluate_robustness
 The saved model, training normalizer and validation-selected threshold stay fixed.
 """
 

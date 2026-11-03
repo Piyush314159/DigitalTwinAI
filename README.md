@@ -2,6 +2,32 @@
 
 A simulated 40-station assembly line with a **trained, single-task station anomaly detector** and an earlier multi-head GNN prototype. Developed for the Accenture Innovation Challenge.
 
+## Project layout
+
+```text
+accentureInnovation/
+├── app.py                  # Dashboard server and API
+├── anomaly.py              # Trained detector, data preparation and metrics
+├── assembly_line.py        # Stations and graph connections
+├── model.py                # Shared neural-network block and original architecture
+├── simulator.py            # Synthetic station readings
+├── scripts/
+│   ├── train_anomaly.py    # Training command
+│   └── evaluate_robustness.py
+├── tests/
+│   ├── test_anomaly_training.py
+│   ├── test_integrity.py
+│   └── test_monitoring.py
+├── static/                 # Dashboard styling and interactions
+├── templates/              # Dashboard page
+├── training_outputs/       # Saved models and evaluation evidence
+├── papers/                 # Original project documents
+├── README.md
+└── requirements.txt
+```
+
+Run commands from this project directory. Training and evaluation use `python -m scripts.<command>` so imports resolve from the project root. The dashboard still starts with `python app.py`.
+
 ## First completed training milestone
 
 `anomaly.py` reuses the existing GATv2 + GRU block in a small **10,369-parameter** detector. It learns whether a station's **current simulator disturbance severity is at least 0.30**. This is current-condition detection, not forecasting or measured advance warning.
@@ -31,13 +57,13 @@ Exact results, thresholds, epoch histories and artifact hashes are in [metrics.j
 The existing `.venv` has the required dependencies. From this directory:
 
 ```bash
-.venv/bin/python train_anomaly.py
+.venv/bin/python -m scripts.train_anomaly
 ```
 
 This saves `training_outputs/anomaly_detector.pt`, a linear baseline checkpoint, metrics, the dataset manifest and held-out predictions. Checkpoints are local artifacts ignored by Git; retrain after cloning. For a smaller experiment in a separate directory:
 
 ```bash
-.venv/bin/python train_anomaly.py --train-shifts 32 --validation-shifts 16 --test-shifts 16 --epochs 15 --output-dir /tmp/digitaltwin-small-run
+.venv/bin/python -m scripts.train_anomaly --train-shifts 32 --validation-shifts 16 --test-shifts 16 --epochs 15 --output-dir /tmp/digitaltwin-small-run
 ```
 
 If setting up a fresh environment, install `requirements.txt` first. No LLM or GPU is required for this milestone. Avoid tuning against this already inspected test split; use a newly reserved evaluation set for a subsequent final comparison.
@@ -72,7 +98,7 @@ Open **http://localhost:5001**. Restart the app after retraining so it loads the
 ## Frozen-model robustness evaluation
 
 ```bash
-.venv/bin/python evaluate_robustness.py
+.venv/bin/python -m scripts.evaluate_robustness
 ```
 
 This evaluates the saved detector and linear baseline **without training or selecting a new threshold**. The extra conditions use seeds separate from the original train/validation/test sets. Sensor challenges reuse the fresh reference shifts for paired comparisons. Each condition has 32 shifts, with 38,400 station-time observations.
@@ -96,12 +122,12 @@ The original `DigitalTwinGNN` in `model.py` remains an untrained research archit
 
 The graph has 40 stations and 56 edges (42 forward, 14 feedback/rework), with 25 fully instrumented, 9 partially instrumented and 6 manual stations. Telemetry is simulated. No sensor savings, predictive lead time, causal root-cause accuracy or financial savings have been established. The monitoring dashboard contains no illustrative savings or rollout claims.
 
-The command-line `demo.py` still demonstrates the original untrained multi-head architecture. PDF/PPTX exports and proposal documents are historical design artifacts, not evidence of trained-model performance. Attention weights alone do not establish causal attribution.
+The legacy terminal demo has been removed. PDF/PPTX exports and proposal documents in `papers/` are historical design artifacts, not evidence of trained-model performance. Attention weights alone do not establish causal attribution.
 
 ## Checks
 
 ```bash
-.venv/bin/python -m unittest test_integrity test_anomaly_training test_monitoring -v
+.venv/bin/python -m unittest discover -s tests -v
 ```
 
 23 checks cover missing readings, simulator-answer independence, healthy-shift generation, reproducible original data, isolated graph batches, sequence replay, checkpoint reload, tied-score metrics, invalid seeks, unavailable-model behavior, CSV units and reproducible frozen-model challenge metrics. Browser verification also covers desktop/mobile layouts, graph selection, feedback paths, replay boundaries, station filters and the downloaded CSV.
