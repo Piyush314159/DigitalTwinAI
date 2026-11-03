@@ -14,6 +14,8 @@ const pages={
  methodology:['DATASET / METHOD','Dataset and methodology','Measured inputs, documented labels and a reproducible evaluation protocol.']
 };
 async function api(path,options){const r=await fetch(path,options);const d=await r.json();if(!r.ok)throw Error(d.error||'The local service could not complete this request.');return d;}
+function selectionQuery(){return new URLSearchParams({partition:state.partition,position:state.position}).toString();}
+function updateExport(){const evaluationView=['validation','methodology'].includes(location.hash.slice(1));$('export-link').href=evaluationView?'/api/evaluation.json':state?`/api/snapshot.csv?${selectionQuery()}`:'/api/snapshot.csv';$('export-label').textContent=evaluationView?'Export evaluation':'Export cycle';}
 function error(message){$('error-banner').textContent=message;$('error-banner').hidden=false;}
 function changeView(view){
  if(!pages[view])return;
@@ -21,7 +23,7 @@ function changeView(view){
  document.querySelectorAll('.view').forEach(e=>e.hidden=e.id!==`view-${view}`);
  document.querySelectorAll('.nav-item').forEach(e=>{const active=e.dataset.view===view;e.classList.toggle('active',active);if(active)e.setAttribute('aria-current','page');else e.removeAttribute('aria-current');});
  const evaluationView=view==='validation'||view==='methodology';$('replay-controls').hidden=evaluationView;if(evaluationView)stopReplay();
- $('export-link').href=evaluationView?'/api/evaluation.json':'/api/snapshot.csv';$('export-label').textContent=evaluationView?'Export evaluation':'Export cycle';history.replaceState(null,'',`#${view}`);window.scrollTo(0,0);document.title=`${title} — DigitalTwin`;
+ history.replaceState(null,'',`#${view}`);updateExport();window.scrollTo(0,0);document.title=`${title} — DigitalTwin`;
 }
 function updateControls(){
  const ended=state&&state.position===state.totalRecords-1;
@@ -33,19 +35,20 @@ function updateControls(){
 function stopReplay(){playing=false;clearTimeout(replayTimer);updateControls();}
 async function mutate(path,body){
  if(busy)return false;busy=true;updateControls();
- try{state=await api(path,{method:'POST',...(body?{headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})});reference=null;$('error-banner').hidden=true;if(state.position===state.totalRecords-1)stopReplay();render();if($('show-reference').checked)await loadReference();$('live-announcement').textContent=`Measured cycle ${state.cycle}, ${state.summary.flaggedComponents??'unavailable'} components to review.`;return true;}
+ try{state=await api(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({partition:state.partition,position:state.position,...body})});reference=null;$('error-banner').hidden=true;if(state.position===state.totalRecords-1)stopReplay();render();if($('show-reference').checked)await loadReference();$('live-announcement').textContent=`Measured cycle ${state.cycle}, ${state.summary.flaggedComponents??'unavailable'} components to review.`;return true;}
  catch(e){stopReplay();error(e.message+' Last loaded measurements are still displayed.');return false;}
  finally{busy=false;updateControls();}
 }
 async function replayNext(){if(!playing)return;const success=await mutate('/api/step');if(playing&&success)replayTimer=setTimeout(replayNext,1100);}
 async function loadReference(){
  if(!$('show-reference').checked){reference=null;renderComponents();return;}
- try{const result=await api('/api/reference');if(result.cycle===state.cycle&&$('show-reference').checked){reference=result;renderComponents();}}catch(e){error('Recorded labels could not be loaded.');}
+ try{const result=await api(`/api/reference?${selectionQuery()}`);if(result.cycle===state.cycle&&$('show-reference').checked){reference=result;renderComponents();}}catch(e){error('Recorded labels could not be loaded.');}
 }
 function metric(label,value,note,unit='',alert=false){return `<div class="metric"><div class="metric-label">${label}</div><div class="metric-value ${alert?'is-alert':''}">${value}${unit?`<small>${unit}</small>`:''}</div><div class="metric-note">${note}</div></div>`;}
 function renderMetrics(){
  $('overview-metrics').innerHTML=metric('Components to review',count(state.summary.flaggedComponents),'Predicted non-optimal condition','/ 4',state.summary.flaggedComponents>0)+metric('Physical input channels','14','Pressure, flow, temperature and more')+metric('Measured cycle window','60','Complete acquisition used for inference','s')+metric('Selected records',count(state.totalRecords),`${state.partition==='test'?'Held-out test':state.partition} partition`);
- $('model-state').textContent=state.modelStatus==='trained_real_data'?'Real-data model loaded':state.modelStatus==='insufficient_data'?'Insufficient sensor data':'Model unavailable';$('model-kind').textContent=config.modelKind==='linear'?'LINEAR CLASSIFIER':'SMALL NEURAL NETWORK';
+ $('model-state').textContent=state.modelStatus==='trained_real_data'?'Real-data model loaded':state.modelStatus==='insufficient_data'?'Insufficient sensor data':'Model unavailable';$('model-kind').textContent=({'linear':'LINEAR CLASSIFIER','mlp':'SMALL NEURAL NETWORK','linear_knn':'LINEAR + NEIGHBORS'})[config.modelKind]||'MODEL UNAVAILABLE';
+ const quality=state.dataQuality;$('data-quality-note').hidden=quality?.complete!==false;$('data-quality-note').textContent=quality?.complete===false?`Missing or invalid readings: ${quality.invalidChannels.join(', ')}. Condition estimates are unavailable for this cycle; gaps remain visible in the signal.`:'';
 }
 function renderComponents(){
  const symbols=['circle','stations','overview','validation'];
@@ -62,12 +65,14 @@ function renderAlerts(){
 }
 function chart(sensorId){
  const sensor=config.sensors.find(s=>s.id===sensorId),o=state.observations.find(s=>s.id===sensorId);const values=o.trace;
- let min=Math.min(...values),max=Math.max(...values);const padding=Math.max((max-min)*.12,Math.abs(max)*.001,.001);min-=padding;max+=padding;
+ const measured=values.filter(Number.isFinite);if(!measured.length)return '<div class="empty-alerts"><strong>Signal unavailable</strong><p>No valid readings for this channel in the selected cycle.</p></div>';
+ let min=Math.min(...measured),max=Math.max(...measured);const padding=Math.max((max-min)*.12,Math.abs(max)*.001,.001);min-=padding;max+=padding;
  const x=i=>48+i/59*580,y=v=>160-(v-min)/(max-min)*140;
  let grid='';[min,(min+max)/2,max].forEach(v=>grid+=`<line x1="48" x2="628" y1="${y(v)}" y2="${y(v)}" stroke="#edf0e9"/><text x="40" y="${y(v)+3}" text-anchor="end" class="chart-label">${fixed(v,1)}</text>`);
  [0,15,30,45,59].forEach(v=>grid+=`<text x="${x(v)}" y="183" text-anchor="middle" class="chart-label">${v}s</text>`);
- const points=values.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
- return `<svg viewBox="0 0 650 196" role="img" aria-label="Measured ${esc(sensor.name)} in ${esc(sensor.unit)}, cycle ${state.cycle}, seconds 0 through 59">${grid}<polyline points="${points}" fill="none" stroke="#456d48" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+ const segments=[];let points=[];values.forEach((v,i)=>{if(Number.isFinite(v)){points.push(`${x(i)},${y(v)}`);}else if(points.length){segments.push(points);points=[];}});if(points.length)segments.push(points);
+ const lines=segments.map(segment=>segment.length===1?`<circle cx="${segment[0].split(',')[0]}" cy="${segment[0].split(',')[1]}" r="2" fill="#456d48"/>`:`<polyline points="${segment.join(' ')}" fill="none" stroke="#456d48" stroke-width="1.8" stroke-linejoin="round"/>`).join('');
+ return `<svg viewBox="0 0 650 196" role="img" aria-label="Measured ${esc(sensor.name)} in ${esc(sensor.unit)}, cycle ${state.cycle}, seconds 0 through 59${measured.length<values.length?', missing readings shown as gaps':''}">${grid}${lines}</svg>`;
 }
 function selectSensor(id){if(!config.sensors.some(s=>s.id===id))return;selectedSensor=id;renderSensorDetails();renderSensorTable();}
 function renderSensorDetails(){
@@ -91,6 +96,11 @@ function renderValidation(){
  <section class="panel"><div class="panel-heading"><div><h2>Per-component test results</h2><p>Deployed model · original UCI condition classes</p></div></div><div class="table-scroll"><table class="data-table"><thead><tr><th>Component</th><th>Macro F1</th><th>Accuracy</th></tr></thead><tbody>${config.components.map(c=>`<tr><td>${c.name}</td><td class="mono">${fixed(m.components[c.id].macro_f1)}</td><td class="mono">${fixed(m.components[c.id].accuracy*100,1)}%</td></tr>`).join('')}</tbody></table></div></section>
  <section class="panel robustness-panel"><div class="panel-heading"><div><h2>Class-level evaluation</h2><p>Rows: recorded condition · columns: model estimate</p></div><label class="sr-only" for="matrix-component">Component confusion matrix</label><select id="matrix-component" class="partition-select">${config.components.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></div><div class="table-scroll" id="confusion-matrix"></div></section>
  <section class="panel robustness-panel"><div class="panel-heading"><div><h2>Sensor-removal sensitivity</h2><p>Offline diagnostic on measured test cycles · frozen deployed model</p></div><span class="label-pill">${cases?'14 CHANNELS':'NOT EVALUATED'}</span></div>${cases?`<div class="table-scroll"><table class="data-table robustness-table"><thead><tr><th>Diagnostic condition</th><th>Mean macro F1</th><th>All four correct</th></tr></thead><tbody>${cases.map(c=>`<tr><td>${esc(c.name)}</td><td class="mono">${fixed(c.metrics.mean_macro_f1)}</td><td class="mono">${fixed(c.metrics.all_components_correct*100,1)}%</td></tr>`).join('')}</tbody></table></div><div class="robustness-foot">Artificial removal of one channel from the original measured test features, followed by replacement with training means. No synthetic readings were generated. This is a sensitivity diagnostic, not evidence from physical sensor failures.<br>The dashboard abstains on incomplete inputs; it does not silently use this imputation policy.</div>`:'<p class="prose-panel small-note">Sensitivity report not available.</p>'}</section></div>`;
+ const experiment=evaluation.accumulatorExperiment;
+ if(experiment){
+ const names={linear:'Linear baseline',mlp:'Small neural network',linear_knn:'Linear + nearest training cycles'};
+ $('validation-content').insertAdjacentHTML('beforeend',`<section class="panel robustness-panel"><div class="panel-heading"><div><h2>Accumulator upgrade experiment</h2><p>Separate evaluation · deployed model retained</p></div><span class="label-pill">RESEARCH RESULT</span></div><div class="robustness-foot">A small nearest-cycle classifier was evaluated for the accumulator. It did not improve validation performance, so the current deployment is retained. This experiment uses ${experiment.split_counts.train} training, ${experiment.split_counts.validation} validation and ${experiment.split_counts.test} separately reserved test cycles. Its scores cannot be compared directly with the original test scores above.</div><div class="table-scroll"><table class="data-table"><thead><tr><th>Experimental model</th><th>Validation accumulator F1</th><th>Test accumulator F1</th></tr></thead><tbody>${Object.entries(experiment.models).map(([kind,model])=>`<tr><td>${esc(names[kind]||kind)}</td><td class="mono">${fixed(model.validation.components.accumulator.macro_f1)}</td><td class="mono">${fixed(model.test.components.accumulator.macro_f1)}</td></tr>`).join('')}</tbody></table></div><div class="robustness-foot">Whole condition combinations remain separate. Training-only normalization and neighbor references; nine validation-only neighbor candidates. Previously inspected test combinations were excluded. These are re-reserved cycles from the same rig; independent-machine validation still requires new measurements.</div></section>`);
+ }
  $('matrix-component').addEventListener('change',renderMatrix);renderMatrix();$('footer-model').textContent=`${r.checkpoint_sha256.slice(0,8).toUpperCase()} / MEASURED UCI DATA`;
  $('model-method').textContent=`Validation-selected deployment: ${r.selected_model==='linear'?'linear classifier':'small neural network'}, ${count(selected.parameters)} parameters. Scores express uncalibrated class support.`;
  $('split-method').innerHTML=Object.entries(r.split_counts).map(([name,n])=>`<div><strong>${count(n)}</strong><span>${name} cycles</span></div>`).join('');
@@ -99,7 +109,7 @@ function renderMatrix(){
  const component=config.components.find(c=>c.id===$('matrix-component').value),r=evaluation.report,m=r.models[r.selected_model].test.components[component.id];
  $('confusion-matrix').innerHTML=`<table class="data-table class-matrix"><thead><tr><th>Recorded / estimated</th>${component.labels.map(label=>`<th>${esc(label)}</th>`).join('')}<th>Recall</th></tr></thead><tbody>${m.confusion.map((row,i)=>`<tr><td>${esc(component.labels[i])}</td>${row.map((n,j)=>`<td class="mono" ${i===j?'style="background:#edf3e9"':''}>${n}</td>`).join('')}<td class="mono">${fixed(m.per_class_recall[i]*100,1)}%</td></tr>`).join('')}</tbody></table>`;
 }
-function render(){if(!config||!state)return;updateControls();renderMetrics();renderComponents();renderAlerts();renderSensorDetails();renderSensorTable();}
+function render(){if(!config||!state)return;updateControls();updateExport();renderMetrics();renderComponents();renderAlerts();renderSensorDetails();renderSensorTable();}
 
 document.addEventListener('DOMContentLoaded',async()=>{
  busy=true;updateControls();try{config=await api('/api/config');$('partition-select').innerHTML=Object.entries(config.partitions).map(([name,n])=>`<option value="${name}">${name==='test'?'Held-out test':name==='all'?'All recorded cycles':name[0].toUpperCase()+name.slice(1)} (${n})</option>`).join('');$('trace-select').innerHTML=config.sensors.map(s=>`<option value="${s.id}">${s.id} / ${s.group}</option>`).join('');$('group-filter').insertAdjacentHTML('beforeend',[...new Set(config.sensors.map(s=>s.group))].map(g=>`<option>${g}</option>`).join(''));[state,evaluation]=await Promise.all([api('/api/state'),api('/api/validation')]);render();renderValidation();changeView(pages[location.hash.slice(1)]?location.hash.slice(1):'overview');}catch(e){error(e.message+' Check the local data and trained model.');}finally{busy=false;updateControls();}

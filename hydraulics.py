@@ -127,6 +127,21 @@ def grouped_split(profile, seed=42):
         ('train', order[:a]), ('validation', order[a:b]), ('test', order[b:]))}
 
 
+def upgrade_split(profile, seed=20261103):
+    """Fresh grouped retraining protocol; exclude the previously inspected test.
+
+    Previously explored data are not independent external evidence. New models
+    must be fitted from scratch without the newly reserved test cycles.
+    """
+    legacy = grouped_split(profile)
+    development = np.concatenate([legacy['train'],legacy['validation']])
+    _, groups = np.unique(profile[:,:4],axis=0,return_inverse=True)
+    order = np.random.default_rng(seed).permutation(np.unique(groups[development]))
+    a,b = int(len(order)*.6),int(len(order)*.8)
+    return {name:np.flatnonzero(np.isin(groups,selected)) for name,selected in (
+        ('train',order[:a]),('validation',order[a:b]),('test',order[b:]))}
+
+
 def component_metrics(truth, predicted, classes):
     confusion = np.zeros((classes, classes), dtype=int)
     np.add.at(confusion, (np.asarray(truth, dtype=int), np.asarray(predicted, dtype=int)), 1)

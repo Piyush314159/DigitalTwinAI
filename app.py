@@ -2,20 +2,28 @@
 import csv
 import io
 import json
-from threading import RLock
 
 import numpy as np
 import torch
 from flask import Flask, Response, jsonify, render_template, request
+from flask.json.provider import DefaultJSONProvider
+from werkzeug.exceptions import BadRequest
 
 from hydraulics import OUTPUT, SENSORS, COMPONENTS, SOURCE_URL, prepare_data, file_hash
 from model import load_model, predict
 
+class StrictJSONProvider(DefaultJSONProvider):
+    def dumps(self, obj, **kwargs):
+        kwargs['allow_nan'] = False
+        return super().dumps(obj, **kwargs)
+
+
 app = Flask(__name__)
+app.json = StrictJSONProvider(app)
 torch.set_num_threads(2)
-state_lock = RLock()
 data = prepare_data()
 model = checkpoint = report = robustness = None
+accumulator_experiment = None
 if (OUTPUT/'model.pt').exists():
     model, checkpoint = load_model(OUTPUT/'model.pt')
     if checkpoint['dataset_fingerprint'] != str(data['fingerprint']):
@@ -29,6 +37,13 @@ if (OUTPUT/'model.pt').exists():
         if candidate.get('checkpoint_sha256') == file_hash(OUTPUT/'model.pt'):
             robustness = candidate
 split_manifest = json.loads((OUTPUT/'split_manifest.json').read_text()) if report else None
+experiment_path = OUTPUT/'accumulator_experiment/metrics.json'
+if experiment_path.exists():
+    candidate = json.loads(experiment_path.read_text())
+    experiment_checkpoint = experiment_path.parent/'model.pt'
+    if (candidate.get('dataset_fingerprint') == str(data['fingerprint']) and experiment_checkpoint.exists()
+            and candidate.get('checkpoint_sha256') == file_hash(experiment_checkpoint)):
+        accumulator_experiment = candidate
 partitions = {'all':np.arange(len(data['features']))}
 if split_manifest:
     for name in ('train','validation','test'):
@@ -36,8 +51,35 @@ if split_manifest:
         if len(np.unique(indices)) != len(indices) or np.any(indices < 0) or np.any(indices >= len(data['features'])):
             raise ValueError('Invalid split manifest.')
         partitions[name] = indices
-current_partition = 'test' if 'test' in partitions else 'all'
-current_position = 0
+DEFAULT_PARTITION = 'test' if 'test' in partitions else 'all'
+
+
+def replay_selection(values=None, reset=False):
+    """Selections travel with requests; tabs never share mutable replay state."""
+    if values is None:
+        values = request.args if request.method == 'GET' else request.get_json(silent=True)
+    if values is None:
+        values = {}
+    if not hasattr(values, 'get'):
+        raise BadRequest('Choose a valid record selection.')
+    partition = values.get('partition', DEFAULT_PARTITION)
+    if not isinstance(partition, str) or partition not in partitions:
+        raise BadRequest('Unknown data partition.')
+    position = 0 if reset else values.get('position', 0)
+    if request.method == 'GET' and isinstance(position, str) and position.isascii() and position.isdecimal():
+        position = int(position)
+    if type(position) is not int or not 0 <= position < len(partitions[partition]):
+        raise BadRequest('Choose a valid record position.')
+    return position, partition
+
+
+@app.errorhandler(400)
+def bad_request(error):
+    return jsonify({'error':error.description}), 400
+
+
+def measured_value(value):
+    return float(value) if np.isfinite(value) else None
 
 
 def estimate_conditions(features):
@@ -60,24 +102,30 @@ def estimate_conditions(features):
 def build_state(position, partition):
     cycle = int(partitions[partition][position])
     features = data['features'][cycle]
-    prediction = estimate_conditions(features)
+    traces = data['traces'][cycle]
+    invalid_channels = [s['id'] for i,s in enumerate(SENSORS)
+                        if not np.isfinite(features[i*10:(i+1)*10]).all()
+                        or not np.isfinite(traces[i]).all()]
+    prediction = ({'status':'insufficient_data', 'conditions':[]} if invalid_channels
+                  else estimate_conditions(features))
     observations = []
     for i,s in enumerate(SENSORS):
         values = features[i*10:i*10+4]
-        observations.append({'id':s['id'], 'mean':float(values[0]), 'std':float(values[1]),
-                             'min':float(values[2]), 'max':float(values[3]),
-                             'trace':data['traces'][cycle,i].tolist()})
+        observations.append({'id':s['id'], 'mean':measured_value(values[0]), 'std':measured_value(values[1]),
+                             'min':measured_value(values[2]), 'max':measured_value(values[3]),
+                             'trace':[measured_value(v) for v in traces[i]]})
     return {'status':'ok','source':'real_test_rig','cycle':cycle+1, 'position':position,
             'partition':partition,'totalRecords':len(partitions[partition]), 'totalCycles':len(data['features']),
             'cycleSeconds':60, 'modelStatus':prediction['status'],
             'conditions':prediction['conditions'], 'observations':observations,
+            'dataQuality':{'complete':not invalid_channels, 'invalidChannels':invalid_channels},
             'summary':{'flaggedComponents':sum(c['flagged'] for c in prediction['conditions']) if prediction['conditions'] else None,
                        'sensorChannels':len(SENSORS),'components':4}}
 
 
 def evaluation_payload():
     return {'status':'trained_real_data' if report else 'report_unavailable',
-            'report':report, 'robustness':robustness}
+            'report':report, 'robustness':robustness, 'accumulatorExperiment':accumulator_experiment}
 
 
 @app.get('/')
@@ -90,7 +138,7 @@ def api_config():
     return jsonify({'source':'real_test_rig','sourceUrl':SOURCE_URL, 'license':'CC BY 4.0',
                     'sensors':SENSORS,'components':COMPONENTS,'totalCycles':len(data['features']),
                     'partitions':{k:len(v) for k,v in partitions.items()},
-                    'defaultPartition':current_partition,
+                    'defaultPartition':DEFAULT_PARTITION,
                     'modelKind':checkpoint['kind'] if checkpoint else None,
                     'modelStatus':'trained_real_data' if model else 'not_trained',
                     'excludedChannels':['CE','CP','SE'], 'cycleSeconds':60})
@@ -98,61 +146,47 @@ def api_config():
 
 @app.get('/api/state')
 def api_state():
-    with state_lock:
-        return jsonify(build_state(current_position,current_partition))
+    return jsonify(build_state(*replay_selection()))
 
 
 @app.post('/api/step')
 def api_step():
-    global current_position
-    with state_lock:
-        ended = current_position == len(partitions[current_partition])-1
-        current_position = min(current_position+1,len(partitions[current_partition])-1)
-        result = build_state(current_position,current_partition)
-        if ended:
-            result['status'] = 'end_of_records'
-        return jsonify(result)
+    position, partition = replay_selection()
+    last = len(partitions[partition])-1
+    result = build_state(min(position+1,last),partition)
+    if position == last:
+        result['status'] = 'end_of_records'
+    return jsonify(result)
 
 
 @app.post('/api/seek')
 def api_seek():
-    global current_position
     body=request.get_json(silent=True)
-    position=body.get('position') if isinstance(body,dict) else None
-    with state_lock:
-        if type(position) is not int or not 0 <= position < len(partitions[current_partition]):
-            return jsonify({'error':'Choose a valid record position.'}),400
-        current_position=position
-        return jsonify(build_state(current_position,current_partition))
+    if not isinstance(body,dict) or 'position' not in body:
+        raise BadRequest('Choose a valid record position.')
+    return jsonify(build_state(*replay_selection(body)))
 
 
 @app.post('/api/partition')
 def api_partition():
-    global current_position,current_partition
     body=request.get_json(silent=True)
-    name=body.get('partition') if isinstance(body,dict) else None
-    if not isinstance(name,str) or name not in partitions:
-        return jsonify({'error':'Unknown data partition.'}),400
-    with state_lock:
-        current_partition,current_position=name,0
-        return jsonify(build_state(current_position,current_partition))
+    if not isinstance(body,dict) or 'partition' not in body:
+        raise BadRequest('Unknown data partition.')
+    return jsonify(build_state(*replay_selection(body, reset=True)))
 
 
 @app.post('/api/reset')
 def api_reset():
-    global current_position
-    with state_lock:
-        current_position=0
-        return jsonify(build_state(0,current_partition))
+    return jsonify(build_state(*replay_selection(reset=True)))
 
 
 @app.get('/api/reference')
 def api_reference():
     """Explicit evaluation annotations, separate from input data and predictions."""
-    with state_lock:
-        cycle=int(partitions[current_partition][current_position])
-        labels=data['targets'][cycle]
-        return jsonify({'cycle':cycle+1, 'annotationOnly':True,
+    position, partition = replay_selection()
+    cycle=int(partitions[partition][position])
+    labels=data['targets'][cycle]
+    return jsonify({'cycle':cycle+1, 'annotationOnly':True,
                         'conditions':[{'id':c['id'],'label':c['labels'][int(labels[i])],
                                        'code':c['codes'][int(labels[i])]} for i,c in enumerate(COMPONENTS)],
                         'steadyStateReached':bool(data['profile'][cycle,4] == 0)})
@@ -165,8 +199,7 @@ def api_validation():
 
 @app.get('/api/snapshot.csv')
 def api_snapshot():
-    with state_lock:
-        state=build_state(current_position,current_partition)
+    state=build_state(*replay_selection())
     buffer=io.StringIO(); writer=csv.writer(buffer)
     writer.writerow(['source','cycle','partition','record_type','id','unit','mean','std','min','max',
                      'predicted_code','predicted_condition','class_support_uncalibrated'])
@@ -182,7 +215,7 @@ def api_snapshot():
 
 @app.get('/api/evaluation.json')
 def api_evaluation_export():
-    return Response(json.dumps(evaluation_payload(),indent=2),mimetype='application/json',
+    return Response(json.dumps(evaluation_payload(),indent=2,allow_nan=False),mimetype='application/json',
                     headers={'Content-Disposition':'attachment; filename=hydraulic-evaluation.json'})
 
 

@@ -7,7 +7,7 @@ import numpy as np
 
 import app
 from hydraulics import (SENSORS, COMPONENTS, FEATURE_NAMES, OUTPUT, find_raw_data,
-                        summarize_cycle, evaluation_metrics, grouped_split, file_hash)
+                        summarize_cycle, evaluation_metrics, grouped_split, upgrade_split, file_hash)
 from model import predict, load_model
 
 
@@ -82,6 +82,64 @@ class HydraulicDataTests(unittest.TestCase):
     def test_deployment_selection_uses_validation_metric(self):
         expected=max(app.report['models'],key=lambda k:app.report['models'][k]['validation']['mean_macro_f1'])
         self.assertEqual(expected,app.report['selected_model'])
+
+    @unittest.skipUnless((OUTPUT/'accumulator_experiment/metrics.json').exists(),'Optional accumulator experiment has not been run.')
+    def test_accumulator_experiment_has_frozen_disjoint_groups(self):
+        from scripts.compare_accumulator import freeze_protocol
+        plan=json.loads((OUTPUT/'accumulator_experiment/upgrade_protocol.json').read_text())
+        self.assertEqual(freeze_protocol(app.data)[1],plan)
+        with self.assertRaisesRegex(ValueError,'frozen upgrade protocol differs'):
+            freeze_protocol(app.data,epochs=1)
+        split=upgrade_split(app.data['profile'])
+        groups=[]
+        for name,indices in split.items():
+            self.assertEqual(indices.tolist(),plan['partitions'][name])
+            groups.append({tuple(row) for row in app.data['profile'][indices,:4]})
+        legacy=np.array(plan['excluded_legacy_test_indices'])
+        groups.append({tuple(row) for row in app.data['profile'][legacy,:4]})
+        for a,b in itertools.combinations(groups,2):
+            self.assertFalse(a&b)
+        np.testing.assert_array_equal(np.sort(np.concatenate([*split.values(),legacy])),np.arange(2205))
+
+    @unittest.skipUnless((OUTPUT/'accumulator_experiment/metrics.json').exists(),'Optional accumulator experiment has not been run.')
+    def test_neighbor_reference_bank_contains_only_experiment_training_measurements(self):
+        model,checkpoint=load_model(OUTPUT/'accumulator_experiment/linear_knn.pt')
+        indices=np.array(checkpoint['reference_cycle_indices'])
+        plan=json.loads((OUTPUT/'accumulator_experiment/upgrade_protocol.json').read_text())
+        np.testing.assert_array_equal(indices,plan['partitions']['train'])
+        x=app.data['features'][indices]
+        np.testing.assert_allclose(model.mean.numpy(),x.mean(axis=0))
+        np.testing.assert_allclose(model.scale.numpy(),x.std(axis=0).clip(1e-4))
+        normalized=np.clip((x-model.mean.numpy())/model.scale.numpy(),-8,8)
+        np.testing.assert_array_equal(model.reference_features.numpy(),normalized[:,model.reference_columns.numpy()])
+        np.testing.assert_array_equal(model.reference_targets.numpy(),app.data['targets'][indices,3])
+
+    @unittest.skipUnless((OUTPUT/'accumulator_experiment/metrics.json').exists(),'Optional accumulator experiment has not been run.')
+    def test_experiment_reload_and_metrics_match_saved_test_outputs(self):
+        directory=OUTPUT/'accumulator_experiment'
+        report=json.loads((directory/'metrics.json').read_text())
+        with np.load(directory/'test_predictions.npz') as saved:
+            indices=saved['cycle_indices']
+            np.testing.assert_array_equal(saved['targets'],app.data['targets'][indices])
+            for kind in report['models']:
+                restored,_=load_model(directory/f'{kind}.pt')
+                predicted,scores=predict(restored,app.data['features'][indices])
+                np.testing.assert_array_equal(predicted,saved[f'{kind}_predictions'])
+                self.assertEqual(evaluation_metrics(saved['targets'],predicted),report['models'][kind]['test'])
+                for c,values in zip(COMPONENTS,scores):
+                    np.testing.assert_array_equal(values,saved[f"{kind}_{c['id']}_scores"])
+        self.assertEqual(report['decision'],'retain_existing_deployment')
+        self.assertEqual(app.report['selected_model'],'linear')
+
+    @unittest.skipUnless((OUTPUT/'accumulator_experiment/metrics.json').exists(),'Optional accumulator experiment has not been run.')
+    def test_experiment_candidate_selection_uses_validation_only(self):
+        report=json.loads((OUTPUT/'accumulator_experiment/metrics.json').read_text())
+        candidate=report['models']['linear_knn']
+        best=max(candidate['validation_candidates'],key=lambda t:t['mean_macro_f1'])
+        self.assertEqual(best['neighbors'],candidate['neighbors'])
+        self.assertEqual(best['feature_set'],candidate['feature_set'])
+        self.assertEqual(best['mean_macro_f1'],candidate['validation']['mean_macro_f1'])
+        self.assertEqual(report['selected_model'],max(report['models'],key=lambda k:report['models'][k]['validation']['mean_macro_f1']))
 
 
 if __name__=='__main__': unittest.main()

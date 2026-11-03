@@ -40,7 +40,7 @@ Another location can be supplied through `HYDRAULICS_DATA_DIR`. Preparation auto
 - Native sampling rates are 100 Hz, 10 Hz and 1 Hz. Charts show one-second averages; feature statistics use the original native samples.
 - **CE, CP and SE**, supplied derived channels, are excluded from model inputs.
 - `profile.txt` annotates cooler efficiency, valve condition, internal pump leakage, accumulator pressure condition and whether steady-state conditions were reached. These annotations are **never sensor input features**.
-- There are no missing readings in the supplied dataset. Model inference abstains on incomplete/non-finite features; handling those values throughout the API response is a known issue tracked in [future upgrades](UPGRADES.md).
+- There are no missing readings in the supplied dataset. If a cycle contains invalid or incomplete features or signal samples, the API returns standard JSON `null` for unavailable readings and withholds all condition estimates. The dashboard displays missing signal samples as gaps and explains which channels are incomplete.
 
 For each physical sensor, features are the mean, standard deviation, minimum, maximum and six consecutive ten-second means: **140 features per cycle**. Preparation reads one raw row at a time and writes a compact cache in `data/processed/`. This avoids loading the 531 MB of text into memory as one large matrix.
 
@@ -48,11 +48,15 @@ For each physical sensor, features are the mean, standard deviation, minimum, ma
 
 - **Overview:** four documented component-condition estimates, a review list, selectable measured signal and cycle statistics.
 - **Sensors:** the 14 physical input channels, native rates and units, search/filter controls, and recorded traces.
-- **Model validation:** component metrics, confusion matrices, linear/neural comparison and sensor-removal sensitivity.
+- **Model validation:** component metrics, confusion matrices, linear/neural comparison, sensor-removal sensitivity and a separately reported accumulator experiment.
 - **Dataset & method:** source attribution, preprocessing, split protocol and limitations.
 - **Cycle replay:** next, play/pause, reset, seek and a choice of test/validation/training/all recorded cycles. Cycle numbers refer to source-row indices; absolute recording timestamps are not supplied or invented.
 - **Reference labels:** optional, explicitly requested annotations, shown separately from estimates and excluded from inference.
 - **Exports:** current sensor statistics and predictions as CSV; full saved evaluation as JSON.
+
+Each browser tab keeps its own record selection and sends it with requests. Changing replay in one tab cannot change another tab's displayed record, reference labels or CSV export. Reloading a tab starts at the first held-out record.
+
+API clients select a record explicitly, for example `/api/state?partition=test&position=7`. Reference labels and CSV exports accept the same query parameters. Replay POST requests include `partition` and `position` in their JSON body; `/api/step` advances from that supplied position. Requests without a selection start from the default test partition at position zero.
 
 The previous vehicle assembly graph, queues, simulated defects, invented station labels and simulation controls are removed from the active project. The interface reflects the hydraulic dataset instead of forcing it into the old 40-station layout.
 
@@ -87,6 +91,20 @@ Artifacts:
 
 Restart the dashboard after retraining. It checks that the loaded model, cached data and reported metrics refer to the same source data and checkpoint. Without trained weights it shows measured readings with estimates unavailable; it never generates a random fallback model.
 
+## Accumulator upgrade experiment
+
+```bash
+.venv/bin/python -m scripts.compare_accumulator
+```
+
+This optional, CPU-only experiment saves results under `training_outputs/accumulator_experiment/` and **never replaces the deployed model**. It compares a freshly fitted linear baseline, a small neural network, and a linear model that uses nearest measured training cycles for the accumulator estimate. No extra package or generated sensor data is required.
+
+The protocol was saved before fitting: seed 20261103 excludes the 29 previously inspected test combinations, then reserves 69 / 23 / 23 groups from the remaining combinations. These yield **1,164 / 477 / 236 training / validation / test cycles**. Normalization and neighbor references use training only. Nine predeclared neighbor candidates (3 / 7 / 15 neighbors, using pressure / pressure-power-flow / all physical features) are selected using validation only. Test scores are calculated afterward. The exact plan and indices are saved in `upgrade_protocol.json`; changing that frozen plan causes an error.
+
+The candidate did **not** improve validation performance: accumulator macro F1 was **0.207** for the selected nearest-cycle candidate versus **0.674** for its freshly trained linear baseline. On this experiment's reserved test, the corresponding scores were **0.254 / 0.489**. The existing deployed model is retained. These experimental results use different test records from the original 328-cycle evaluation, so their scores are not a before/after comparison with its 0.869 accumulator F1.
+
+See [the experiment report](training_outputs/accumulator_experiment/training_report.md). This is a re-reservation within previously explored, same-rig data; it is not independent-machine evidence. Re-running reproduces an inspected experiment and does not create a fresh test. Further tuning needs another declared evaluation protocol or genuinely independent measurements.
+
 ## Sensor-removal sensitivity
 
 ```bash
@@ -95,7 +113,7 @@ Restart the dashboard after retraining. It checks that the loaded model, cached 
 
 This offline diagnostic removes one physical channel at a time from the held-out measured features and replaces its feature block with **training means**. Model weights stay fixed. It is an artificial sensitivity experiment, not measurements from physical sensor failures, and it generates no synthetic raw signals.
 
-The model policy is stricter: incomplete features produce `insufficient_data`; mean imputation is not silently used for displayed estimates. The API serialization issue for invalid readings is recorded in [future upgrades](UPGRADES.md).
+The model policy is stricter: incomplete cycles produce `insufficient_data`; mean imputation is not silently used for displayed estimates. Invalid readings are exported as empty CSV cells and JSON `null`, and predictions remain unavailable for that cycle.
 
 See [the sensitivity report](training_outputs/robustness/report.md) and [exact results](training_outputs/robustness/metrics.json). Now that these test results have been inspected, reserve a new independent evaluation protocol before future model tuning.
 
@@ -107,32 +125,35 @@ See [the sensitivity report](training_outputs/robustness/report.md) and [exact r
 - The component display is a monitoring summary. It does not claim a physical sensor-to-component topology absent from the source metadata.
 - Original proposal documents in `papers/` are historical material, not evidence for this measured-data model.
 
-Known software issues and planned model improvements are recorded in [UPGRADES.md](UPGRADES.md). They are deferred; the current project remains a local, single-rig research application.
+Completed fixes, experiment findings and work requiring more data are recorded in [UPGRADES.md](UPGRADES.md). The current project remains a local, single-rig research application.
 
 ## Project structure
 
 ```text
 app.py                         # Real-cycle dashboard and API
 hydraulics.py                  # Measurement preparation, labels, splits and metrics
-model.py                       # Small linear / neural classifiers
+model.py                       # Small classifiers and experimental neighbor model
 scripts/
   train_hydraulics.py           # Real-data training
   evaluate_robustness.py        # Frozen-model sensor-removal diagnostic
+  compare_accumulator.py        # Separate, frozen accumulator experiment
 tests/
   test_hydraulics.py            # Provenance, splitting, normalization and reload
   test_monitoring.py            # API, abstention, replay and exports
+  test_dashboard.cjs            # Missing-signal rendering and record selection
 static/                        # Professional dashboard styling and interactions
 templates/                     # Dashboard HTML
 data/                          # Unchanged download and generated compact cache
 training_outputs/              # Current REAL-data models and evidence
 papers/                        # Original historical proposal documents
-UPGRADES.md                    # Deferred software fixes and model improvements
+UPGRADES.md                    # Completed upgrades and remaining research needs
 ```
 
 ## Checks
 
 ```bash
 .venv/bin/python -B -m unittest discover -s tests -v
+node --test tests/test_dashboard.cjs
 ```
 
-Checks require the downloaded dataset and trained real-data artifacts. They verify raw-to-cache reproduction, condition decoding, split isolation, training-only normalization, checkpoint reload, exact metric reproduction, exclusion of labels from inference, abstention, cycle navigation and exports.
+Checks require the downloaded dataset and trained real-data artifacts. They verify raw-to-cache reproduction, condition decoding, split isolation, training-only normalization, checkpoint reload, exact metric reproduction, exclusion of labels from inference, strict JSON with invalid inputs, separate client selections, cycle navigation and matching exports. Experiment-specific checks run when the optional experiment artifacts exist. The JavaScript checks use Node's built-in test runner; the application itself still needs only Python. They check signal gaps, replay request selections and reference/export links without installing a browser.
