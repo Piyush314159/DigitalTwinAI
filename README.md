@@ -1,137 +1,135 @@
-# DigitalTwin.ai
+# DigitalTwin — real hydraulic condition monitoring
 
-A simulated 40-station assembly line with a **trained, single-task station anomaly detector** and an earlier multi-head GNN prototype. Developed for the Accenture Innovation Challenge.
+A local condition-monitoring dashboard trained on the **downloaded UCI hydraulic test-rig measurements**. The active application, training commands and evaluation use real recorded sensor cycles. No simulator or synthetic assembly-line readings are used.
 
-## Project layout
+## Run
 
-```text
-accentureInnovation/
-├── app.py                  # Dashboard server and API
-├── anomaly.py              # Trained detector, data preparation and metrics
-├── assembly_line.py        # Stations and graph connections
-├── model.py                # Shared neural-network block and original architecture
-├── simulator.py            # Synthetic station readings
-├── scripts/
-│   ├── train_anomaly.py    # Training command
-│   └── evaluate_robustness.py
-├── tests/
-│   ├── test_anomaly_training.py
-│   ├── test_integrity.py
-│   └── test_monitoring.py
-├── static/                 # Dashboard styling and interactions
-├── templates/              # Dashboard page
-├── training_outputs/       # Saved models and evaluation evidence
-├── papers/                 # Original project documents
-├── README.md
-└── requirements.txt
-```
-
-Run commands from this project directory. Training and evaluation use `python -m scripts.<command>` so imports resolve from the project root. The dashboard still starts with `python app.py`.
-
-## First completed training milestone
-
-`anomaly.py` reuses the existing GATv2 + GRU block in a small **10,369-parameter** detector. It learns whether a station's **current simulator disturbance severity is at least 0.30**. This is current-condition detection, not forecasting or measured advance warning.
-
-The first CPU run used two threads and took approximately 20 seconds, including data generation, baseline training, evaluation and checkpoint reload verification. Actual runtime depends on the machine and settings.
-
-| Held-out synthetic test result | Precision | Recall | F1 | Average precision |
-|---|---:|---:|---:|---:|
-| Compact GAT + GRU | 0.962 | 0.898 | 0.929 | 0.955 |
-| Local linear baseline | 0.936 | 0.809 | 0.868 | 0.887 |
-
-These are descriptive results from one fixed run. The comparison does not isolate the contribution of graph structure from recurrence or nonlinear model capacity.
-
-### Data and evaluation
-
-- 128 training, 32 validation and 32 test **complete independent simulated shifts**, each 30 steps with 40 stations. No overlapping windows across splits.
-- Different seeds produce different fault locations, onsets, severities, combinations and additional sensor outages. Healthy shifts are included.
-- Feature normalization and class weights use training observations only. Checkpoints are chosen by validation average precision and detection thresholds by validation F1.
-- Test shifts are generated and evaluated only after model and threshold selection. `training_outputs/heldout_predictions.npz` records the evaluated outputs.
-- Readings, availability masks and the fixed graph are the only model inputs. Simulator severity and scenario names are never input features; missing-sensor ground truth is excluded.
-- Every split shares the same simulator, failure categories and graph. Station-step observations within a shift are correlated. This is **not real-factory validation**, unseen-fault-category evaluation, calibrated probability, causal diagnosis or proven intervention benefit.
-
-Exact results, thresholds, epoch histories and artifact hashes are in [metrics.json](training_outputs/metrics.json). See [training_report.md](training_outputs/training_report.md) for a readable summary and [dataset_manifest.json](training_outputs/dataset_manifest.json) for all split seeds and scenarios.
-
-## Train on your laptop
-
-The existing `.venv` has the required dependencies. From this directory:
-
-```bash
-.venv/bin/python -m scripts.train_anomaly
-```
-
-This saves `training_outputs/anomaly_detector.pt`, a linear baseline checkpoint, metrics, the dataset manifest and held-out predictions. Checkpoints are local artifacts ignored by Git; retrain after cloning. For a smaller experiment in a separate directory:
-
-```bash
-.venv/bin/python -m scripts.train_anomaly --train-shifts 32 --validation-shifts 16 --test-shifts 16 --epochs 15 --output-dir /tmp/digitaltwin-small-run
-```
-
-If setting up a fresh environment, install `requirements.txt` first. No LLM or GPU is required for this milestone. Avoid tuning against this already inspected test split; use a newly reserved evaluation set for a subsequent final comparison.
-
-## Run the monitoring dashboard
+From this project directory, using the existing environment:
 
 ```bash
 .venv/bin/python app.py
 ```
 
-Open **http://localhost:5001**. Restart the app after retraining so it loads the new checkpoint.
+Open **http://127.0.0.1:5001**. The default replay partition is the held-out test set. Replay steps through historical records; it does not represent a live connection to equipment.
 
-- **Overview:** a selectable assembly graph, trained anomaly alerts, observed sensor coverage and queue readings, shift replay and a detection-activity chart. Map colors, alerts and counts use the same model scores and fixed threshold.
-- **Stations:** search and filter by zone or detection status, sort detection scores, inspect observed readings and export a 40-station CSV snapshot. Missing sensors remain unavailable. Throughput is expressed relative to target, not as a measured units-per-hour value.
-- **Model validation:** original held-out metrics, a linear-model comparison, confusion counts and the six-condition robustness evaluation. Export the exact saved results as JSON.
-- **Methodology:** data source, evaluation protocol and explicit availability of each capability.
-- Replay supports stepping, play/pause, reset and seeking in either direction. Model recurrence replays only the observed prefix; repeated reads do not change memory, and future chart points remain unobserved.
-- Without the checkpoint, detection is explicitly unavailable. It is never replaced by random model output or an all-clear status.
-- The dashboard runs locally with Flask and plain HTML/CSS/JavaScript. It has no additional frontend dependencies, external chart service, or LLM requirement.
+For a fresh environment, install `requirements.txt`, then train before starting the dashboard:
 
-### Monitoring endpoints
+```bash
+python -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m scripts.train_hydraulics
+.venv/bin/python -m scripts.evaluate_robustness
+```
 
-| Endpoint | Purpose |
-|---|---|
-| `GET /api/state` | Observed readings, trained scores, flags and observed history |
-| `POST /api/step`, `/api/reset`, `/api/seek` | Serialized shift replay; seek accepts an integer step 0–29 |
-| `GET /api/anomaly` | Trained scores for the current observed prefix |
-| `GET /api/validation`, `/api/anomaly/validation` | Frozen metrics for the exact loaded checkpoint |
-| `GET /api/snapshot.csv` | Current observed readings and trained flags, without simulator answers |
-| `GET /api/evaluation.json` | Saved evaluation and robustness report |
+No GPU, graph-neural-network package, external service or LLM API is required. The deployed model and preprocessing are small enough for CPU use. The first complete training run took about 11 seconds on this machine; actual runtime varies.
 
-## Frozen-model robustness evaluation
+## Dataset and attribution
+
+**Condition monitoring of hydraulic systems**, Helwig, N., Pignanelli, E. & Schütze, A. (2015), UCI Machine Learning Repository. [Dataset and documentation](https://archive.ics.uci.edu/dataset/447/condition+monitoring+of+hydraulic+systems). DOI: **10.24432/C5CW21**. License: **CC BY 4.0**. Original measurements and annotations are preserved unchanged.
+
+The downloaded files are under:
+
+```text
+data/condition+monitoring+of+hydraulic+systems/
+```
+
+Another location can be supplied through `HYDRAULICS_DATA_DIR`. Preparation automatically finds a complete dataset under `data/` and verifies raw-file hashes against its cache.
+
+- **2,205 experimental cycles**, each 60 seconds, from one physical hydraulic test rig.
+- **14 physical input channels:** PS1–PS6 pressure, EPS1 motor power, FS1–FS2 volume flow, TS1–TS4 temperature and VS1 vibration.
+- Native sampling rates are 100 Hz, 10 Hz and 1 Hz. Charts show one-second averages; feature statistics use the original native samples.
+- **CE, CP and SE**, supplied derived channels, are excluded from model inputs.
+- `profile.txt` annotates cooler efficiency, valve condition, internal pump leakage, accumulator pressure condition and whether steady-state conditions were reached. These annotations are **never sensor input features**.
+- There are no missing readings in the supplied dataset. The application abstains if incomplete/non-finite features are provided.
+
+For each physical sensor, features are the mean, standard deviation, minimum, maximum and six consecutive ten-second means: **140 features per cycle**. Preparation reads one raw row at a time and writes a compact cache in `data/processed/`. This avoids loading the 531 MB of text into memory as one large matrix.
+
+## What the dashboard provides
+
+- **Overview:** four documented component-condition estimates, a review list, selectable measured signal and cycle statistics.
+- **Sensors:** the 14 physical input channels, native rates and units, search/filter controls, and recorded traces.
+- **Model validation:** component metrics, confusion matrices, linear/neural comparison and sensor-removal sensitivity.
+- **Dataset & method:** source attribution, preprocessing, split protocol and limitations.
+- **Cycle replay:** next, play/pause, reset, seek and a choice of test/validation/training/all recorded cycles. Cycle numbers refer to source-row indices; absolute recording timestamps are not supplied or invented.
+- **Reference labels:** optional, explicitly requested annotations, shown separately from estimates and excluded from inference.
+- **Exports:** current sensor statistics and predictions as CSV; full saved evaluation as JSON.
+
+The previous vehicle assembly graph, queues, simulated defects, invented station labels and simulation controls are removed from the active project. The interface reflects the hydraulic dataset instead of forcing it into the old 40-station layout.
+
+## Training and evaluation
+
+```bash
+.venv/bin/python -m scripts.train_hydraulics
+```
+
+All repeated cycles with the same joint four-component condition combination remain in **one** partition. Seed 42 assigns the 144 combinations to 86 training, 29 validation and 29 test groups. This produces **1,371 / 506 / 328 cycles**, respectively. The full set of cycle indices and combinations is saved in `training_outputs/split_manifest.json`.
+
+This is a **same-rig held-out condition-combination experiment**. It is not chronological future prediction or independent-machine validation. Group definitions use annotations solely to build the evaluation partition, not as model inputs. The dataset does not provide independent experimental-run identifiers.
+
+Feature scaling and class weights are fit only on training cycles. Both a class-weighted linear classifier and a small neural network are trained. The checkpoint with the highest validation mean component macro F1 is selected; test results are calculated after that choice.
+
+The **linear classifier** was selected on validation. It has **1,974 parameters** and supplies the dashboard estimates.
+
+| Held-out test result | Cooler | Valve | Pump | Accumulator | Mean macro F1 |
+|---|---:|---:|---:|---:|---:|
+| Linear — deployed | 1.000 | 0.935 | 0.996 | 0.869 | **0.950** |
+| Small neural network | 1.000 | 0.915 | 0.988 | 0.701 | 0.901 |
+
+For the deployed model, mean component accuracy is **94.97%**; all four condition estimates are simultaneously correct on **80.49%** of held-out cycles. These are different metrics. The accumulator is the weakest of the four tasks.
+
+Artifacts:
+
+- `model.pt`, `linear.pt`, `mlp.pt`: saved weights and training-only normalization; checkpoints are ignored by Git.
+- [metrics.json](training_outputs/metrics.json): exact metrics, confusion counts, validation scores, epoch histories and artifact fingerprint.
+- [training_report.md](training_outputs/training_report.md): readable results.
+- [source_manifest.json](training_outputs/source_manifest.json): hashes and sizes of the downloaded text files.
+- `test_predictions.npz`: original held-out annotations, cycle indices and exact evaluated predictions.
+
+Restart the dashboard after retraining. It checks that the loaded model, cached data and reported metrics refer to the same source data and checkpoint. Without trained weights it shows measured readings with estimates unavailable; it never generates a random fallback model.
+
+## Sensor-removal sensitivity
 
 ```bash
 .venv/bin/python -m scripts.evaluate_robustness
 ```
 
-This evaluates the saved detector and linear baseline **without training or selecting a new threshold**. The extra conditions use seeds separate from the original train/validation/test sets. Sensor challenges reuse the fresh reference shifts for paired comparisons. Each condition has 32 shifts, with 38,400 station-time observations.
+This offline diagnostic removes one physical channel at a time from the held-out measured features and replaces its feature block with **training means**. Model weights stay fixed. It is an artificial sensitivity experiment, not measurements from physical sensor failures, and it generates no synthetic raw signals.
 
-| Condition | Detector F1 | Recall | False-positive station-steps | Missed station-steps |
-|---|---:|---:|---:|---:|
-| Fresh simulated shifts | 0.929 | 0.896 | 23 | 71 |
-| 20% additional sensor outages | 0.768 | 0.666 | 46 | 228 |
-| Noisy measurements | 0.916 | 0.890 | 36 | 75 |
-| Weaker disturbances | 0.928 | 0.920 | 37 | 46 |
-| 4–6 concurrent disturbances | 0.935 | 0.917 | 86 | 159 |
-| Healthy shifts | — | — | 12 | 0 |
+The production policy is stricter: incomplete features produce `insufficient_data`; mean imputation is not silently used for displayed estimates.
 
-Additional sensor outages expose the largest measured degradation. F1 and recall are undefined in the all-healthy case; its useful measure is false alarms (12 of 38,400 station-steps). Station-time observations are correlated, and counts do not represent independent factory incidents. No condition establishes real-factory generalization.
+See [the sensitivity report](training_outputs/robustness/report.md) and [exact results](training_outputs/robustness/metrics.json). Now that these test results have been inspected, reserve a new independent evaluation protocol before future model tuning.
 
-See [the robustness report](training_outputs/robustness/report.md), [exact metrics](training_outputs/robustness/metrics.json) and `training_outputs/robustness/predictions.npz`. Model and original training artifacts are preserved. These challenge sets are now inspected; reserve new evaluation data before further tuning.
+## Scope and limits
 
-## Original prototype status
+- The dataset comes from one physical test rig with correlated cycles. Generalization to another machine or a production factory has not been established.
+- Classification uses the complete 60-second cycle. It does not establish advance warning, remaining useful life, causal diagnosis or intervention benefit.
+- Softmax outputs are uncalibrated class support, not validated probabilities of physical failure.
+- The component display is a monitoring summary. It does not claim a physical sensor-to-component topology absent from the source metadata.
+- Original proposal documents and archived synthetic experiments in `papers/` are historical material, not evidence for this measured-data model.
 
-The original `DigitalTwinGNN` in `model.py` remains an untrained research architecture. Operational endpoints and the dashboard no longer execute its random heads. Queue forecasting, defect-risk prediction, virtual sensing, confidence calibration and intervention estimates are marked unavailable in the capability view. `/api/validation` now reports the trained anomaly detector's saved results; `/api/whatif` remains unavailable (HTTP 409).
+## Project structure
 
-The graph has 40 stations and 56 edges (42 forward, 14 feedback/rework), with 25 fully instrumented, 9 partially instrumented and 6 manual stations. Telemetry is simulated. No sensor savings, predictive lead time, causal root-cause accuracy or financial savings have been established. The monitoring dashboard contains no illustrative savings or rollout claims.
-
-The legacy terminal demo has been removed. PDF/PPTX exports and proposal documents in `papers/` are historical design artifacts, not evidence of trained-model performance. Attention weights alone do not establish causal attribution.
+```text
+app.py                         # Real-cycle dashboard and API
+hydraulics.py                  # Measurement preparation, labels, splits and metrics
+model.py                       # Small linear / neural classifiers
+scripts/
+  train_hydraulics.py           # Real-data training
+  evaluate_robustness.py        # Frozen-model sensor-removal diagnostic
+tests/
+  test_hydraulics.py            # Provenance, splitting, normalization and reload
+  test_monitoring.py            # API, abstention, replay and exports
+static/                        # Professional dashboard styling and interactions
+templates/                     # Dashboard HTML
+data/                          # Unchanged download and generated compact cache
+training_outputs/              # Current REAL-data models and evidence
+papers/                        # Historical proposal documents / synthetic archive
+```
 
 ## Checks
 
 ```bash
-.venv/bin/python -m unittest discover -s tests -v
+.venv/bin/python -B -m unittest discover -s tests -v
 ```
 
-23 checks cover missing readings, simulator-answer independence, healthy-shift generation, reproducible original data, isolated graph batches, sequence replay, checkpoint reload, tied-score metrics, invalid seeks, unavailable-model behavior, CSV units and reproducible frozen-model challenge metrics. Browser verification also covers desktop/mobile layouts, graph selection, feedback paths, replay boundaries, station filters and the downloaded CSV.
-
-## Next DigitalTwin milestones
-
-Improve temporal queue dynamics before forecasting; train and evaluate the other heads separately; evaluate on real telemetry if available; calibrate scores; and validate interventions before enabling what-if benefits. Gen AI explanations can follow once the relevant outputs have measured support.
+Checks require the downloaded dataset and trained real-data artifacts. They verify raw-to-cache reproduction, condition decoding, split isolation, training-only normalization, checkpoint reload, exact metric reproduction, exclusion of labels from inference, abstention, cycle navigation and exports.

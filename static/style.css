@@ -2027,3 +2027,26 @@ h1 {
 .nav-list::-webkit-scrollbar {
     display:none
 }
+.partition-select { border:1px solid var(--line); background:var(--white); color:var(--text); padding:7px 9px; font-size:10px; max-width:190px; }
+.component-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:0 20px 20px; }
+.component-card { border:1px solid var(--line); border-radius:5px; padding:18px; background:#fafcf8; min-height:150px; }
+.component-card.flagged { border-color:#ecd6c3; background:#fdf8f2; }
+.component-top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px; }
+.component-top h3 { font-size:13px; font-weight:600; }
+.component-top .icon { width:22px; height:22px; color:var(--green); }
+.component-card.flagged .component-top .icon { color:var(--orange); }
+.condition-name { font-size:14px; font-weight:550; line-height:1.5; }
+.component-card.flagged .condition-name { color:#9c4c2b; }
+.condition-support { display:flex; justify-content:space-between; gap:10px; font-size:10px; color:var(--muted); margin-top:14px; }
+.condition-support strong { font-family:var(--mono); font-weight:500; color:var(--text); }
+.reference-label { border-top:1px dashed #ddcdbd; padding-top:10px; margin-top:10px; font-size:10px; color:#806c56; }
+.reference-note { padding:12px 20px; background:#fbf5ed; border-top:1px solid var(--line); color:#806c56; font-size:10px; }
+.credit { border-top:1px solid var(--line); padding-top:15px; margin-top:20px; }
+.class-matrix td,.class-matrix th { padding:12px; text-align:center; }
+.class-matrix td:first-child,.class-matrix th:first-child { text-align:left; }
+.trace-empty { min-height:180px; display:grid; place-items:center; color:var(--muted); }
+.replay-title { min-width:88px; }
+#step-label { min-width:65px; }
+#signal-chart { min-height:205px; }
+@media(max-width:1100px){.replay-bar{flex-wrap:wrap}.replay-track{min-width:160px}.replay-title{min-width:85px}.component-card{padding:14px}.component-grid{gap:10px;padding:0 16px 16px}.condition-name{font-size:12px}}
+@media(max-width:640px){.component-grid{gap:10px}.component-card{padding:13px;min-height:150px}.component-top h3{font-size:12px}.condition-name{font-size:12px}.condition-support{font-size:9px;flex-wrap:wrap}.replay-title{flex:0 0 auto}.replay-bar .partition-select{margin-left:auto;max-width:180px;order:0}.replay-actions{order:1;margin-left:auto}.replay-track{order:2;flex-basis:100%}.panel-heading .partition-select{max-width:125px;font-size:10px}}

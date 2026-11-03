@@ -1,252 +1,2710 @@
 {
-  "format_version": 1,
-  "data_source": "synthetic",
-  "checkpoint_sha256": "37975aa4f03800140f09f8a464329449212fa2d445bfcab9b2614bd8452883d6",
-  "threshold": 0.9400000000000001,
-  "model_and_threshold_frozen": true,
-  "original_split_seeds_disjoint": true,
-  "protocol": "Predeclared six conditions. Sensor challenges share the reference shifts for paired comparisons. No fitting or threshold selection.",
-  "limitations": [
-    "Same simulator, fault categories and fixed graph as training. No real-factory validation.",
-    "Station-time observations are correlated; counts are not independent trials.",
-    "F1, recall and average precision are undefined for all-healthy shifts.",
-    "These challenge results are now inspected; do not tune against them as a final holdout."
-  ],
+  "source": "real_test_rig",
+  "checkpoint_sha256": "2feef72810b4ef71425ba0c66c400035c3595a23e16895ca1dfed217eed7f302",
+  "dataset_fingerprint": "831bc406c132681d8ff0412c5c7518a1a6392d90233f72ff76b881fb37ca7199",
+  "cycles": 328,
+  "protocol": "Frozen deployed classifier; one physical sensor removed at a time; its ten features replaced by training means. All targets are original UCI annotations.",
+  "deployment_policy": "Incomplete cycles produce insufficient_data, not imputed normal estimates.",
   "cases": [
     {
-      "id": "reference",
-      "title": "Fresh simulated shifts",
-      "description": "Original data recipe, new seeds.",
-      "shifts": 32,
-      "detector": {
-        "threshold": 0.9400000000000001,
-        "precision": 0.9637223974763407,
-        "recall": 0.8958944281524927,
-        "f1": 0.9285714285714286,
-        "average_precision": 0.9492997280748745,
-        "accuracy": 0.9975520833333333,
-        "true_positive": 611,
-        "false_positive": 23,
-        "false_negative": 71,
-        "true_negative": 37695,
-        "observations": 38400,
-        "positives": 682,
-        "false_alarm_rate": 0.0006097884299273556,
-        "miss_rate": 0.10410557184750734
-      },
-      "baseline": {
-        "threshold": 0.81,
-        "precision": 0.9395085066162571,
-        "recall": 0.7287390029325513,
-        "f1": 0.8208092485549132,
-        "average_precision": 0.8390121070133065,
-        "accuracy": 0.9943489583333334,
-        "true_positive": 497,
-        "false_positive": 32,
-        "false_negative": 185,
-        "true_negative": 37686,
-        "observations": 38400,
-        "positives": 682,
-        "false_alarm_rate": 0.000848401293811973,
-        "miss_rate": 0.27126099706744866
-      },
-      "data_sha256": "4f03b50277207f3356409c063ffb72bec3b880f4433676250816f729191a8826"
+      "id": "complete",
+      "name": "Complete measurements",
+      "metrics": {
+        "mean_macro_f1": 0.9500357158104313,
+        "mean_accuracy": 0.9496951219512195,
+        "all_components_correct": 0.8048780487804879,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.9359756097560976,
+            "macro_f1": 0.9354635529533728,
+            "per_class_precision": [
+              0.9541284403669725,
+              0.8059701492537313,
+              0.978021978021978,
+              0.9836065573770492
+            ],
+            "per_class_recall": [
+              0.8813559322033898,
+              0.9,
+              0.9888888888888889,
+              1.0
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                104,
+                13,
+                1,
+                0
+              ],
+              [
+                5,
+                54,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                89,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                60
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.9969512195121951,
+            "macro_f1": 0.9960415334490423,
+            "per_class_precision": [
+              1.0,
+              0.9925373134328358,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              0.9838709677419355
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                133,
+                0,
+                0
+              ],
+              [
+                0,
+                133,
+                0
+              ],
+              [
+                0,
+                1,
+                61
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.8658536585365854,
+            "macro_f1": 0.8686377768393103,
+            "per_class_precision": [
+              0.704225352112676,
+              0.911504424778761,
+              0.8513513513513513,
+              0.9714285714285714
+            ],
+            "per_class_recall": [
+              0.9803921568627451,
+              0.7803030303030303,
+              0.875,
+              0.9315068493150684
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                50,
+                1,
+                0,
+                0
+              ],
+              [
+                21,
+                103,
+                6,
+                2
+              ],
+              [
+                0,
+                9,
+                63,
+                0
+              ],
+              [
+                0,
+                0,
+                5,
+                68
+              ]
+            ]
+          }
+        }
+      }
     },
     {
-      "id": "sensor_outages",
-      "title": "Additional sensor outages",
-      "description": "20% of otherwise observable sensors unavailable for the full shift; paired with reference.",
-      "shifts": 32,
-      "detector": {
-        "threshold": 0.9400000000000001,
-        "precision": 0.908,
-        "recall": 0.6656891495601173,
-        "f1": 0.7681895093062605,
-        "average_precision": 0.801353927807302,
-        "accuracy": 0.9928645833333334,
-        "true_positive": 454,
-        "false_positive": 46,
-        "false_negative": 228,
-        "true_negative": 37672,
-        "observations": 38400,
-        "positives": 682,
-        "false_alarm_rate": 0.0012195768598547113,
-        "miss_rate": 0.3343108504398827
-      },
-      "baseline": {
-        "threshold": 0.81,
-        "precision": 0.9011764705882352,
-        "recall": 0.5615835777126099,
-        "f1": 0.6919602529358626,
-        "average_precision": 0.6665928111770707,
-        "accuracy": 0.9911197916666666,
-        "true_positive": 383,
-        "false_positive": 42,
-        "false_negative": 299,
-        "true_negative": 37676,
-        "observations": 38400,
-        "positives": 682,
-        "false_alarm_rate": 0.0011135266981282146,
-        "miss_rate": 0.43841642228739003
-      },
-      "data_sha256": "c99dd3f917726663d03c846e7f3a2b6326719b9ee751cb262483873a43cff476"
+      "id": "PS1",
+      "name": "PS1 removed",
+      "metrics": {
+        "mean_macro_f1": 0.7044426835192776,
+        "mean_accuracy": 0.7126524390243902,
+        "all_components_correct": 0.25914634146341464,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.8384146341463414,
+            "macro_f1": 0.8478474938281879,
+            "per_class_precision": [
+              0.9240506329113924,
+              0.5416666666666666,
+              0.967741935483871,
+              1.0
+            ],
+            "per_class_recall": [
+              0.6186440677966102,
+              0.8666666666666667,
+              1.0,
+              1.0
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                73,
+                44,
+                1,
+                0
+              ],
+              [
+                6,
+                52,
+                2,
+                0
+              ],
+              [
+                0,
+                0,
+                90,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                60
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.46646341463414637,
+            "macro_f1": 0.44339730685910905,
+            "per_class_precision": [
+              0.8648648648648649,
+              0.391304347826087,
+              0.24285714285714285
+            ],
+            "per_class_recall": [
+              0.48120300751879697,
+              0.5413533834586466,
+              0.27419354838709675
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                64,
+                69,
+                0
+              ],
+              [
+                8,
+                72,
+                53
+              ],
+              [
+                2,
+                43,
+                17
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.5457317073170732,
+            "macro_f1": 0.5265259333898138,
+            "per_class_precision": [
+              0.2708333333333333,
+              0.7692307692307693,
+              0.3333333333333333,
+              0.8225806451612904
+            ],
+            "per_class_recall": [
+              0.5098039215686274,
+              0.6060606060606061,
+              0.3055555555555556,
+              0.6986301369863014
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                26,
+                3,
+                16,
+                6
+              ],
+              [
+                41,
+                80,
+                7,
+                4
+              ],
+              [
+                28,
+                21,
+                22,
+                1
+              ],
+              [
+                1,
+                0,
+                21,
+                51
+              ]
+            ]
+          }
+        }
+      }
     },
     {
-      "id": "measurement_noise",
-      "title": "Noisy measurements",
-      "description": "Independent Gaussian measurement noise: standard deviation 20% of frozen training feature scales; paired with reference.",
-      "shifts": 32,
-      "detector": {
-        "threshold": 0.9400000000000001,
-        "precision": 0.9440124416796267,
-        "recall": 0.8900293255131965,
-        "f1": 0.9162264150943397,
-        "average_precision": 0.9448292733449316,
-        "accuracy": 0.997109375,
-        "true_positive": 607,
-        "false_positive": 36,
-        "false_negative": 75,
-        "true_negative": 37682,
-        "observations": 38400,
-        "positives": 682,
-        "false_alarm_rate": 0.0009544514555384697,
-        "miss_rate": 0.10997067448680352
-      },
-      "baseline": {
-        "threshold": 0.81,
-        "precision": 0.8992673992673993,
-        "recall": 0.7199413489736071,
-        "f1": 0.7996742671009772,
-        "average_precision": 0.8266987030066911,
-        "accuracy": 0.99359375,
-        "true_positive": 491,
-        "false_positive": 55,
-        "false_negative": 191,
-        "true_negative": 37663,
-        "observations": 38400,
-        "positives": 682,
-        "false_alarm_rate": 0.0014581897237393288,
-        "miss_rate": 0.28005865102639294
-      },
-      "data_sha256": "82408077a5570e81a3fa20ea4e9c9c71c9be62981aebc99049682dc13e26eda6"
+      "id": "PS2",
+      "name": "PS2 removed",
+      "metrics": {
+        "mean_macro_f1": 0.780238742094296,
+        "mean_accuracy": 0.7759146341463414,
+        "all_components_correct": 0.3201219512195122,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.5853658536585366,
+            "macro_f1": 0.616419053849332,
+            "per_class_precision": [
+              0.7894736842105263,
+              0.29444444444444445,
+              0.927536231884058,
+              1.0
+            ],
+            "per_class_recall": [
+              0.1271186440677966,
+              0.8833333333333333,
+              0.7111111111111111,
+              1.0
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                15,
+                101,
+                2,
+                0
+              ],
+              [
+                4,
+                53,
+                3,
+                0
+              ],
+              [
+                0,
+                26,
+                64,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                60
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.948170731707317,
+            "macro_f1": 0.9361227141928895,
+            "per_class_precision": [
+              0.9708029197080292,
+              0.9398496240601504,
+              0.9137931034482759
+            ],
+            "per_class_recall": [
+              1.0,
+              0.9398496240601504,
+              0.8548387096774194
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                133,
+                0,
+                0
+              ],
+              [
+                3,
+                125,
+                5
+              ],
+              [
+                1,
+                8,
+                53
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.5701219512195121,
+            "macro_f1": 0.5684132003349625,
+            "per_class_precision": [
+              0.7872340425531915,
+              0.664,
+              0.4528301886792453,
+              0.4174757281553398
+            ],
+            "per_class_recall": [
+              0.7254901960784313,
+              0.6287878787878788,
+              0.3333333333333333,
+              0.589041095890411
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                37,
+                10,
+                0,
+                4
+              ],
+              [
+                10,
+                83,
+                10,
+                29
+              ],
+              [
+                0,
+                21,
+                24,
+                27
+              ],
+              [
+                0,
+                11,
+                19,
+                43
+              ]
+            ]
+          }
+        }
+      }
     },
     {
-      "id": "weaker_faults",
-      "title": "Weaker disturbances",
-      "description": "Fault severity sampled from 0.32\u20130.55.",
-      "shifts": 32,
-      "detector": {
-        "threshold": 0.9400000000000001,
-        "precision": 0.9348591549295775,
-        "recall": 0.9202772963604853,
-        "f1": 0.9275109170305676,
-        "average_precision": 0.9711454876483919,
-        "accuracy": 0.9978385416666666,
-        "true_positive": 531,
-        "false_positive": 37,
-        "false_negative": 46,
-        "true_negative": 37786,
-        "observations": 38400,
-        "positives": 577,
-        "false_alarm_rate": 0.0009782407529809905,
-        "miss_rate": 0.07972270363951472
-      },
-      "baseline": {
-        "threshold": 0.81,
-        "precision": 0.8853932584269663,
-        "recall": 0.682842287694974,
-        "f1": 0.7710371819960861,
-        "average_precision": 0.8172666411382903,
-        "accuracy": 0.99390625,
-        "true_positive": 394,
-        "false_positive": 51,
-        "false_negative": 183,
-        "true_negative": 37772,
-        "observations": 38400,
-        "positives": 577,
-        "false_alarm_rate": 0.0013483859027575813,
-        "miss_rate": 0.317157712305026
-      },
-      "data_sha256": "8445d244ea74b0fb27bb2a1a11b04c7ff4fd7e30a035095a19e2dea971a6a171"
+      "id": "PS3",
+      "name": "PS3 removed",
+      "metrics": {
+        "mean_macro_f1": 0.7000821436885323,
+        "mean_accuracy": 0.6890243902439024,
+        "all_components_correct": 0.14939024390243902,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.698170731707317,
+            "macro_f1": 0.7070182419852854,
+            "per_class_precision": [
+              0.8524590163934426,
+              0.39814814814814814,
+              0.8350515463917526,
+              0.8548387096774194
+            ],
+            "per_class_recall": [
+              0.4406779661016949,
+              0.7166666666666667,
+              0.9,
+              0.8833333333333333
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                52,
+                65,
+                1,
+                0
+              ],
+              [
+                9,
+                43,
+                8,
+                0
+              ],
+              [
+                0,
+                0,
+                81,
+                9
+              ],
+              [
+                0,
+                0,
+                7,
+                53
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.7530487804878049,
+            "macro_f1": 0.7800889559510248,
+            "per_class_precision": [
+              0.8857142857142857,
+              0.635,
+              1.0
+            ],
+            "per_class_recall": [
+              0.46616541353383456,
+              0.9548872180451128,
+              0.9354838709677419
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                62,
+                71,
+                0
+              ],
+              [
+                6,
+                127,
+                0
+              ],
+              [
+                2,
+                2,
+                58
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.3048780487804878,
+            "macro_f1": 0.3132213768178192,
+            "per_class_precision": [
+              0.2653061224489796,
+              0.31343283582089554,
+              0.25287356321839083,
+              0.40789473684210525
+            ],
+            "per_class_recall": [
+              0.5098039215686274,
+              0.1590909090909091,
+              0.3055555555555556,
+              0.4246575342465753
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                26,
+                25,
+                0,
+                0
+              ],
+              [
+                25,
+                21,
+                52,
+                34
+              ],
+              [
+                30,
+                9,
+                22,
+                11
+              ],
+              [
+                17,
+                12,
+                13,
+                31
+              ]
+            ]
+          }
+        }
+      }
     },
     {
-      "id": "concurrent_faults",
-      "title": "Concurrent disturbances",
-      "description": "4\u20136 injected faults in each non-healthy shift.",
-      "shifts": 32,
-      "detector": {
-        "threshold": 0.9400000000000001,
-        "precision": 0.9534883720930233,
-        "recall": 0.9172736732570239,
-        "f1": 0.9350304958896843,
-        "average_precision": 0.9757864989309173,
-        "accuracy": 0.9936197916666667,
-        "true_positive": 1763,
-        "false_positive": 86,
-        "false_negative": 159,
-        "true_negative": 36392,
-        "observations": 38400,
-        "positives": 1922,
-        "false_alarm_rate": 0.002357585393936071,
-        "miss_rate": 0.08272632674297607
-      },
-      "baseline": {
-        "threshold": 0.81,
-        "precision": 0.9459459459459459,
-        "recall": 0.7830385015608741,
-        "f1": 0.8568175348704811,
-        "average_precision": 0.9144775864147394,
-        "accuracy": 0.9869010416666667,
-        "true_positive": 1505,
-        "false_positive": 86,
-        "false_negative": 417,
-        "true_negative": 36392,
-        "observations": 38400,
-        "positives": 1922,
-        "false_alarm_rate": 0.002357585393936071,
-        "miss_rate": 0.2169614984391259
-      },
-      "data_sha256": "75a4b3d37550521ab88b00f3e9bc2c9432fe8fded136ef206d614591d259ef7c"
+      "id": "PS4",
+      "name": "PS4 removed",
+      "metrics": {
+        "mean_macro_f1": 0.9090414617573706,
+        "mean_accuracy": 0.9146341463414636,
+        "all_components_correct": 0.6829268292682927,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.9207317073170732,
+            "macro_f1": 0.9225341992413378,
+            "per_class_precision": [
+              0.9795918367346939,
+              0.7307692307692307,
+              0.978021978021978,
+              0.9836065573770492
+            ],
+            "per_class_recall": [
+              0.8135593220338984,
+              0.95,
+              0.9888888888888889,
+              1.0
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                96,
+                21,
+                1,
+                0
+              ],
+              [
+                2,
+                57,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                89,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                60
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.9939024390243902,
+            "macro_f1": 0.9935352677848819,
+            "per_class_precision": [
+              0.9925373134328358,
+              0.9924812030075187,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              0.9924812030075187,
+              0.9838709677419355
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                133,
+                0,
+                0
+              ],
+              [
+                1,
+                132,
+                0
+              ],
+              [
+                0,
+                1,
+                61
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.7439024390243902,
+            "macro_f1": 0.7200963800032626,
+            "per_class_precision": [
+              0.8888888888888888,
+              0.8582089552238806,
+              0.5849056603773585,
+              0.6041666666666666
+            ],
+            "per_class_recall": [
+              0.7843137254901961,
+              0.8712121212121212,
+              0.4305555555555556,
+              0.7945205479452054
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                40,
+                11,
+                0,
+                0
+              ],
+              [
+                5,
+                115,
+                7,
+                5
+              ],
+              [
+                0,
+                8,
+                31,
+                33
+              ],
+              [
+                0,
+                0,
+                15,
+                58
+              ]
+            ]
+          }
+        }
+      }
     },
     {
-      "id": "healthy_shifts",
-      "title": "Healthy shifts",
-      "description": "No injected disturbances; evaluate false alarms.",
-      "shifts": 32,
-      "detector": {
-        "threshold": 0.9400000000000001,
-        "precision": 0.0,
-        "recall": null,
-        "f1": null,
-        "average_precision": null,
-        "accuracy": 0.9996875,
-        "true_positive": 0,
-        "false_positive": 12,
-        "false_negative": 0,
-        "true_negative": 38388,
-        "observations": 38400,
-        "positives": 0,
-        "false_alarm_rate": 0.0003125,
-        "miss_rate": null
-      },
-      "baseline": {
-        "threshold": 0.81,
-        "precision": 0.0,
-        "recall": null,
-        "f1": null,
-        "average_precision": null,
-        "accuracy": 0.9994791666666667,
-        "true_positive": 0,
-        "false_positive": 20,
-        "false_negative": 0,
-        "true_negative": 38380,
-        "observations": 38400,
-        "positives": 0,
-        "false_alarm_rate": 0.0005208333333333333,
-        "miss_rate": null
-      },
-      "data_sha256": "ac259f7619c87e76327e9833cf11061c214d2bce1fcf6f3bb29fcb69e5110407"
+      "id": "PS5",
+      "name": "PS5 removed",
+      "metrics": {
+        "mean_macro_f1": 0.9024680024048726,
+        "mean_accuracy": 0.9054878048780488,
+        "all_components_correct": 0.6310975609756098,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.9786585365853658,
+            "macro_f1": 0.9773369575835726,
+            "per_class_precision": [
+              0.9829059829059829,
+              0.95,
+              0.9888888888888889,
+              0.9836065573770492
+            ],
+            "per_class_recall": [
+              0.9745762711864406,
+              0.95,
+              0.9888888888888889,
+              1.0
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                115,
+                3,
+                0,
+                0
+              ],
+              [
+                2,
+                57,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                89,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                60
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.9969512195121951,
+            "macro_f1": 0.9960415334490423,
+            "per_class_precision": [
+              1.0,
+              0.9925373134328358,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              0.9838709677419355
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                133,
+                0,
+                0
+              ],
+              [
+                0,
+                133,
+                0
+              ],
+              [
+                0,
+                1,
+                61
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.6463414634146342,
+            "macro_f1": 0.6364935185868754,
+            "per_class_precision": [
+              0.851063829787234,
+              0.6643835616438356,
+              0.5,
+              0.5842696629213483
+            ],
+            "per_class_recall": [
+              0.7843137254901961,
+              0.7348484848484849,
+              0.3194444444444444,
+              0.7123287671232876
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                40,
+                11,
+                0,
+                0
+              ],
+              [
+                7,
+                97,
+                4,
+                24
+              ],
+              [
+                0,
+                36,
+                23,
+                13
+              ],
+              [
+                0,
+                2,
+                19,
+                52
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "PS6",
+      "name": "PS6 removed",
+      "metrics": {
+        "mean_macro_f1": 0.8905884819891271,
+        "mean_accuracy": 0.8925304878048781,
+        "all_components_correct": 0.5823170731707317,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.9817073170731707,
+            "macro_f1": 0.9802706651637132,
+            "per_class_precision": [
+              0.975,
+              0.9824561403508771,
+              0.9888888888888889,
+              0.9836065573770492
+            ],
+            "per_class_recall": [
+              0.9915254237288136,
+              0.9333333333333333,
+              0.9888888888888889,
+              1.0
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                117,
+                1,
+                0,
+                0
+              ],
+              [
+                3,
+                56,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                89,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                60
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.9939024390243902,
+            "macro_f1": 0.9920479569366284,
+            "per_class_precision": [
+              1.0,
+              0.9851851851851852,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              0.967741935483871
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                133,
+                0,
+                0
+              ],
+              [
+                0,
+                133,
+                0
+              ],
+              [
+                0,
+                2,
+                60
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.5945121951219512,
+            "macro_f1": 0.590035305856167,
+            "per_class_precision": [
+              0.8,
+              0.6587301587301587,
+              0.37735849056603776,
+              0.5252525252525253
+            ],
+            "per_class_recall": [
+              0.7843137254901961,
+              0.6287878787878788,
+              0.2777777777777778,
+              0.7123287671232876
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                40,
+                11,
+                0,
+                0
+              ],
+              [
+                10,
+                83,
+                13,
+                26
+              ],
+              [
+                0,
+                31,
+                20,
+                21
+              ],
+              [
+                0,
+                1,
+                20,
+                52
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "EPS1",
+      "name": "EPS1 removed",
+      "metrics": {
+        "mean_macro_f1": 0.7621243383544465,
+        "mean_accuracy": 0.7629573170731707,
+        "all_components_correct": 0.29878048780487804,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.8536585365853658,
+            "macro_f1": 0.8486454053614287,
+            "per_class_precision": [
+              0.9595959595959596,
+              0.6428571428571429,
+              0.8602150537634409,
+              0.9090909090909091
+            ],
+            "per_class_recall": [
+              0.8050847457627118,
+              0.75,
+              0.8888888888888888,
+              1.0
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                95,
+                21,
+                2,
+                0
+              ],
+              [
+                4,
+                45,
+                11,
+                0
+              ],
+              [
+                0,
+                4,
+                80,
+                6
+              ],
+              [
+                0,
+                0,
+                0,
+                60
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.8201219512195121,
+            "macro_f1": 0.8003781162690737,
+            "per_class_precision": [
+              1.0,
+              0.926829268292683,
+              0.5145631067961165
+            ],
+            "per_class_recall": [
+              0.7669172932330827,
+              0.8571428571428571,
+              0.8548387096774194
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                102,
+                0,
+                31
+              ],
+              [
+                0,
+                114,
+                19
+              ],
+              [
+                0,
+                9,
+                53
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.3780487804878049,
+            "macro_f1": 0.39947383178728335,
+            "per_class_precision": [
+              0.4659090909090909,
+              0.55,
+              0.5263157894736842,
+              0.21678321678321677
+            ],
+            "per_class_recall": [
+              0.803921568627451,
+              0.16666666666666666,
+              0.4166666666666667,
+              0.4246575342465753
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                41,
+                1,
+                0,
+                9
+              ],
+              [
+                46,
+                22,
+                2,
+                62
+              ],
+              [
+                0,
+                1,
+                30,
+                41
+              ],
+              [
+                1,
+                16,
+                25,
+                31
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "FS1",
+      "name": "FS1 removed",
+      "metrics": {
+        "mean_macro_f1": 0.7023718740249995,
+        "mean_accuracy": 0.7477134146341463,
+        "all_components_correct": 0.36890243902439024,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.6859756097560976,
+            "macro_f1": 0.5769131997945558,
+            "per_class_precision": [
+              0.8135593220338984,
+              0.6379310344827587,
+              0.6027397260273972,
+              0.6666666666666666
+            ],
+            "per_class_recall": [
+              0.8135593220338984,
+              0.6166666666666667,
+              0.9777777777777777,
+              0.06666666666666667
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                96,
+                21,
+                1,
+                0
+              ],
+              [
+                22,
+                37,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                88,
+                2
+              ],
+              [
+                0,
+                0,
+                56,
+                4
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.5762195121951219,
+            "macro_f1": 0.5003659786268482,
+            "per_class_precision": [
+              0.5664335664335665,
+              0.56,
+              1.0
+            ],
+            "per_class_recall": [
+              0.6090225563909775,
+              0.7368421052631579,
+              0.16129032258064516
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                81,
+                52,
+                0
+              ],
+              [
+                35,
+                98,
+                0
+              ],
+              [
+                27,
+                25,
+                10
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.7286585365853658,
+            "macro_f1": 0.7322083176785942,
+            "per_class_precision": [
+              0.5256410256410257,
+              0.7398373983739838,
+              0.7246376811594203,
+              0.9827586206896551
+            ],
+            "per_class_recall": [
+              0.803921568627451,
+              0.6893939393939394,
+              0.6944444444444444,
+              0.7808219178082192
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                41,
+                10,
+                0,
+                0
+              ],
+              [
+                37,
+                91,
+                3,
+                1
+              ],
+              [
+                0,
+                22,
+                50,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                57
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "FS2",
+      "name": "FS2 removed",
+      "metrics": {
+        "mean_macro_f1": 0.7856348714510956,
+        "mean_accuracy": 0.7896341463414634,
+        "all_components_correct": 0.2896341463414634,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.8353658536585366,
+            "macro_f1": 0.8291335755979505,
+            "per_class_precision": [
+              0.8230088495575221,
+              0.6031746031746031,
+              0.9764705882352941,
+              0.8955223880597015
+            ],
+            "per_class_recall": [
+              0.788135593220339,
+              0.6333333333333333,
+              0.9222222222222223,
+              1.0
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                93,
+                25,
+                0,
+                0
+              ],
+              [
+                20,
+                38,
+                2,
+                0
+              ],
+              [
+                0,
+                0,
+                83,
+                7
+              ],
+              [
+                0,
+                0,
+                0,
+                60
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.9878048780487805,
+            "macro_f1": 0.9843674843674844,
+            "per_class_precision": [
+              1.0,
+              0.9923664122137404,
+              0.953125
+            ],
+            "per_class_recall": [
+              1.0,
+              0.9774436090225563,
+              0.9838709677419355
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                133,
+                0,
+                0
+              ],
+              [
+                0,
+                130,
+                3
+              ],
+              [
+                0,
+                1,
+                61
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.3353658536585366,
+            "macro_f1": 0.3290384258389472,
+            "per_class_precision": [
+              0.30597014925373134,
+              0.6,
+              0.2840909090909091,
+              0.37209302325581395
+            ],
+            "per_class_recall": [
+              0.803921568627451,
+              0.09090909090909091,
+              0.3472222222222222,
+              0.4383561643835616
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                41,
+                0,
+                10,
+                0
+              ],
+              [
+                49,
+                12,
+                53,
+                18
+              ],
+              [
+                11,
+                0,
+                25,
+                36
+              ],
+              [
+                33,
+                8,
+                0,
+                32
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "TS1",
+      "name": "TS1 removed",
+      "metrics": {
+        "mean_macro_f1": 0.8691529751618291,
+        "mean_accuracy": 0.8689024390243902,
+        "all_components_correct": 0.5091463414634146,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.9176829268292683,
+            "macro_f1": 0.9187310437310438,
+            "per_class_precision": [
+              0.9423076923076923,
+              0.7361111111111112,
+              0.9782608695652174,
+              1.0
+            ],
+            "per_class_recall": [
+              0.8305084745762712,
+              0.8833333333333333,
+              1.0,
+              1.0
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                98,
+                19,
+                1,
+                0
+              ],
+              [
+                6,
+                53,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                90,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                60
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.9969512195121951,
+            "macro_f1": 0.9960415334490423,
+            "per_class_precision": [
+              1.0,
+              0.9925373134328358,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              0.9838709677419355
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                133,
+                0,
+                0
+              ],
+              [
+                0,
+                133,
+                0
+              ],
+              [
+                0,
+                1,
+                61
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.5609756097560976,
+            "macro_f1": 0.5618393234672304,
+            "per_class_precision": [
+              0.2727272727272727,
+              0.7954545454545454,
+              0.5166666666666667,
+              0.847457627118644
+            ],
+            "per_class_recall": [
+              0.6470588235294118,
+              0.5303030303030303,
+              0.4305555555555556,
+              0.684931506849315
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                33,
+                18,
+                0,
+                0
+              ],
+              [
+                50,
+                70,
+                6,
+                6
+              ],
+              [
+                38,
+                0,
+                31,
+                3
+              ],
+              [
+                0,
+                0,
+                23,
+                50
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "TS2",
+      "name": "TS2 removed",
+      "metrics": {
+        "mean_macro_f1": 0.8736056218282032,
+        "mean_accuracy": 0.8719512195121951,
+        "all_components_correct": 0.5274390243902439,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.8689024390243902,
+            "macro_f1": 0.8753359275203936,
+            "per_class_precision": [
+              0.9318181818181818,
+              0.6022727272727273,
+              0.9782608695652174,
+              1.0
+            ],
+            "per_class_recall": [
+              0.6949152542372882,
+              0.8833333333333333,
+              1.0,
+              1.0
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                82,
+                35,
+                1,
+                0
+              ],
+              [
+                6,
+                53,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                90,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                60
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.9969512195121951,
+            "macro_f1": 0.9960415334490423,
+            "per_class_precision": [
+              1.0,
+              0.9925373134328358,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              0.9838709677419355
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                133,
+                0,
+                0
+              ],
+              [
+                0,
+                133,
+                0
+              ],
+              [
+                0,
+                1,
+                61
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.6219512195121951,
+            "macro_f1": 0.6230450263433771,
+            "per_class_precision": [
+              0.373134328358209,
+              0.9859154929577465,
+              0.5151515151515151,
+              0.8771929824561403
+            ],
+            "per_class_recall": [
+              0.9803921568627451,
+              0.5303030303030303,
+              0.4722222222222222,
+              0.684931506849315
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                50,
+                1,
+                0,
+                0
+              ],
+              [
+                49,
+                70,
+                9,
+                4
+              ],
+              [
+                35,
+                0,
+                34,
+                3
+              ],
+              [
+                0,
+                0,
+                23,
+                50
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "TS3",
+      "name": "TS3 removed",
+      "metrics": {
+        "mean_macro_f1": 0.8784530685460081,
+        "mean_accuracy": 0.8795731707317074,
+        "all_components_correct": 0.5457317073170732,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.9329268292682927,
+            "macro_f1": 0.9330072708557138,
+            "per_class_precision": [
+              0.9622641509433962,
+              0.7857142857142857,
+              0.978021978021978,
+              0.9836065573770492
+            ],
+            "per_class_recall": [
+              0.864406779661017,
+              0.9166666666666666,
+              0.9888888888888889,
+              1.0
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                102,
+                15,
+                1,
+                0
+              ],
+              [
+                4,
+                55,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                89,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                60
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.9969512195121951,
+            "macro_f1": 0.9960415334490423,
+            "per_class_precision": [
+              1.0,
+              0.9925373134328358,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              0.9838709677419355
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                133,
+                0,
+                0
+              ],
+              [
+                0,
+                133,
+                0
+              ],
+              [
+                0,
+                1,
+                61
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.5884146341463414,
+            "macro_f1": 0.5847634698792765,
+            "per_class_precision": [
+              0.35658914728682173,
+              0.9342105263157895,
+              0.4782608695652174,
+              0.7962962962962963
+            ],
+            "per_class_recall": [
+              0.9019607843137255,
+              0.5378787878787878,
+              0.4583333333333333,
+              0.589041095890411
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                46,
+                5,
+                0,
+                0
+              ],
+              [
+                50,
+                71,
+                6,
+                5
+              ],
+              [
+                33,
+                0,
+                33,
+                6
+              ],
+              [
+                0,
+                0,
+                30,
+                43
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "TS4",
+      "name": "TS4 removed",
+      "metrics": {
+        "mean_macro_f1": 0.8782228147177114,
+        "mean_accuracy": 0.8788109756097561,
+        "all_components_correct": 0.5457317073170732,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.9176829268292683,
+            "macro_f1": 0.9185172136992481,
+            "per_class_precision": [
+              0.9514563106796117,
+              0.7397260273972602,
+              0.978021978021978,
+              0.9836065573770492
+            ],
+            "per_class_recall": [
+              0.8305084745762712,
+              0.9,
+              0.9888888888888889,
+              1.0
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                98,
+                19,
+                1,
+                0
+              ],
+              [
+                5,
+                54,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                89,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                60
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.9969512195121951,
+            "macro_f1": 0.9960415334490423,
+            "per_class_precision": [
+              1.0,
+              0.9925373134328358,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              0.9838709677419355
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                133,
+                0,
+                0
+              ],
+              [
+                0,
+                133,
+                0
+              ],
+              [
+                0,
+                1,
+                61
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.600609756097561,
+            "macro_f1": 0.5983325117225551,
+            "per_class_precision": [
+              0.3787878787878788,
+              0.971830985915493,
+              0.463768115942029,
+              0.8214285714285714
+            ],
+            "per_class_recall": [
+              0.9803921568627451,
+              0.5227272727272727,
+              0.4444444444444444,
+              0.6301369863013698
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                50,
+                1,
+                0,
+                0
+              ],
+              [
+                49,
+                69,
+                10,
+                4
+              ],
+              [
+                33,
+                1,
+                32,
+                6
+              ],
+              [
+                0,
+                0,
+                27,
+                46
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "VS1",
+      "name": "VS1 removed",
+      "metrics": {
+        "mean_macro_f1": 0.8374899839546418,
+        "mean_accuracy": 0.8300304878048781,
+        "all_components_correct": 0.3719512195121951,
+        "cycles": 328,
+        "components": {
+          "cooler": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class_precision": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "support": [
+              134,
+              60,
+              134
+            ],
+            "confusion": [
+              [
+                134,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                0
+              ],
+              [
+                0,
+                0,
+                134
+              ]
+            ]
+          },
+          "valve": {
+            "accuracy": 0.8475609756097561,
+            "macro_f1": 0.8559283291472533,
+            "per_class_precision": [
+              0.9195402298850575,
+              0.5591397849462365,
+              0.9885057471264368,
+              0.9836065573770492
+            ],
+            "per_class_recall": [
+              0.6779661016949152,
+              0.8666666666666667,
+              0.9555555555555556,
+              1.0
+            ],
+            "support": [
+              118,
+              60,
+              90,
+              60
+            ],
+            "confusion": [
+              [
+                80,
+                38,
+                0,
+                0
+              ],
+              [
+                7,
+                52,
+                1,
+                0
+              ],
+              [
+                0,
+                3,
+                86,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                60
+              ]
+            ]
+          },
+          "pump": {
+            "accuracy": 0.9969512195121951,
+            "macro_f1": 0.9960415334490423,
+            "per_class_precision": [
+              1.0,
+              0.9925373134328358,
+              1.0
+            ],
+            "per_class_recall": [
+              1.0,
+              1.0,
+              0.9838709677419355
+            ],
+            "support": [
+              133,
+              133,
+              62
+            ],
+            "confusion": [
+              [
+                133,
+                0,
+                0
+              ],
+              [
+                0,
+                133,
+                0
+              ],
+              [
+                0,
+                1,
+                61
+              ]
+            ]
+          },
+          "accumulator": {
+            "accuracy": 0.47560975609756095,
+            "macro_f1": 0.49799007322227135,
+            "per_class_precision": [
+              0.226890756302521,
+              0.7931034482758621,
+              0.3163265306122449,
+              0.9811320754716981
+            ],
+            "per_class_recall": [
+              0.5294117647058824,
+              0.3484848484848485,
+              0.4305555555555556,
+              0.7123287671232876
+            ],
+            "support": [
+              51,
+              132,
+              72,
+              73
+            ],
+            "confusion": [
+              [
+                27,
+                12,
+                12,
+                0
+              ],
+              [
+                49,
+                46,
+                36,
+                1
+              ],
+              [
+                41,
+                0,
+                31,
+                0
+              ],
+              [
+                2,
+                0,
+                19,
+                52
+              ]
+            ]
+          }
+        }
+      }
     }
-  ],
-  "seconds": 3.323
+  ]
 }

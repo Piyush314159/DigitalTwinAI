@@ -1,25 +1,21 @@
-# DigitalTwin — first anomaly training run
+# DigitalTwin — real hydraulic measurements
 
-A compact GAT + GRU detects current simulated station disturbances. Only this capability is trained; the original multi-head dashboard remains a prototype.
+Source: https://archive.ics.uci.edu/dataset/447/condition+monitoring+of+hydraulic+systems
 
-CPU run: 19.7 seconds, 2 threads, 10,369 parameters.
+Seed 42; 60/20/20 split of all 144 joint condition combinations. Entire combinations, including repeated cycles, stay together.
 
-Complete shifts: 128 train / 32 validation / 32 test, each 30 steps with 40 stations.
+Cycles: {'train': 1371, 'validation': 506, 'test': 328}. Deployed model chosen on validation: **linear**.
 
-Held-out results with validation-selected thresholds:
+| Component | MLP macro F1 | Linear macro F1 | MLP accuracy |
+|---|---:|---:|---:|
+| Cooler | 1.000 | 1.000 | 1.000 |
+| Valve | 0.915 | 0.935 | 0.915 |
+| Pump | 0.988 | 0.996 | 0.991 |
+| Accumulator | 0.701 | 0.869 | 0.710 |
 
-| Model | Precision | Recall | F1 | Average precision |
-|---|---:|---:|---:|---:|
-| GAT + GRU | 0.962 | 0.898 | 0.929 | 0.955 |
-| Local linear | 0.936 | 0.809 | 0.868 | 0.887 |
-
-Average precision is a ranking metric, not classification accuracy. A graph model advantage is established only if the measured comparison supports it.
-
-- All splits use the same synthetic generator and fixed assembly graph.
-- Failure categories are shared across splits; only shifts/configurations are unseen.
-- Station-step observations within a shift are correlated; they are not independent trials.
-- Scores are not calibrated probabilities. No measured predictive lead time.
-- Queue forecasting, defect risk, virtual sensing and confidence heads remain untrained.
-- No real-factory validation, causal attribution, intervention benefit or measured savings.
-
-See metrics.json for thresholds, confusion counts and epoch history; dataset_manifest.json for seeds/scenario configurations; heldout_predictions.npz for the exact evaluated outputs.
+- Same physical test rig; not an independent-machine or production-factory validation.
+- Joint condition combinations are held out; this is not a chronological forecast.
+- Uses a complete 60-second cycle. No advance warning or remaining useful life is established.
+- Scores are uncalibrated class support. No causal root cause or intervention benefits are established.
+- No run identifiers are supplied; cycles within this experiment can be correlated.
+- Original records contain no missing values; sensor removal tests are controlled sensitivity experiments.
