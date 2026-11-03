@@ -17,19 +17,20 @@ class IntegrityTests(unittest.TestCase):
             self.assertTrue(torch.isfinite(torch.as_tensor(value)).all())
         self.assertFalse(model.is_trained)
 
-    def test_no_training_claims_or_ground_truth_dependencies(self):
+    def test_operational_status_uses_only_trained_detection(self):
         import app
         import numpy as np
         import copy
         first = copy.deepcopy(app.shift_data[0])
         changed = copy.deepcopy(first)
         changed['ground_truth_anomaly'] = np.ones_like(first['ground_truth_anomaly'])
-        app.h_states = None
-        a = app.run_inference(first)
-        app.h_states = None
-        b = app.run_inference(changed)
-        for key in ('queue', 'anomaly_score', 'risk_class', 'risk_probs', 'confidence'):
-            self.assertEqual(a[key], b[key])
+        a = app.run_trained_anomaly([first])
+        b = app.run_trained_anomaly([changed])
+        self.assertEqual(a, b)
         client = app.app.test_client()
-        self.assertEqual(client.get('/api/validation').json['status'], 'not_trained')
+        state = client.get('/api/state').json
+        self.assertNotIn('risk_class', state['predictions'])
+        self.assertNotIn('confidence', state['predictions'])
+        self.assertNotIn('queue', state['predictions'])
+        self.assertEqual(client.get('/api/validation').json['status'], state['modelStatus'])
         self.assertEqual(client.post('/api/whatif', json={}).json['status'], 'not_trained')

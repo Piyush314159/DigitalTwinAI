@@ -1,0 +1,4770 @@
+{
+  "reference": [
+    {
+      "seed": 8000000,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            14
+          ],
+          "onset_step": 17,
+          "severity": 0.5059389288046399,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            36
+          ],
+          "onset_step": 18,
+          "severity": 0.6885108147626406,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            26
+          ],
+          "onset_step": 18,
+          "severity": 0.6198591639353445,
+          "description": ""
+        }
+      ],
+      "data_sha256": "a3495b27552d0cc9034880c4d4fb20a6ea482d1c1561197ba7778f0434272caa"
+    },
+    {
+      "seed": 8000001,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 11,
+          "severity": 0.9127826144144972,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 15,
+          "severity": 0.7132625408879669,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            35
+          ],
+          "onset_step": 18,
+          "severity": 0.3755727825264726,
+          "description": ""
+        }
+      ],
+      "data_sha256": "96129f9a9dc2ffdd8f9052f77eca67769bed950422e8c606f4a2bf80e74f9527"
+    },
+    {
+      "seed": 8000002,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            33
+          ],
+          "onset_step": 20,
+          "severity": 0.49549583299527683,
+          "description": ""
+        }
+      ],
+      "data_sha256": "7f3caf612d22d403f6d42c2203e00ec62d6fb5141f9876322dc207b6bc156059"
+    },
+    {
+      "seed": 8000003,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "8a560a3d555abfee4a6e82d44271a10142ab474b1969040b2fb844fae40387ba"
+    },
+    {
+      "seed": 8000004,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 7,
+          "severity": 0.3919999481851714,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 17,
+          "severity": 0.6464131171214511,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            34
+          ],
+          "onset_step": 16,
+          "severity": 0.9563525421278346,
+          "description": ""
+        }
+      ],
+      "data_sha256": "d92dae4ed3393d95d0438923347031f40147f09f63c9896adaad0a83884cd733"
+    },
+    {
+      "seed": 8000005,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 10,
+          "severity": 0.3970703440770846,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 8,
+          "severity": 0.7470500014755651,
+          "description": ""
+        },
+        {
+          "name": "environmental_2",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 7,
+          "severity": 0.5931924126945394,
+          "description": ""
+        }
+      ],
+      "data_sha256": "daddb84b43dccaba06464a84aef4edb4e7b9242a013f6940adbe7806def6d4e0"
+    },
+    {
+      "seed": 8000006,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "d818d8284572c5f3d48a69b2559598665dc53e9c0753b5f24832b33713b1fd90"
+    },
+    {
+      "seed": 8000007,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 15,
+          "severity": 0.5138616800007648,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            9
+          ],
+          "onset_step": 15,
+          "severity": 0.7430659672069522,
+          "description": ""
+        }
+      ],
+      "data_sha256": "46cc963c114b740f77feac410c4fd15927bc04f5622995d2fc14b66c63488125"
+    },
+    {
+      "seed": 8000008,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "695c78cf5e78a5faaad3d88d3c256b42ab6874ba122fd91f96da47d82a190018"
+    },
+    {
+      "seed": 8000009,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 2,
+          "severity": 0.9655477938262683,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            24
+          ],
+          "onset_step": 17,
+          "severity": 0.5698477970488909,
+          "description": ""
+        }
+      ],
+      "data_sha256": "d4841eec794744c03198842ab99e4f61b43c612c12edad259328dfe513f1bcaf"
+    },
+    {
+      "seed": 8000010,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            21
+          ],
+          "onset_step": 16,
+          "severity": 0.7661988710533256,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            10
+          ],
+          "onset_step": 7,
+          "severity": 0.9875182739869451,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 2,
+          "severity": 0.8787696633620274,
+          "description": ""
+        }
+      ],
+      "data_sha256": "1233a6cb96315d8fba75a3eac5fa89fc52fbc27e4aad20dacb2d8cdb20a3f65a"
+    },
+    {
+      "seed": 8000011,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            28
+          ],
+          "onset_step": 2,
+          "severity": 0.4060870533393694,
+          "description": ""
+        }
+      ],
+      "data_sha256": "e2f4e87f9b8c458fac8bf36f986c75da34378e33aa88735a663afa4de6de3ce4"
+    },
+    {
+      "seed": 8000012,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "e9193b8f5a97e758b6c7add6c3df418c7752fd3fc5a8fe0d48c0e4ca68ec5b1b"
+    },
+    {
+      "seed": 8000013,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            37
+          ],
+          "onset_step": 16,
+          "severity": 0.5278975811419663,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 18,
+          "severity": 0.9589233455133191,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            29
+          ],
+          "onset_step": 16,
+          "severity": 0.772924980106121,
+          "description": ""
+        }
+      ],
+      "data_sha256": "2d2cd4c1d97f25ee7f7438aa8c57ef5bbdcd63da7165b865485bf0ef276009fe"
+    },
+    {
+      "seed": 8000014,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "7f2cdc9258183d9fe4de900921cb6aceec03419f8e3342f29b647b05212569b5"
+    },
+    {
+      "seed": 8000015,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "2f9ebfd0f7da1d349e00d91c7f08941a8d8b91aa5e584b934e692c73603544ea"
+    },
+    {
+      "seed": 8000016,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 10,
+          "severity": 0.8362321001934979,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 2,
+          "severity": 0.5953003204288287,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            39
+          ],
+          "onset_step": 12,
+          "severity": 0.36073810357648056,
+          "description": ""
+        }
+      ],
+      "data_sha256": "621d19c0432af40a9cf7ce89ea527dec2c7f2c883f651f647cadd90f49620ebe"
+    },
+    {
+      "seed": 8000017,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            7
+          ],
+          "onset_step": 16,
+          "severity": 0.9489349630782808,
+          "description": ""
+        }
+      ],
+      "data_sha256": "bb3b9d4cf10bd443aa959138f5db1ad00170856b67d2753324ce8dff60d549a6"
+    },
+    {
+      "seed": 8000018,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            3
+          ],
+          "onset_step": 4,
+          "severity": 0.6360979896254062,
+          "description": ""
+        }
+      ],
+      "data_sha256": "fb4275d82a489d4105fd52d9780280d2927b8ff8c3a470f81f4db5936914072e"
+    },
+    {
+      "seed": 8000019,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 2,
+          "severity": 0.8130290164559233,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            16
+          ],
+          "onset_step": 7,
+          "severity": 0.5344788886409986,
+          "description": ""
+        }
+      ],
+      "data_sha256": "a5de2431562abed0e92f38e47e8c0510f626d1dad269f5071ea5e8194ea78d77"
+    },
+    {
+      "seed": 8000020,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "0c223e3161282c56e4e2c50b7cc6dd659b498b2a618324d8e91f2299919cdb07"
+    },
+    {
+      "seed": 8000021,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            3
+          ],
+          "onset_step": 20,
+          "severity": 0.66264067925729,
+          "description": ""
+        }
+      ],
+      "data_sha256": "c13c823b694570bea734ec6a226de42a35b18c6eaa72d7dfd06207a3d6bba80a"
+    },
+    {
+      "seed": 8000022,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 12,
+          "severity": 0.989449898198607,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            19
+          ],
+          "onset_step": 8,
+          "severity": 0.48092408353344346,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            14
+          ],
+          "onset_step": 18,
+          "severity": 0.8931254519959935,
+          "description": ""
+        }
+      ],
+      "data_sha256": "a242d8cdda2eacdbe4af119f399e01319e53080556115012d49573831f7f858d"
+    },
+    {
+      "seed": 8000023,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 20,
+          "severity": 0.6512605185049333,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 3,
+          "severity": 0.48847710433854424,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_2",
+          "category": "upstream_quality",
+          "affected_stations": [
+            1
+          ],
+          "onset_step": 7,
+          "severity": 0.9907264889799788,
+          "description": ""
+        }
+      ],
+      "data_sha256": "af5bb1ce52fe08fe6a6b5ae0fabbc235de898e97b0fc2b21db3563246a277d79"
+    },
+    {
+      "seed": 8000024,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 5,
+          "severity": 0.574707609670424,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 19,
+          "severity": 0.6500252759330478,
+          "description": ""
+        }
+      ],
+      "data_sha256": "bdb5056f7c14fa5da2458dc48e1c42dfc7e4719fffea4508f59dd96cbdc1f320"
+    },
+    {
+      "seed": 8000025,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 12,
+          "severity": 0.9314534675486348,
+          "description": ""
+        }
+      ],
+      "data_sha256": "0e8700b0c3fb6db60006c1a6c48f16112dcc5d4050b2362e306c0d9cc626caed"
+    },
+    {
+      "seed": 8000026,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            11
+          ],
+          "onset_step": 19,
+          "severity": 0.49362778935483514,
+          "description": ""
+        }
+      ],
+      "data_sha256": "70ada94ef3c35702e6fc588020791f12fd9dc92ba660b8cc9b044e326bd36352"
+    },
+    {
+      "seed": 8000027,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            28
+          ],
+          "onset_step": 15,
+          "severity": 0.5558393876240895,
+          "description": ""
+        }
+      ],
+      "data_sha256": "af38fa638bdb12dcd3a3640a0c2f2004600b0b8749fd8f6ed14e218c664f3c68"
+    },
+    {
+      "seed": 8000028,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 19,
+          "severity": 0.9104105275915572,
+          "description": ""
+        }
+      ],
+      "data_sha256": "09b85843313435a4e9b932b12fb28d9da5280d865cabf65240cd0bcd81037e5e"
+    },
+    {
+      "seed": 8000029,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            26
+          ],
+          "onset_step": 6,
+          "severity": 0.6726104825306174,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            35
+          ],
+          "onset_step": 19,
+          "severity": 0.7566697402542528,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            25
+          ],
+          "onset_step": 2,
+          "severity": 0.6041810445369997,
+          "description": ""
+        }
+      ],
+      "data_sha256": "f708d77a8d695811fb5ae843f8da2f218493f3551dce2fe1817f6f2522bcec84"
+    },
+    {
+      "seed": 8000030,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            25
+          ],
+          "onset_step": 8,
+          "severity": 0.6535824961878219,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 20,
+          "severity": 0.8068398751984988,
+          "description": ""
+        }
+      ],
+      "data_sha256": "80fd3d54bd39569650059f18063509a1f6e89918e124e502e77f9f91102c4cfa"
+    },
+    {
+      "seed": 8000031,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            11
+          ],
+          "onset_step": 9,
+          "severity": 0.5008073067824468,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            7
+          ],
+          "onset_step": 12,
+          "severity": 0.36519085046978356,
+          "description": ""
+        }
+      ],
+      "data_sha256": "f7589b05cfa026eaadd8a8889c0362d8451592d0a76283a469a83b839ebc4a4d"
+    }
+  ],
+  "sensor_outages": [
+    {
+      "seed": 8000000,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            14
+          ],
+          "onset_step": 17,
+          "severity": 0.5059389288046399,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            36
+          ],
+          "onset_step": 18,
+          "severity": 0.6885108147626406,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            26
+          ],
+          "onset_step": 18,
+          "severity": 0.6198591639353445,
+          "description": ""
+        }
+      ],
+      "data_sha256": "a3495b27552d0cc9034880c4d4fb20a6ea482d1c1561197ba7778f0434272caa"
+    },
+    {
+      "seed": 8000001,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 11,
+          "severity": 0.9127826144144972,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 15,
+          "severity": 0.7132625408879669,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            35
+          ],
+          "onset_step": 18,
+          "severity": 0.3755727825264726,
+          "description": ""
+        }
+      ],
+      "data_sha256": "96129f9a9dc2ffdd8f9052f77eca67769bed950422e8c606f4a2bf80e74f9527"
+    },
+    {
+      "seed": 8000002,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            33
+          ],
+          "onset_step": 20,
+          "severity": 0.49549583299527683,
+          "description": ""
+        }
+      ],
+      "data_sha256": "7f3caf612d22d403f6d42c2203e00ec62d6fb5141f9876322dc207b6bc156059"
+    },
+    {
+      "seed": 8000003,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "8a560a3d555abfee4a6e82d44271a10142ab474b1969040b2fb844fae40387ba"
+    },
+    {
+      "seed": 8000004,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 7,
+          "severity": 0.3919999481851714,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 17,
+          "severity": 0.6464131171214511,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            34
+          ],
+          "onset_step": 16,
+          "severity": 0.9563525421278346,
+          "description": ""
+        }
+      ],
+      "data_sha256": "d92dae4ed3393d95d0438923347031f40147f09f63c9896adaad0a83884cd733"
+    },
+    {
+      "seed": 8000005,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 10,
+          "severity": 0.3970703440770846,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 8,
+          "severity": 0.7470500014755651,
+          "description": ""
+        },
+        {
+          "name": "environmental_2",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 7,
+          "severity": 0.5931924126945394,
+          "description": ""
+        }
+      ],
+      "data_sha256": "daddb84b43dccaba06464a84aef4edb4e7b9242a013f6940adbe7806def6d4e0"
+    },
+    {
+      "seed": 8000006,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "d818d8284572c5f3d48a69b2559598665dc53e9c0753b5f24832b33713b1fd90"
+    },
+    {
+      "seed": 8000007,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 15,
+          "severity": 0.5138616800007648,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            9
+          ],
+          "onset_step": 15,
+          "severity": 0.7430659672069522,
+          "description": ""
+        }
+      ],
+      "data_sha256": "46cc963c114b740f77feac410c4fd15927bc04f5622995d2fc14b66c63488125"
+    },
+    {
+      "seed": 8000008,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "695c78cf5e78a5faaad3d88d3c256b42ab6874ba122fd91f96da47d82a190018"
+    },
+    {
+      "seed": 8000009,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 2,
+          "severity": 0.9655477938262683,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            24
+          ],
+          "onset_step": 17,
+          "severity": 0.5698477970488909,
+          "description": ""
+        }
+      ],
+      "data_sha256": "d4841eec794744c03198842ab99e4f61b43c612c12edad259328dfe513f1bcaf"
+    },
+    {
+      "seed": 8000010,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            21
+          ],
+          "onset_step": 16,
+          "severity": 0.7661988710533256,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            10
+          ],
+          "onset_step": 7,
+          "severity": 0.9875182739869451,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 2,
+          "severity": 0.8787696633620274,
+          "description": ""
+        }
+      ],
+      "data_sha256": "1233a6cb96315d8fba75a3eac5fa89fc52fbc27e4aad20dacb2d8cdb20a3f65a"
+    },
+    {
+      "seed": 8000011,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            28
+          ],
+          "onset_step": 2,
+          "severity": 0.4060870533393694,
+          "description": ""
+        }
+      ],
+      "data_sha256": "e2f4e87f9b8c458fac8bf36f986c75da34378e33aa88735a663afa4de6de3ce4"
+    },
+    {
+      "seed": 8000012,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "e9193b8f5a97e758b6c7add6c3df418c7752fd3fc5a8fe0d48c0e4ca68ec5b1b"
+    },
+    {
+      "seed": 8000013,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            37
+          ],
+          "onset_step": 16,
+          "severity": 0.5278975811419663,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 18,
+          "severity": 0.9589233455133191,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            29
+          ],
+          "onset_step": 16,
+          "severity": 0.772924980106121,
+          "description": ""
+        }
+      ],
+      "data_sha256": "2d2cd4c1d97f25ee7f7438aa8c57ef5bbdcd63da7165b865485bf0ef276009fe"
+    },
+    {
+      "seed": 8000014,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "7f2cdc9258183d9fe4de900921cb6aceec03419f8e3342f29b647b05212569b5"
+    },
+    {
+      "seed": 8000015,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "2f9ebfd0f7da1d349e00d91c7f08941a8d8b91aa5e584b934e692c73603544ea"
+    },
+    {
+      "seed": 8000016,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 10,
+          "severity": 0.8362321001934979,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 2,
+          "severity": 0.5953003204288287,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            39
+          ],
+          "onset_step": 12,
+          "severity": 0.36073810357648056,
+          "description": ""
+        }
+      ],
+      "data_sha256": "621d19c0432af40a9cf7ce89ea527dec2c7f2c883f651f647cadd90f49620ebe"
+    },
+    {
+      "seed": 8000017,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            7
+          ],
+          "onset_step": 16,
+          "severity": 0.9489349630782808,
+          "description": ""
+        }
+      ],
+      "data_sha256": "bb3b9d4cf10bd443aa959138f5db1ad00170856b67d2753324ce8dff60d549a6"
+    },
+    {
+      "seed": 8000018,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            3
+          ],
+          "onset_step": 4,
+          "severity": 0.6360979896254062,
+          "description": ""
+        }
+      ],
+      "data_sha256": "fb4275d82a489d4105fd52d9780280d2927b8ff8c3a470f81f4db5936914072e"
+    },
+    {
+      "seed": 8000019,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 2,
+          "severity": 0.8130290164559233,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            16
+          ],
+          "onset_step": 7,
+          "severity": 0.5344788886409986,
+          "description": ""
+        }
+      ],
+      "data_sha256": "a5de2431562abed0e92f38e47e8c0510f626d1dad269f5071ea5e8194ea78d77"
+    },
+    {
+      "seed": 8000020,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "0c223e3161282c56e4e2c50b7cc6dd659b498b2a618324d8e91f2299919cdb07"
+    },
+    {
+      "seed": 8000021,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            3
+          ],
+          "onset_step": 20,
+          "severity": 0.66264067925729,
+          "description": ""
+        }
+      ],
+      "data_sha256": "c13c823b694570bea734ec6a226de42a35b18c6eaa72d7dfd06207a3d6bba80a"
+    },
+    {
+      "seed": 8000022,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 12,
+          "severity": 0.989449898198607,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            19
+          ],
+          "onset_step": 8,
+          "severity": 0.48092408353344346,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            14
+          ],
+          "onset_step": 18,
+          "severity": 0.8931254519959935,
+          "description": ""
+        }
+      ],
+      "data_sha256": "a242d8cdda2eacdbe4af119f399e01319e53080556115012d49573831f7f858d"
+    },
+    {
+      "seed": 8000023,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 20,
+          "severity": 0.6512605185049333,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 3,
+          "severity": 0.48847710433854424,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_2",
+          "category": "upstream_quality",
+          "affected_stations": [
+            1
+          ],
+          "onset_step": 7,
+          "severity": 0.9907264889799788,
+          "description": ""
+        }
+      ],
+      "data_sha256": "af5bb1ce52fe08fe6a6b5ae0fabbc235de898e97b0fc2b21db3563246a277d79"
+    },
+    {
+      "seed": 8000024,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 5,
+          "severity": 0.574707609670424,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 19,
+          "severity": 0.6500252759330478,
+          "description": ""
+        }
+      ],
+      "data_sha256": "bdb5056f7c14fa5da2458dc48e1c42dfc7e4719fffea4508f59dd96cbdc1f320"
+    },
+    {
+      "seed": 8000025,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 12,
+          "severity": 0.9314534675486348,
+          "description": ""
+        }
+      ],
+      "data_sha256": "0e8700b0c3fb6db60006c1a6c48f16112dcc5d4050b2362e306c0d9cc626caed"
+    },
+    {
+      "seed": 8000026,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            11
+          ],
+          "onset_step": 19,
+          "severity": 0.49362778935483514,
+          "description": ""
+        }
+      ],
+      "data_sha256": "70ada94ef3c35702e6fc588020791f12fd9dc92ba660b8cc9b044e326bd36352"
+    },
+    {
+      "seed": 8000027,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            28
+          ],
+          "onset_step": 15,
+          "severity": 0.5558393876240895,
+          "description": ""
+        }
+      ],
+      "data_sha256": "af38fa638bdb12dcd3a3640a0c2f2004600b0b8749fd8f6ed14e218c664f3c68"
+    },
+    {
+      "seed": 8000028,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 19,
+          "severity": 0.9104105275915572,
+          "description": ""
+        }
+      ],
+      "data_sha256": "09b85843313435a4e9b932b12fb28d9da5280d865cabf65240cd0bcd81037e5e"
+    },
+    {
+      "seed": 8000029,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            26
+          ],
+          "onset_step": 6,
+          "severity": 0.6726104825306174,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            35
+          ],
+          "onset_step": 19,
+          "severity": 0.7566697402542528,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            25
+          ],
+          "onset_step": 2,
+          "severity": 0.6041810445369997,
+          "description": ""
+        }
+      ],
+      "data_sha256": "f708d77a8d695811fb5ae843f8da2f218493f3551dce2fe1817f6f2522bcec84"
+    },
+    {
+      "seed": 8000030,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            25
+          ],
+          "onset_step": 8,
+          "severity": 0.6535824961878219,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 20,
+          "severity": 0.8068398751984988,
+          "description": ""
+        }
+      ],
+      "data_sha256": "80fd3d54bd39569650059f18063509a1f6e89918e124e502e77f9f91102c4cfa"
+    },
+    {
+      "seed": 8000031,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            11
+          ],
+          "onset_step": 9,
+          "severity": 0.5008073067824468,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            7
+          ],
+          "onset_step": 12,
+          "severity": 0.36519085046978356,
+          "description": ""
+        }
+      ],
+      "data_sha256": "f7589b05cfa026eaadd8a8889c0362d8451592d0a76283a469a83b839ebc4a4d"
+    }
+  ],
+  "measurement_noise": [
+    {
+      "seed": 8000000,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            14
+          ],
+          "onset_step": 17,
+          "severity": 0.5059389288046399,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            36
+          ],
+          "onset_step": 18,
+          "severity": 0.6885108147626406,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            26
+          ],
+          "onset_step": 18,
+          "severity": 0.6198591639353445,
+          "description": ""
+        }
+      ],
+      "data_sha256": "a3495b27552d0cc9034880c4d4fb20a6ea482d1c1561197ba7778f0434272caa"
+    },
+    {
+      "seed": 8000001,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 11,
+          "severity": 0.9127826144144972,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 15,
+          "severity": 0.7132625408879669,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            35
+          ],
+          "onset_step": 18,
+          "severity": 0.3755727825264726,
+          "description": ""
+        }
+      ],
+      "data_sha256": "96129f9a9dc2ffdd8f9052f77eca67769bed950422e8c606f4a2bf80e74f9527"
+    },
+    {
+      "seed": 8000002,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            33
+          ],
+          "onset_step": 20,
+          "severity": 0.49549583299527683,
+          "description": ""
+        }
+      ],
+      "data_sha256": "7f3caf612d22d403f6d42c2203e00ec62d6fb5141f9876322dc207b6bc156059"
+    },
+    {
+      "seed": 8000003,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "8a560a3d555abfee4a6e82d44271a10142ab474b1969040b2fb844fae40387ba"
+    },
+    {
+      "seed": 8000004,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 7,
+          "severity": 0.3919999481851714,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 17,
+          "severity": 0.6464131171214511,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            34
+          ],
+          "onset_step": 16,
+          "severity": 0.9563525421278346,
+          "description": ""
+        }
+      ],
+      "data_sha256": "d92dae4ed3393d95d0438923347031f40147f09f63c9896adaad0a83884cd733"
+    },
+    {
+      "seed": 8000005,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 10,
+          "severity": 0.3970703440770846,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 8,
+          "severity": 0.7470500014755651,
+          "description": ""
+        },
+        {
+          "name": "environmental_2",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 7,
+          "severity": 0.5931924126945394,
+          "description": ""
+        }
+      ],
+      "data_sha256": "daddb84b43dccaba06464a84aef4edb4e7b9242a013f6940adbe7806def6d4e0"
+    },
+    {
+      "seed": 8000006,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "d818d8284572c5f3d48a69b2559598665dc53e9c0753b5f24832b33713b1fd90"
+    },
+    {
+      "seed": 8000007,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 15,
+          "severity": 0.5138616800007648,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            9
+          ],
+          "onset_step": 15,
+          "severity": 0.7430659672069522,
+          "description": ""
+        }
+      ],
+      "data_sha256": "46cc963c114b740f77feac410c4fd15927bc04f5622995d2fc14b66c63488125"
+    },
+    {
+      "seed": 8000008,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "695c78cf5e78a5faaad3d88d3c256b42ab6874ba122fd91f96da47d82a190018"
+    },
+    {
+      "seed": 8000009,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 2,
+          "severity": 0.9655477938262683,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            24
+          ],
+          "onset_step": 17,
+          "severity": 0.5698477970488909,
+          "description": ""
+        }
+      ],
+      "data_sha256": "d4841eec794744c03198842ab99e4f61b43c612c12edad259328dfe513f1bcaf"
+    },
+    {
+      "seed": 8000010,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            21
+          ],
+          "onset_step": 16,
+          "severity": 0.7661988710533256,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            10
+          ],
+          "onset_step": 7,
+          "severity": 0.9875182739869451,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 2,
+          "severity": 0.8787696633620274,
+          "description": ""
+        }
+      ],
+      "data_sha256": "1233a6cb96315d8fba75a3eac5fa89fc52fbc27e4aad20dacb2d8cdb20a3f65a"
+    },
+    {
+      "seed": 8000011,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            28
+          ],
+          "onset_step": 2,
+          "severity": 0.4060870533393694,
+          "description": ""
+        }
+      ],
+      "data_sha256": "e2f4e87f9b8c458fac8bf36f986c75da34378e33aa88735a663afa4de6de3ce4"
+    },
+    {
+      "seed": 8000012,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "e9193b8f5a97e758b6c7add6c3df418c7752fd3fc5a8fe0d48c0e4ca68ec5b1b"
+    },
+    {
+      "seed": 8000013,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            37
+          ],
+          "onset_step": 16,
+          "severity": 0.5278975811419663,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 18,
+          "severity": 0.9589233455133191,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            29
+          ],
+          "onset_step": 16,
+          "severity": 0.772924980106121,
+          "description": ""
+        }
+      ],
+      "data_sha256": "2d2cd4c1d97f25ee7f7438aa8c57ef5bbdcd63da7165b865485bf0ef276009fe"
+    },
+    {
+      "seed": 8000014,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "7f2cdc9258183d9fe4de900921cb6aceec03419f8e3342f29b647b05212569b5"
+    },
+    {
+      "seed": 8000015,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "2f9ebfd0f7da1d349e00d91c7f08941a8d8b91aa5e584b934e692c73603544ea"
+    },
+    {
+      "seed": 8000016,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 10,
+          "severity": 0.8362321001934979,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 2,
+          "severity": 0.5953003204288287,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            39
+          ],
+          "onset_step": 12,
+          "severity": 0.36073810357648056,
+          "description": ""
+        }
+      ],
+      "data_sha256": "621d19c0432af40a9cf7ce89ea527dec2c7f2c883f651f647cadd90f49620ebe"
+    },
+    {
+      "seed": 8000017,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            7
+          ],
+          "onset_step": 16,
+          "severity": 0.9489349630782808,
+          "description": ""
+        }
+      ],
+      "data_sha256": "bb3b9d4cf10bd443aa959138f5db1ad00170856b67d2753324ce8dff60d549a6"
+    },
+    {
+      "seed": 8000018,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            3
+          ],
+          "onset_step": 4,
+          "severity": 0.6360979896254062,
+          "description": ""
+        }
+      ],
+      "data_sha256": "fb4275d82a489d4105fd52d9780280d2927b8ff8c3a470f81f4db5936914072e"
+    },
+    {
+      "seed": 8000019,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 2,
+          "severity": 0.8130290164559233,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            16
+          ],
+          "onset_step": 7,
+          "severity": 0.5344788886409986,
+          "description": ""
+        }
+      ],
+      "data_sha256": "a5de2431562abed0e92f38e47e8c0510f626d1dad269f5071ea5e8194ea78d77"
+    },
+    {
+      "seed": 8000020,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "0c223e3161282c56e4e2c50b7cc6dd659b498b2a618324d8e91f2299919cdb07"
+    },
+    {
+      "seed": 8000021,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            3
+          ],
+          "onset_step": 20,
+          "severity": 0.66264067925729,
+          "description": ""
+        }
+      ],
+      "data_sha256": "c13c823b694570bea734ec6a226de42a35b18c6eaa72d7dfd06207a3d6bba80a"
+    },
+    {
+      "seed": 8000022,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 12,
+          "severity": 0.989449898198607,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            19
+          ],
+          "onset_step": 8,
+          "severity": 0.48092408353344346,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            14
+          ],
+          "onset_step": 18,
+          "severity": 0.8931254519959935,
+          "description": ""
+        }
+      ],
+      "data_sha256": "a242d8cdda2eacdbe4af119f399e01319e53080556115012d49573831f7f858d"
+    },
+    {
+      "seed": 8000023,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 20,
+          "severity": 0.6512605185049333,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 3,
+          "severity": 0.48847710433854424,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_2",
+          "category": "upstream_quality",
+          "affected_stations": [
+            1
+          ],
+          "onset_step": 7,
+          "severity": 0.9907264889799788,
+          "description": ""
+        }
+      ],
+      "data_sha256": "af5bb1ce52fe08fe6a6b5ae0fabbc235de898e97b0fc2b21db3563246a277d79"
+    },
+    {
+      "seed": 8000024,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 5,
+          "severity": 0.574707609670424,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 19,
+          "severity": 0.6500252759330478,
+          "description": ""
+        }
+      ],
+      "data_sha256": "bdb5056f7c14fa5da2458dc48e1c42dfc7e4719fffea4508f59dd96cbdc1f320"
+    },
+    {
+      "seed": 8000025,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 12,
+          "severity": 0.9314534675486348,
+          "description": ""
+        }
+      ],
+      "data_sha256": "0e8700b0c3fb6db60006c1a6c48f16112dcc5d4050b2362e306c0d9cc626caed"
+    },
+    {
+      "seed": 8000026,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            11
+          ],
+          "onset_step": 19,
+          "severity": 0.49362778935483514,
+          "description": ""
+        }
+      ],
+      "data_sha256": "70ada94ef3c35702e6fc588020791f12fd9dc92ba660b8cc9b044e326bd36352"
+    },
+    {
+      "seed": 8000027,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            28
+          ],
+          "onset_step": 15,
+          "severity": 0.5558393876240895,
+          "description": ""
+        }
+      ],
+      "data_sha256": "af38fa638bdb12dcd3a3640a0c2f2004600b0b8749fd8f6ed14e218c664f3c68"
+    },
+    {
+      "seed": 8000028,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 19,
+          "severity": 0.9104105275915572,
+          "description": ""
+        }
+      ],
+      "data_sha256": "09b85843313435a4e9b932b12fb28d9da5280d865cabf65240cd0bcd81037e5e"
+    },
+    {
+      "seed": 8000029,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            26
+          ],
+          "onset_step": 6,
+          "severity": 0.6726104825306174,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            35
+          ],
+          "onset_step": 19,
+          "severity": 0.7566697402542528,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            25
+          ],
+          "onset_step": 2,
+          "severity": 0.6041810445369997,
+          "description": ""
+        }
+      ],
+      "data_sha256": "f708d77a8d695811fb5ae843f8da2f218493f3551dce2fe1817f6f2522bcec84"
+    },
+    {
+      "seed": 8000030,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            25
+          ],
+          "onset_step": 8,
+          "severity": 0.6535824961878219,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 20,
+          "severity": 0.8068398751984988,
+          "description": ""
+        }
+      ],
+      "data_sha256": "80fd3d54bd39569650059f18063509a1f6e89918e124e502e77f9f91102c4cfa"
+    },
+    {
+      "seed": 8000031,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            11
+          ],
+          "onset_step": 9,
+          "severity": 0.5008073067824468,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            7
+          ],
+          "onset_step": 12,
+          "severity": 0.36519085046978356,
+          "description": ""
+        }
+      ],
+      "data_sha256": "f7589b05cfa026eaadd8a8889c0362d8451592d0a76283a469a83b839ebc4a4d"
+    }
+  ],
+  "weaker_faults": [
+    {
+      "seed": 8020000,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 17,
+          "severity": 0.4055484515116736,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            21
+          ],
+          "onset_step": 4,
+          "severity": 0.40938467422397334,
+          "description": ""
+        }
+      ],
+      "data_sha256": "289f099098aa08cb1077c6d459e6330e92fecd8369f4f0bfd2d7b11c66786c47"
+    },
+    {
+      "seed": 8020001,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 9,
+          "severity": 0.5072328376891387,
+          "description": ""
+        }
+      ],
+      "data_sha256": "29b0737555d8fb3b80a1ed69c2188ba1e9b9bf71b65a1091535796aa703d4baa"
+    },
+    {
+      "seed": 8020002,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 14,
+          "severity": 0.38856178238476874,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            17
+          ],
+          "onset_step": 17,
+          "severity": 0.49914115029650213,
+          "description": ""
+        }
+      ],
+      "data_sha256": "38ca15961d073d09299768c4cbc0f81e211978981b406bd729d8d48f73d866b0"
+    },
+    {
+      "seed": 8020003,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            17
+          ],
+          "onset_step": 15,
+          "severity": 0.5417798293973028,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 12,
+          "severity": 0.5047215318213725,
+          "description": ""
+        },
+        {
+          "name": "environmental_2",
+          "category": "environmental",
+          "affected_stations": [
+            21
+          ],
+          "onset_step": 14,
+          "severity": 0.5433682785327095,
+          "description": ""
+        }
+      ],
+      "data_sha256": "3b41648d555ff5c705f0425d263b1dce390585582274385721310ea6f46feb81"
+    },
+    {
+      "seed": 8020004,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            30
+          ],
+          "onset_step": 10,
+          "severity": 0.33693867562401214,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 9,
+          "severity": 0.3869385707594974,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            16
+          ],
+          "onset_step": 17,
+          "severity": 0.3893938684434573,
+          "description": ""
+        }
+      ],
+      "data_sha256": "59224fbdc82bc41baaf9b9a98e07c403fee2b282cae4541f7dad0e5b1a58d67d"
+    },
+    {
+      "seed": 8020005,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 10,
+          "severity": 0.41965523961413115,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            3
+          ],
+          "onset_step": 14,
+          "severity": 0.3694194554889185,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_2",
+          "category": "upstream_quality",
+          "affected_stations": [
+            5
+          ],
+          "onset_step": 14,
+          "severity": 0.5135285114105282,
+          "description": ""
+        }
+      ],
+      "data_sha256": "1a229743f3ca14bd11690625a8aa8894dcae445a356b7b641ccd3a4aac79a890"
+    },
+    {
+      "seed": 8020006,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            21
+          ],
+          "onset_step": 21,
+          "severity": 0.42208966061278885,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            24
+          ],
+          "onset_step": 20,
+          "severity": 0.4364173116647943,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_2",
+          "category": "upstream_quality",
+          "affected_stations": [
+            8
+          ],
+          "onset_step": 10,
+          "severity": 0.35031485542011226,
+          "description": ""
+        }
+      ],
+      "data_sha256": "f67bafd76fe7d7273ec8bd1114a948e17cf3e1c369ae39ab249df8bacb12ccb0"
+    },
+    {
+      "seed": 8020007,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "52b40269b58144d37621b2c86ef2e2335e96511db0406146876f1f01ba91277e"
+    },
+    {
+      "seed": 8020008,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 16,
+          "severity": 0.4435357603301141,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            39
+          ],
+          "onset_step": 14,
+          "severity": 0.5305816526362568,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 20,
+          "severity": 0.3730600664757703,
+          "description": ""
+        }
+      ],
+      "data_sha256": "087a5a1e7c8c0c27deb4e3fd754efc24e1109e03b9f53a08fafee6be540d67dc"
+    },
+    {
+      "seed": 8020009,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            20
+          ],
+          "onset_step": 2,
+          "severity": 0.5052423964216218,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            33
+          ],
+          "onset_step": 6,
+          "severity": 0.3661479354893255,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_2",
+          "category": "upstream_quality",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 3,
+          "severity": 0.460442535342093,
+          "description": ""
+        }
+      ],
+      "data_sha256": "415f8c7c650a5c3f3fe02ae475f942a2a131bbd76900a502ab23c68a4a208dbc"
+    },
+    {
+      "seed": 8020010,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            17
+          ],
+          "onset_step": 12,
+          "severity": 0.42057722766908223,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            21
+          ],
+          "onset_step": 15,
+          "severity": 0.3224513550113216,
+          "description": ""
+        },
+        {
+          "name": "environmental_2",
+          "category": "environmental",
+          "affected_stations": [
+            16
+          ],
+          "onset_step": 16,
+          "severity": 0.401004580099699,
+          "description": ""
+        }
+      ],
+      "data_sha256": "1a1f53b1ecfc44e35b39377ecff7ae50521112d2a7691e9b8e81b48f7de4a06c"
+    },
+    {
+      "seed": 8020011,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "eef50fa3c3ab1c222054af930102c1da045c09236d8e20fbea84096f2db73eb8"
+    },
+    {
+      "seed": 8020012,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            39
+          ],
+          "onset_step": 11,
+          "severity": 0.4919779906530492,
+          "description": ""
+        }
+      ],
+      "data_sha256": "7a2d3df7c72e74155732b5f216aad36759a0f27d58854a9324f7879717d7d718"
+    },
+    {
+      "seed": 8020013,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 20,
+          "severity": 0.3916315314377367,
+          "description": ""
+        }
+      ],
+      "data_sha256": "5d06e13aa01361a650e61bc4634a9f202e71ad6cd57ecab37a947ccfb5b71b44"
+    },
+    {
+      "seed": 8020014,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "c809c1ca43068c5352ea1caf17631eec3ea3922773bfc9d42764814d6ca5ba27"
+    },
+    {
+      "seed": 8020015,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "bc283a5032e63e980bb34b761ecaf5e56134e48b97bea11c915ad92afc56c9f0"
+    },
+    {
+      "seed": 8020016,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "36bf6e5015fbe6a7d9ba73395085519e30e47e1d39035ff7edcc30ab600f319e"
+    },
+    {
+      "seed": 8020017,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "0996f59caf4c2873aafead7f2e458163d2444a023807c46ac89cbc591b7b4b1f"
+    },
+    {
+      "seed": 8020018,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            17
+          ],
+          "onset_step": 12,
+          "severity": 0.4660676008439259,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 14,
+          "severity": 0.40146513333325273,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            39
+          ],
+          "onset_step": 11,
+          "severity": 0.36844489332465497,
+          "description": ""
+        }
+      ],
+      "data_sha256": "e56d81c1e1767920605bc6ea2e047af57c3d9e369c7c20a87c404e4d81a09383"
+    },
+    {
+      "seed": 8020019,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            11
+          ],
+          "onset_step": 5,
+          "severity": 0.5050171186122164,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            20
+          ],
+          "onset_step": 14,
+          "severity": 0.5412544920868011,
+          "description": ""
+        }
+      ],
+      "data_sha256": "56a9f0503e27d5a3fd51a39fe1bcaa4a0722500d9b5b5af14bd09df4753aeee9"
+    },
+    {
+      "seed": 8020020,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            16
+          ],
+          "onset_step": 12,
+          "severity": 0.45746253463367537,
+          "description": ""
+        }
+      ],
+      "data_sha256": "edf89b0147aead90ec639278f978d1886e86fe7a6b3e324fdbf0d5045274a708"
+    },
+    {
+      "seed": 8020021,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            16
+          ],
+          "onset_step": 5,
+          "severity": 0.4724188208824068,
+          "description": ""
+        }
+      ],
+      "data_sha256": "fdbe0060a34f4e5346c3494097ccf6c0390a16769f79f8515a1b4456141c99d8"
+    },
+    {
+      "seed": 8020022,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 18,
+          "severity": 0.5271764373865873,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 10,
+          "severity": 0.3254448058663217,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            25
+          ],
+          "onset_step": 15,
+          "severity": 0.4945457035731228,
+          "description": ""
+        }
+      ],
+      "data_sha256": "c8eeae8611278b3e4a39460ebf6ed13293b69a833bb8556bf6095ed96f25ea5e"
+    },
+    {
+      "seed": 8020023,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            30
+          ],
+          "onset_step": 3,
+          "severity": 0.3755995146470658,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            27
+          ],
+          "onset_step": 12,
+          "severity": 0.42281392901122344,
+          "description": ""
+        },
+        {
+          "name": "environmental_2",
+          "category": "environmental",
+          "affected_stations": [
+            19
+          ],
+          "onset_step": 16,
+          "severity": 0.39222727241925814,
+          "description": ""
+        }
+      ],
+      "data_sha256": "a1d41a16145c67c4ebaeff6361835a20e6191032dd2725b68b79bc7b7c8def5b"
+    },
+    {
+      "seed": 8020024,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            27
+          ],
+          "onset_step": 21,
+          "severity": 0.4323094753303184,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            29
+          ],
+          "onset_step": 3,
+          "severity": 0.3583855377705093,
+          "description": ""
+        }
+      ],
+      "data_sha256": "cc137ba7de4d4568933de801686f5666e7ca904d34b7181d9c21f458595c7ff2"
+    },
+    {
+      "seed": 8020025,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "f6342c91f9e639f8da1ca9785de9d72d3f9a1b9d80fe35c1791d33e7217100f7"
+    },
+    {
+      "seed": 8020026,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "011fb0a75f49b8aa7de89a21a83b6696680892395d7379150d0bf58aa5a674ef"
+    },
+    {
+      "seed": 8020027,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "ec61d545648598df7b354cd6044faee9b540952cd7b14b8721d75957f1837c72"
+    },
+    {
+      "seed": 8020028,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "553bd996a664a3665ddf2abdf84213b38b5e9a6a2abcd1fb0a0f4b0ea6c83f52"
+    },
+    {
+      "seed": 8020029,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            24
+          ],
+          "onset_step": 15,
+          "severity": 0.5281842759288959,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            3
+          ],
+          "onset_step": 5,
+          "severity": 0.451028121569885,
+          "description": ""
+        },
+        {
+          "name": "environmental_2",
+          "category": "environmental",
+          "affected_stations": [
+            17
+          ],
+          "onset_step": 14,
+          "severity": 0.5217032188039906,
+          "description": ""
+        }
+      ],
+      "data_sha256": "f2925e8f7f1033f4ee554c58f67093cf1c31e8724fd4bef1ed9565be879501fb"
+    },
+    {
+      "seed": 8020030,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 3,
+          "severity": 0.49202378779792044,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            29
+          ],
+          "onset_step": 17,
+          "severity": 0.39633341825492496,
+          "description": ""
+        }
+      ],
+      "data_sha256": "c8765215587bcdaf32ac588f4a0b79a9552e42984d97c79b9fa7bf15fb5114d6"
+    },
+    {
+      "seed": 8020031,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            39
+          ],
+          "onset_step": 9,
+          "severity": 0.5015223436758905,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 20,
+          "severity": 0.4965205467742658,
+          "description": ""
+        }
+      ],
+      "data_sha256": "64726a1e8ac36ca82874757616b842ced7e7c4271dead50259ef72cf1e6e61e2"
+    }
+  ],
+  "concurrent_faults": [
+    {
+      "seed": 8040000,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            4
+          ],
+          "onset_step": 19,
+          "severity": 0.9935530848450176,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            20
+          ],
+          "onset_step": 12,
+          "severity": 0.7939105084642336,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            27
+          ],
+          "onset_step": 12,
+          "severity": 0.6665895580763458,
+          "description": ""
+        },
+        {
+          "name": "operator_3",
+          "category": "operator",
+          "affected_stations": [
+            39
+          ],
+          "onset_step": 8,
+          "severity": 0.47043173454449044,
+          "description": ""
+        }
+      ],
+      "data_sha256": "91ed5c29902656778721ba999afdde4e2b9fed12845f710ec1f20a9ef20895ed"
+    },
+    {
+      "seed": 8040001,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            19
+          ],
+          "onset_step": 5,
+          "severity": 0.4211181371328773,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 7,
+          "severity": 0.5309944772349342,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            14
+          ],
+          "onset_step": 11,
+          "severity": 0.7683495612718311,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_3",
+          "category": "equipment_wear",
+          "affected_stations": [
+            4
+          ],
+          "onset_step": 20,
+          "severity": 0.41920605264375044,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_4",
+          "category": "upstream_quality",
+          "affected_stations": [
+            34
+          ],
+          "onset_step": 12,
+          "severity": 0.3576123294358803,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_5",
+          "category": "upstream_quality",
+          "affected_stations": [
+            9
+          ],
+          "onset_step": 4,
+          "severity": 0.7829377900216798,
+          "description": ""
+        }
+      ],
+      "data_sha256": "ad7f68af74be2abd2eeea438b52421bcfcd1c0af2f4fb6107a09db598b1f0a90"
+    },
+    {
+      "seed": 8040002,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 18,
+          "severity": 0.47644719541132985,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            25
+          ],
+          "onset_step": 10,
+          "severity": 0.8700055104397252,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            13
+          ],
+          "onset_step": 11,
+          "severity": 0.39128581650429706,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_3",
+          "category": "upstream_quality",
+          "affected_stations": [
+            28
+          ],
+          "onset_step": 3,
+          "severity": 0.7123560352527846,
+          "description": ""
+        },
+        {
+          "name": "operator_4",
+          "category": "operator",
+          "affected_stations": [
+            28
+          ],
+          "onset_step": 19,
+          "severity": 0.8419493738053027,
+          "description": ""
+        },
+        {
+          "name": "operator_5",
+          "category": "operator",
+          "affected_stations": [
+            29
+          ],
+          "onset_step": 9,
+          "severity": 0.5939793681929405,
+          "description": ""
+        }
+      ],
+      "data_sha256": "543a13804e2305c51063f2ed54efcc647f4c4633fb30710e75bf018aa3e44b9f"
+    },
+    {
+      "seed": 8040003,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "67a1c1d98e4df33000ae0cb031aacb3b782aa4655b8de87994139db323290ba0"
+    },
+    {
+      "seed": 8040004,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "a4a57cf1a261b81c4aeefd63ad3203573eaf2802576fadc3128fba1358fa9feb"
+    },
+    {
+      "seed": 8040005,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            26
+          ],
+          "onset_step": 19,
+          "severity": 0.5110786483157181,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            20
+          ],
+          "onset_step": 16,
+          "severity": 0.787344798408985,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_2",
+          "category": "upstream_quality",
+          "affected_stations": [
+            24
+          ],
+          "onset_step": 15,
+          "severity": 0.9802652448890221,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_3",
+          "category": "equipment_wear",
+          "affected_stations": [
+            14
+          ],
+          "onset_step": 18,
+          "severity": 0.6714513088889332,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_4",
+          "category": "upstream_quality",
+          "affected_stations": [
+            33
+          ],
+          "onset_step": 5,
+          "severity": 0.3608511408734682,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_5",
+          "category": "equipment_wear",
+          "affected_stations": [
+            20
+          ],
+          "onset_step": 14,
+          "severity": 0.4508182476391874,
+          "description": ""
+        }
+      ],
+      "data_sha256": "f5c84731d36adba58ddfb2a2d69753b48dde285b798f677dcfcd310c07239683"
+    },
+    {
+      "seed": 8040006,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            34
+          ],
+          "onset_step": 18,
+          "severity": 0.4530852321400067,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            27
+          ],
+          "onset_step": 20,
+          "severity": 0.7977594510601235,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_2",
+          "category": "upstream_quality",
+          "affected_stations": [
+            24
+          ],
+          "onset_step": 5,
+          "severity": 0.9166305134444093,
+          "description": ""
+        },
+        {
+          "name": "environmental_3",
+          "category": "environmental",
+          "affected_stations": [
+            20
+          ],
+          "onset_step": 16,
+          "severity": 0.5626911579865135,
+          "description": ""
+        },
+        {
+          "name": "environmental_4",
+          "category": "environmental",
+          "affected_stations": [
+            16
+          ],
+          "onset_step": 4,
+          "severity": 0.6732993258942505,
+          "description": ""
+        }
+      ],
+      "data_sha256": "e6fe0cc29d3e717035f65b4bc73207bc86da96f4901e05845b543305e92841b4"
+    },
+    {
+      "seed": 8040007,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            37
+          ],
+          "onset_step": 16,
+          "severity": 0.7069460467756317,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            39
+          ],
+          "onset_step": 4,
+          "severity": 0.4543737126331696,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_2",
+          "category": "upstream_quality",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 12,
+          "severity": 0.6487448207088009,
+          "description": ""
+        },
+        {
+          "name": "operator_3",
+          "category": "operator",
+          "affected_stations": [
+            35
+          ],
+          "onset_step": 12,
+          "severity": 0.6232777232605748,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_4",
+          "category": "upstream_quality",
+          "affected_stations": [
+            11
+          ],
+          "onset_step": 6,
+          "severity": 0.3702044405910588,
+          "description": ""
+        }
+      ],
+      "data_sha256": "8ba7678e116578f4d439d3be7cef6434e4a3e52e613eb670448c9743f6e97f26"
+    },
+    {
+      "seed": 8040008,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 8,
+          "severity": 0.6856372136680519,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            17
+          ],
+          "onset_step": 20,
+          "severity": 0.44533618653569923,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 19,
+          "severity": 0.8448515975260512,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_3",
+          "category": "equipment_wear",
+          "affected_stations": [
+            5
+          ],
+          "onset_step": 12,
+          "severity": 0.4127558673862148,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_4",
+          "category": "upstream_quality",
+          "affected_stations": [
+            33
+          ],
+          "onset_step": 18,
+          "severity": 0.9698108301696053,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_5",
+          "category": "equipment_wear",
+          "affected_stations": [
+            1
+          ],
+          "onset_step": 2,
+          "severity": 0.39683888961608554,
+          "description": ""
+        }
+      ],
+      "data_sha256": "fe1df7ad35ed9ed932e7231c4a563041dddb5858201832f61d36355634e23007"
+    },
+    {
+      "seed": 8040009,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            25
+          ],
+          "onset_step": 8,
+          "severity": 0.9293734182274671,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            16
+          ],
+          "onset_step": 15,
+          "severity": 0.8226385658138387,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_2",
+          "category": "upstream_quality",
+          "affected_stations": [
+            4
+          ],
+          "onset_step": 6,
+          "severity": 0.657818732780025,
+          "description": ""
+        },
+        {
+          "name": "operator_3",
+          "category": "operator",
+          "affected_stations": [
+            34
+          ],
+          "onset_step": 9,
+          "severity": 0.7739540647541531,
+          "description": ""
+        },
+        {
+          "name": "environmental_4",
+          "category": "environmental",
+          "affected_stations": [
+            21
+          ],
+          "onset_step": 17,
+          "severity": 0.9032140651941166,
+          "description": ""
+        }
+      ],
+      "data_sha256": "58cc457f60ab900509d7877b6961de55ad5930f32d77aa8000ccc1bd18d90ab3"
+    },
+    {
+      "seed": 8040010,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 17,
+          "severity": 0.9468679730053503,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 19,
+          "severity": 0.48956684997252176,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            1
+          ],
+          "onset_step": 15,
+          "severity": 0.5896070987820411,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_3",
+          "category": "upstream_quality",
+          "affected_stations": [
+            35
+          ],
+          "onset_step": 6,
+          "severity": 0.6740564575419128,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_4",
+          "category": "equipment_wear",
+          "affected_stations": [
+            7
+          ],
+          "onset_step": 2,
+          "severity": 0.9490628084784913,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_5",
+          "category": "equipment_wear",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 4,
+          "severity": 0.6782638685440278,
+          "description": ""
+        }
+      ],
+      "data_sha256": "9d00068e092d5b5d6c1e401ede48c850c144e2cec2ab452182348759d69b23ec"
+    },
+    {
+      "seed": 8040011,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            25
+          ],
+          "onset_step": 11,
+          "severity": 0.8696293000365791,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            39
+          ],
+          "onset_step": 6,
+          "severity": 0.9422278972995095,
+          "description": ""
+        },
+        {
+          "name": "environmental_2",
+          "category": "environmental",
+          "affected_stations": [
+            21
+          ],
+          "onset_step": 9,
+          "severity": 0.6822957669586823,
+          "description": ""
+        },
+        {
+          "name": "environmental_3",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 5,
+          "severity": 0.8874623465445677,
+          "description": ""
+        },
+        {
+          "name": "operator_4",
+          "category": "operator",
+          "affected_stations": [
+            25
+          ],
+          "onset_step": 6,
+          "severity": 0.38206930234376696,
+          "description": ""
+        }
+      ],
+      "data_sha256": "6e387c8b14ac259c1e7c8bdfc56f49d5b736ad604084af6e875559f262fa1f8c"
+    },
+    {
+      "seed": 8040012,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 17,
+          "severity": 0.4216964920709447,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            36
+          ],
+          "onset_step": 7,
+          "severity": 0.5600101621795963,
+          "description": ""
+        },
+        {
+          "name": "environmental_2",
+          "category": "environmental",
+          "affected_stations": [
+            17
+          ],
+          "onset_step": 16,
+          "severity": 0.4324398756899609,
+          "description": ""
+        },
+        {
+          "name": "operator_3",
+          "category": "operator",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 6,
+          "severity": 0.5585168968706253,
+          "description": ""
+        }
+      ],
+      "data_sha256": "8e6ac152eb3777d537aa92527ed910aa34cf5391a09c2b3a906f161ac4d28521"
+    },
+    {
+      "seed": 8040013,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "fafeae694cc4ce1dd37b5d3223ce9f12fd4c80bb73d26c12b6843661e76987be"
+    },
+    {
+      "seed": 8040014,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            27
+          ],
+          "onset_step": 3,
+          "severity": 0.37644861577562383,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 11,
+          "severity": 0.5233441094708399,
+          "description": ""
+        },
+        {
+          "name": "environmental_2",
+          "category": "environmental",
+          "affected_stations": [
+            20
+          ],
+          "onset_step": 9,
+          "severity": 0.5998843748212256,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_3",
+          "category": "upstream_quality",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 8,
+          "severity": 0.571888771945334,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_4",
+          "category": "equipment_wear",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 11,
+          "severity": 0.8588560785153946,
+          "description": ""
+        },
+        {
+          "name": "operator_5",
+          "category": "operator",
+          "affected_stations": [
+            29
+          ],
+          "onset_step": 12,
+          "severity": 0.6597829697128965,
+          "description": ""
+        }
+      ],
+      "data_sha256": "10d1a3cf6cf0be5831cd9b5fbd6b92ac7df0e4d1400015545d35633774c6f90e"
+    },
+    {
+      "seed": 8040015,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            21
+          ],
+          "onset_step": 17,
+          "severity": 0.46099978826940924,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            34
+          ],
+          "onset_step": 11,
+          "severity": 0.6941654658987089,
+          "description": ""
+        },
+        {
+          "name": "environmental_2",
+          "category": "environmental",
+          "affected_stations": [
+            20
+          ],
+          "onset_step": 12,
+          "severity": 0.4370991955011031,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_3",
+          "category": "equipment_wear",
+          "affected_stations": [
+            10
+          ],
+          "onset_step": 15,
+          "severity": 0.6056314683519203,
+          "description": ""
+        },
+        {
+          "name": "environmental_4",
+          "category": "environmental",
+          "affected_stations": [
+            16
+          ],
+          "onset_step": 16,
+          "severity": 0.5176277736965763,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_5",
+          "category": "upstream_quality",
+          "affected_stations": [
+            36
+          ],
+          "onset_step": 3,
+          "severity": 0.9946843331930472,
+          "description": ""
+        }
+      ],
+      "data_sha256": "8d4bebc2e67e8619f65e0e7eed69197709db892dd7aeac5c3e4d4275c8610418"
+    },
+    {
+      "seed": 8040016,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            17
+          ],
+          "onset_step": 21,
+          "severity": 0.7540986031331942,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            30
+          ],
+          "onset_step": 5,
+          "severity": 0.9823866933903812,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 7,
+          "severity": 0.5338714683023078,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_3",
+          "category": "equipment_wear",
+          "affected_stations": [
+            9
+          ],
+          "onset_step": 4,
+          "severity": 0.4047671826453629,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_4",
+          "category": "equipment_wear",
+          "affected_stations": [
+            19
+          ],
+          "onset_step": 14,
+          "severity": 0.8944040279929144,
+          "description": ""
+        }
+      ],
+      "data_sha256": "eede64ccf4c667d0cc196fbdd9810e41ad30c7c13f97ffaadd6c4f8497e8ae2b"
+    },
+    {
+      "seed": 8040017,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "5b0990704e0140af7398846a14987701e0b2676567e5d45ab446338cbb0d13f9"
+    },
+    {
+      "seed": 8040018,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 21,
+          "severity": 0.8823340063152586,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            26
+          ],
+          "onset_step": 21,
+          "severity": 0.4913240365294591,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_2",
+          "category": "upstream_quality",
+          "affected_stations": [
+            27
+          ],
+          "onset_step": 11,
+          "severity": 0.5505438666716757,
+          "description": ""
+        },
+        {
+          "name": "environmental_3",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 3,
+          "severity": 0.37972364352598326,
+          "description": ""
+        },
+        {
+          "name": "operator_4",
+          "category": "operator",
+          "affected_stations": [
+            30
+          ],
+          "onset_step": 4,
+          "severity": 0.36334821493160957,
+          "description": ""
+        }
+      ],
+      "data_sha256": "099698ae018d49af57e3c89f7357c55046eba82fcd0608486d30c5d42138f37a"
+    },
+    {
+      "seed": 8040019,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            20
+          ],
+          "onset_step": 19,
+          "severity": 0.5536160180098535,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            25
+          ],
+          "onset_step": 18,
+          "severity": 0.9823636629552353,
+          "description": ""
+        },
+        {
+          "name": "environmental_2",
+          "category": "environmental",
+          "affected_stations": [
+            20
+          ],
+          "onset_step": 15,
+          "severity": 0.9228917876184574,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_3",
+          "category": "upstream_quality",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 7,
+          "severity": 0.36529690094729494,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_4",
+          "category": "equipment_wear",
+          "affected_stations": [
+            1
+          ],
+          "onset_step": 19,
+          "severity": 0.5389671159301623,
+          "description": ""
+        }
+      ],
+      "data_sha256": "7bbc48bf3e5602a8992b8e612b0394e21ad6ed196142ba9deff24b444c7b8f07"
+    },
+    {
+      "seed": 8040020,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            37
+          ],
+          "onset_step": 3,
+          "severity": 0.8957824539871072,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            33
+          ],
+          "onset_step": 21,
+          "severity": 0.5465637829128568,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 21,
+          "severity": 0.7180499102375244,
+          "description": ""
+        },
+        {
+          "name": "environmental_3",
+          "category": "environmental",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 10,
+          "severity": 0.7105354196521757,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_4",
+          "category": "equipment_wear",
+          "affected_stations": [
+            10
+          ],
+          "onset_step": 13,
+          "severity": 0.7600321148416608,
+          "description": ""
+        },
+        {
+          "name": "environmental_5",
+          "category": "environmental",
+          "affected_stations": [
+            20
+          ],
+          "onset_step": 14,
+          "severity": 0.41116289109862547,
+          "description": ""
+        }
+      ],
+      "data_sha256": "f055116f609d90537c5ca87232c348c247a81f62458ea17f069c0c57168f0503"
+    },
+    {
+      "seed": 8040021,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            28
+          ],
+          "onset_step": 10,
+          "severity": 0.9584476423802977,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 19,
+          "severity": 0.6487686706686292,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_2",
+          "category": "upstream_quality",
+          "affected_stations": [
+            17
+          ],
+          "onset_step": 4,
+          "severity": 0.35977638516805455,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_3",
+          "category": "equipment_wear",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 17,
+          "severity": 0.7752723353240781,
+          "description": ""
+        }
+      ],
+      "data_sha256": "474d1e8c02114fdab85f1040001b11493a7b9b0a2761025148f9067128bf3d37"
+    },
+    {
+      "seed": 8040022,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            23
+          ],
+          "onset_step": 18,
+          "severity": 0.39489905943507453,
+          "description": ""
+        },
+        {
+          "name": "environmental_1",
+          "category": "environmental",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 5,
+          "severity": 0.7214014715469576,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            11
+          ],
+          "onset_step": 16,
+          "severity": 0.5230280731152784,
+          "description": ""
+        },
+        {
+          "name": "operator_3",
+          "category": "operator",
+          "affected_stations": [
+            28
+          ],
+          "onset_step": 8,
+          "severity": 0.45793856834357044,
+          "description": ""
+        },
+        {
+          "name": "environmental_4",
+          "category": "environmental",
+          "affected_stations": [
+            16
+          ],
+          "onset_step": 8,
+          "severity": 0.9113609746809419,
+          "description": ""
+        }
+      ],
+      "data_sha256": "8191d6dbce857c526467fb575b43b03b4537ed1ad9815117e0e25847e1489b46"
+    },
+    {
+      "seed": 8040023,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 18,
+          "severity": 0.7669165005174814,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            31
+          ],
+          "onset_step": 17,
+          "severity": 0.6004412996140441,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            34
+          ],
+          "onset_step": 4,
+          "severity": 0.799270046762308,
+          "description": ""
+        },
+        {
+          "name": "environmental_3",
+          "category": "environmental",
+          "affected_stations": [
+            20
+          ],
+          "onset_step": 8,
+          "severity": 0.4694447845307536,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_4",
+          "category": "equipment_wear",
+          "affected_stations": [
+            33
+          ],
+          "onset_step": 15,
+          "severity": 0.39191250040375986,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_5",
+          "category": "upstream_quality",
+          "affected_stations": [
+            26
+          ],
+          "onset_step": 8,
+          "severity": 0.9317988832460932,
+          "description": ""
+        }
+      ],
+      "data_sha256": "71abdd715a885482cc1699e65cb29f0cb45987cbfe4c7b834288edacf02e3fb5"
+    },
+    {
+      "seed": 8040024,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            17
+          ],
+          "onset_step": 15,
+          "severity": 0.4035708061532155,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            36
+          ],
+          "onset_step": 13,
+          "severity": 0.7958398266099955,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_2",
+          "category": "upstream_quality",
+          "affected_stations": [
+            27
+          ],
+          "onset_step": 21,
+          "severity": 0.9828387619176916,
+          "description": ""
+        },
+        {
+          "name": "operator_3",
+          "category": "operator",
+          "affected_stations": [
+            25
+          ],
+          "onset_step": 4,
+          "severity": 0.5871710472904706,
+          "description": ""
+        },
+        {
+          "name": "operator_4",
+          "category": "operator",
+          "affected_stations": [
+            30
+          ],
+          "onset_step": 17,
+          "severity": 0.8845842172922604,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_5",
+          "category": "equipment_wear",
+          "affected_stations": [
+            14
+          ],
+          "onset_step": 8,
+          "severity": 0.7111525503460502,
+          "description": ""
+        }
+      ],
+      "data_sha256": "6db5537d0a8d9ef5e6c90e2c96a7630a6f7400209b75afdbac9477b3f0f672b0"
+    },
+    {
+      "seed": 8040025,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 21,
+          "severity": 0.9725118133740074,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            7
+          ],
+          "onset_step": 7,
+          "severity": 0.9008846701127439,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_2",
+          "category": "upstream_quality",
+          "affected_stations": [
+            33
+          ],
+          "onset_step": 18,
+          "severity": 0.6467780196737912,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_3",
+          "category": "equipment_wear",
+          "affected_stations": [
+            24
+          ],
+          "onset_step": 19,
+          "severity": 0.8021432442378704,
+          "description": ""
+        },
+        {
+          "name": "operator_4",
+          "category": "operator",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 14,
+          "severity": 0.4758200213928252,
+          "description": ""
+        },
+        {
+          "name": "operator_5",
+          "category": "operator",
+          "affected_stations": [
+            29
+          ],
+          "onset_step": 16,
+          "severity": 0.5702102776564951,
+          "description": ""
+        }
+      ],
+      "data_sha256": "1ba0a6cab88c292e7f716ee6729ecf29e3bbb90ff6e33b455f5210a4df4faab3"
+    },
+    {
+      "seed": 8040026,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "equipment_wear_0",
+          "category": "equipment_wear",
+          "affected_stations": [
+            34
+          ],
+          "onset_step": 16,
+          "severity": 0.6875797875438667,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_1",
+          "category": "equipment_wear",
+          "affected_stations": [
+            9
+          ],
+          "onset_step": 2,
+          "severity": 0.8005027030497307,
+          "description": ""
+        },
+        {
+          "name": "operator_2",
+          "category": "operator",
+          "affected_stations": [
+            26
+          ],
+          "onset_step": 4,
+          "severity": 0.4484037816441786,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_3",
+          "category": "equipment_wear",
+          "affected_stations": [
+            11
+          ],
+          "onset_step": 19,
+          "severity": 0.6652553975916233,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_4",
+          "category": "equipment_wear",
+          "affected_stations": [
+            12
+          ],
+          "onset_step": 8,
+          "severity": 0.4588705430305509,
+          "description": ""
+        },
+        {
+          "name": "operator_5",
+          "category": "operator",
+          "affected_stations": [
+            35
+          ],
+          "onset_step": 19,
+          "severity": 0.7849899140877984,
+          "description": ""
+        }
+      ],
+      "data_sha256": "8e54cfc01720c2ed7ec2b8b699ba5cbf834d4cc58f91ba221d3d17b8429c078d"
+    },
+    {
+      "seed": 8040027,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            22
+          ],
+          "onset_step": 7,
+          "severity": 0.9661231500560759,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            2
+          ],
+          "onset_step": 16,
+          "severity": 0.7076422100059835,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            1
+          ],
+          "onset_step": 18,
+          "severity": 0.45746390705120843,
+          "description": ""
+        },
+        {
+          "name": "environmental_3",
+          "category": "environmental",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 17,
+          "severity": 0.6291586018588042,
+          "description": ""
+        }
+      ],
+      "data_sha256": "5bfee935f46c7518485a629a40c216aa806b1bfc53a68216e47f4af4d64111f5"
+    },
+    {
+      "seed": 8040028,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "operator_0",
+          "category": "operator",
+          "affected_stations": [
+            28
+          ],
+          "onset_step": 2,
+          "severity": 0.9907387734933009,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            35
+          ],
+          "onset_step": 16,
+          "severity": 0.8251132141492676,
+          "description": ""
+        },
+        {
+          "name": "environmental_2",
+          "category": "environmental",
+          "affected_stations": [
+            15
+          ],
+          "onset_step": 3,
+          "severity": 0.7969674545855405,
+          "description": ""
+        },
+        {
+          "name": "operator_3",
+          "category": "operator",
+          "affected_stations": [
+            38
+          ],
+          "onset_step": 21,
+          "severity": 0.5130116266361603,
+          "description": ""
+        },
+        {
+          "name": "environmental_4",
+          "category": "environmental",
+          "affected_stations": [
+            17
+          ],
+          "onset_step": 17,
+          "severity": 0.7793271627102494,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_5",
+          "category": "equipment_wear",
+          "affected_stations": [
+            11
+          ],
+          "onset_step": 16,
+          "severity": 0.8171056973785403,
+          "description": ""
+        }
+      ],
+      "data_sha256": "c4ff0c24a8909c6c08039af421fca81fd55d80dc000eb5b5054e53d634111bc0"
+    },
+    {
+      "seed": 8040029,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "environmental_0",
+          "category": "environmental",
+          "affected_stations": [
+            19
+          ],
+          "onset_step": 10,
+          "severity": 0.9270545704955032,
+          "description": ""
+        },
+        {
+          "name": "operator_1",
+          "category": "operator",
+          "affected_stations": [
+            30
+          ],
+          "onset_step": 19,
+          "severity": 0.9976561311786545,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_2",
+          "category": "equipment_wear",
+          "affected_stations": [
+            9
+          ],
+          "onset_step": 8,
+          "severity": 0.36763740224494357,
+          "description": ""
+        },
+        {
+          "name": "equipment_wear_3",
+          "category": "equipment_wear",
+          "affected_stations": [
+            0
+          ],
+          "onset_step": 4,
+          "severity": 0.7428674824624144,
+          "description": ""
+        },
+        {
+          "name": "environmental_4",
+          "category": "environmental",
+          "affected_stations": [
+            13
+          ],
+          "onset_step": 19,
+          "severity": 0.9742468934512065,
+          "description": ""
+        }
+      ],
+      "data_sha256": "57bd9b8219a6e7d91b86b4fdbf9c967cb8e5787786f7f59380cacefb8cb026fb"
+    },
+    {
+      "seed": 8040030,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "2fbb53464b0c0bc4bfdf21a188108ea0b89b8617d2bd4811a876de9fe205a8f1"
+    },
+    {
+      "seed": 8040031,
+      "steps": 30,
+      "scenarios": [
+        {
+          "name": "upstream_quality_0",
+          "category": "upstream_quality",
+          "affected_stations": [
+            16
+          ],
+          "onset_step": 16,
+          "severity": 0.8271277302917964,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_1",
+          "category": "upstream_quality",
+          "affected_stations": [
+            1
+          ],
+          "onset_step": 9,
+          "severity": 0.8523117053998155,
+          "description": ""
+        },
+        {
+          "name": "environmental_2",
+          "category": "environmental",
+          "affected_stations": [
+            16
+          ],
+          "onset_step": 4,
+          "severity": 0.8657929379052858,
+          "description": ""
+        },
+        {
+          "name": "operator_3",
+          "category": "operator",
+          "affected_stations": [
+            28
+          ],
+          "onset_step": 11,
+          "severity": 0.9588785733186205,
+          "description": ""
+        },
+        {
+          "name": "upstream_quality_4",
+          "category": "upstream_quality",
+          "affected_stations": [
+            17
+          ],
+          "onset_step": 19,
+          "severity": 0.9192333685920261,
+          "description": ""
+        },
+        {
+          "name": "environmental_5",
+          "category": "environmental",
+          "affected_stations": [
+            18
+          ],
+          "onset_step": 20,
+          "severity": 0.40006397013084793,
+          "description": ""
+        }
+      ],
+      "data_sha256": "caf23df488a655aa967063e4c4b4730de33c0a158a8f1f8003a0b794569166e7"
+    }
+  ],
+  "healthy_shifts": [
+    {
+      "seed": 8060000,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "ffca03362a8c85bfde4fb18880b38c4295722f57693f3aacc570f52e65271703"
+    },
+    {
+      "seed": 8060001,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "bd6ea8a38fd8047586a2fd6ccd7f28c5ba74b2911f21ea5c48c0c070355ce6cc"
+    },
+    {
+      "seed": 8060002,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "cd61d2810874b800fe3b34343798bc69138ee0b1246174f7a5cedc54db30747a"
+    },
+    {
+      "seed": 8060003,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "f36c7e5788d5fdf9dcd261bb70604b32cdf7075186626de19441e8b7598d64a8"
+    },
+    {
+      "seed": 8060004,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "6269f8fc45eb5ece5860068bf9ccc10c785b5650082b714d416eb8692ce0f6be"
+    },
+    {
+      "seed": 8060005,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "84999ead410b065e3712033be08d6ef705755d0182e13f5a7fa60f5c70ea695a"
+    },
+    {
+      "seed": 8060006,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "dc5ba2db1b44def4ec6688ae28d342e3fb3557623864ade1489471fb30c2f17b"
+    },
+    {
+      "seed": 8060007,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "1d977a077b83d717d7997b64c63ab7c4311dc8f12f183f5a5b9910894dda08e2"
+    },
+    {
+      "seed": 8060008,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "592e38a730645b641536c4220a6780c3507e161f815290838d245e043af8e5cd"
+    },
+    {
+      "seed": 8060009,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "0ebedb84865a8c278d73b3134f67fec5abfe3cec2308319b7ea4609c3281dea3"
+    },
+    {
+      "seed": 8060010,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "fab1b7d6961f97831eef95451d41b3f84e14d3c7b3dbc45f8ffe7797347db7f0"
+    },
+    {
+      "seed": 8060011,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "572d57424bd6de955f4434d1cd1adacf32de1ce09f116b782be90f77191b74ad"
+    },
+    {
+      "seed": 8060012,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "a6d05c5829481fcfdb012b8b929b59713c4d56b025ac0a2762061e2113e615f5"
+    },
+    {
+      "seed": 8060013,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "731ddeebf3beeebdaffe0d70750288b2650425cd42013e8df93b4827bec490be"
+    },
+    {
+      "seed": 8060014,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "5cacda56f6227e4f0536e98c6e80e534ac3e770428d143623cc1d38b79b774bc"
+    },
+    {
+      "seed": 8060015,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "adc0413f950424d1430adba5026006a0a842752a873c11a516baef51956f857a"
+    },
+    {
+      "seed": 8060016,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "cd26b70003bfe0c7b79813cfdb1045ad15beadd3501c80fb44f3d3360396ce4e"
+    },
+    {
+      "seed": 8060017,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "1bd6b59c27b136a19201275d806fed98c65dc5845ff290f9d41d1971738b035c"
+    },
+    {
+      "seed": 8060018,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "446f11345553eba365232385603b26ce7c5c3f53b94f8e1153b852239d9dae82"
+    },
+    {
+      "seed": 8060019,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "201922c3a380e5df9dfc26ce5719e86ab7b20e8f71227702feef4be444e88ac0"
+    },
+    {
+      "seed": 8060020,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "0a947e7b68752c43bc5589f55f3f3c0c018aaf6fe9f850393ce3f9ed2554caeb"
+    },
+    {
+      "seed": 8060021,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "0ea2cca9884125b8868b3317876174c7a599d92627809a5349e531c7e17d43d2"
+    },
+    {
+      "seed": 8060022,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "3fb4f3aa049d69f917b5718845f52e7a6f27933e4b68cf670695ce26eafd416b"
+    },
+    {
+      "seed": 8060023,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "8e288a0d5d99205551141ee0bd92fd535d1463724842523d93ec8027dd29f502"
+    },
+    {
+      "seed": 8060024,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "1f880415386470bf6a6f7a17b239c9b0ee9603d25ef7d1d534aedd6706638c7a"
+    },
+    {
+      "seed": 8060025,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "e6d9a28e322db9a93b0a816f0aa95e98fac5bbf4e42c3c93062ccd3ee244ac8e"
+    },
+    {
+      "seed": 8060026,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "2910330918bbf8ddd95e8bf32e74020c216f40457e71314fade5c7c9647b927b"
+    },
+    {
+      "seed": 8060027,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "e47bfb17a0b49db9b02089ae6a8476e595cd2f8d2225929e182aadf0b498ae0d"
+    },
+    {
+      "seed": 8060028,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "1ed092296719950aa219040db212ecc3f40ad1f0d4d9e157978766da57e77ec7"
+    },
+    {
+      "seed": 8060029,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "24f51f966f665466147fa2334dfcecb0d2ecc2a83dcc5b92b2768a103cbf0171"
+    },
+    {
+      "seed": 8060030,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "673c7ab099e25dd228db44c9afa26192b4940c4247bd1b4e912b62c39aa611b6"
+    },
+    {
+      "seed": 8060031,
+      "steps": 30,
+      "scenarios": [],
+      "data_sha256": "c46c7dc2b15c0a4511db48dc43fc0cecc52e39bb62e8f1f90c1e8c57c514a74f"
+    }
+  ]
+}

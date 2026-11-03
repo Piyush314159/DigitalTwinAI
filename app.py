@@ -1,288 +1,262 @@
-"""
-DigitalTwin.ai — Web Dashboard Backend
-========================================
-Flask application serving the interactive multi-stakeholder dashboard.
+"""DigitalTwin monitoring API: observed telemetry and the frozen anomaly detector.
 
-Endpoints:
-    GET  /             — Dashboard SPA
-    GET  /api/state    — Current twin state (all stations + predictions)
-    GET  /api/timeline — Temporal history (all time steps so far)
-    POST /api/whatif   — Submit what-if intervention
-    GET  /api/validation — Validation metrics
-    POST /api/step     — Advance simulation by one time step
-    POST /api/reset    — Reset simulation to step 0
-
-Author : Piyush Maji
-Project: Accenture Innovation Challenge 2026
+Operational routes never run the original untrained prediction heads. Simulator
+answers remain offline evaluation targets and are not returned as station status.
 """
 
-import os
-import json
-import time
+import csv
 import hashlib
+import io
+import json
+from threading import RLock
+
 import numpy as np
 import torch
-import torch.nn.functional as F
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, Response, jsonify, render_template, request
 
-from assembly_line import (
-    build_assembly_graph, get_sensor_mask_tensor, get_station_positions,
-    get_zone_assignment, Zone, InstrumentationLevel, FEATURE_NAMES, NUM_FEATURES,
-    RISK_LABELS, RISK_COLORS, ZONE_COLORS, print_assembly_stats,
-)
-from simulator import ProductionSimulator, DEFAULT_SCENARIOS, to_torch_tensors
-from model import DigitalTwinGNN, load_model, prediction_arrays
 from anomaly import DEFAULT_CHECKPOINT, load_detector
+from assembly_line import FEATURE_NAMES, build_assembly_graph
+from simulator import ProductionSimulator
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# APP SETUP
-# ═══════════════════════════════════════════════════════════════════════════════
 
 app = Flask(__name__)
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+torch.set_num_threads(2)
+stations, edge_index, graph = build_assembly_graph()
+state_lock = RLock()
+current_step = 0
+shift_data = ProductionSimulator(stations, seed=42, shift_duration_steps=30).generate_shift()
 
-# ── Initialize components ──
-print("\n🏭  DigitalTwin.ai — Initializing Assembly Line Digital Twin...\n")
-
-stations, edge_index, G = build_assembly_graph()
-print_assembly_stats(stations, G)
-
-model, total_params, trainable_params = load_model(DEVICE)
-print(f"  ✓ Model loaded: {total_params:,} parameters on {DEVICE}")
-
-# The trained single-task detector is separate from the original untrained heads.
 anomaly_detector = None
 anomaly_checkpoint = None
 anomaly_report = None
+robustness_report = None
+checkpoint_hash = None
 if DEFAULT_CHECKPOINT.is_file():
     anomaly_detector, anomaly_checkpoint = load_detector()
-    report_path = DEFAULT_CHECKPOINT.with_name('metrics.json')
-    if report_path.is_file():
-        candidate = json.loads(report_path.read_text())
-        checkpoint_hash = hashlib.sha256(DEFAULT_CHECKPOINT.read_bytes()).hexdigest()
-        if candidate.get('checkpoint_sha256') == checkpoint_hash:
-            anomaly_report = candidate
-    print("  ✓ Trained synthetic-data anomaly detector loaded")
+    checkpoint_hash = hashlib.sha256(DEFAULT_CHECKPOINT.read_bytes()).hexdigest()
+    for path, name in ((DEFAULT_CHECKPOINT.with_name('metrics.json'), 'training'),
+                       (DEFAULT_CHECKPOINT.parent / 'robustness' / 'metrics.json', 'robustness')):
+        if path.is_file():
+            candidate = json.loads(path.read_text())
+            if candidate.get('checkpoint_sha256') == checkpoint_hash:
+                if name == 'training':
+                    anomaly_report = candidate
+                else:
+                    robustness_report = candidate
 
-simulator = ProductionSimulator(stations, shift_duration_steps=30)
-shift_data = simulator.generate_shift()
-print(f"  ✓ Shift data generated: {len(shift_data)} time steps\n")
-
-edge_index_device = edge_index.to(DEVICE)
-sensor_mask = get_sensor_mask_tensor(stations).float().to(DEVICE)
-positions = get_station_positions(stations)
-
-# ── Simulation state ──
-current_step = 0
-timeline = []
-h_states = None
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# INFERENCE ENGINE
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def run_inference(step_data, use_mask=True):
-    """Decode untrained model heads without simulator outcomes."""
-    global h_states
-
-    tensors = to_torch_tensors(step_data, DEVICE)
-    x = tensors['masked_features'] if use_mask else tensors['features']
-
-    with torch.no_grad():
-        output = model(x, edge_index_device, h_states=h_states, mask=sensor_mask if use_mask else None)
-        h_states = output['h_states']
-
-    arrays = prediction_arrays(output)
-    return {
-        **{key: value.tolist() for key, value in arrays.items()},
-        'model_status': 'untrained_demo',
-        'features': step_data['features'].tolist(),
-        'active_scenarios': step_data['active_scenarios'],
-    }
+FEATURES = [
+    ('Queue length', 'units', 1), ('Cycle time', 's', 1),
+    ('Defect rate', '%', 2), ('Temperature', '°C', 1),
+    ('Vibration', 'mm/s', 2), ('Torque deviation', '%', 2),
+    ('Utilization', '%', 1), ('Throughput / target', '%', 1),
+    ('Humidity', '%', 1), ('Power draw', 'kW', 1),
+    ('Since maintenance', 'h', 1), ('Operator skill index', '', 2),
+]
+CAPABILITIES = [
+    {'name': 'Station anomaly detection', 'status': 'trained_synthetic' if anomaly_detector is not None else 'not_trained'},
+    {'name': 'Queue forecasting', 'status': 'not_trained'},
+    {'name': 'Defect-risk prediction', 'status': 'not_trained'},
+    {'name': 'Virtual sensor reconstruction', 'status': 'not_trained'},
+    {'name': 'Confidence calibration', 'status': 'not_validated'},
+    {'name': 'Intervention estimates', 'status': 'not_validated'},
+]
 
 
-def run_trained_anomaly(shift_prefix):
-    """Replay observed readings once per step; repeated reads are idempotent.
-
-    Simulator severity, scenario names and true missing-sensor readings never
-    enter this function's inputs to the model. Recurrence starts fresh per shift.
-    """
+def run_trained_anomaly(shift_prefix, include_history=False):
+    """Replay only available observations; no persistent inference side effects."""
     if anomaly_detector is None:
-        return {'status': 'not_trained', 'message': 'Run train_anomaly.py to train the anomaly detector.'}
+        return {'status': 'not_trained', 'message': 'The anomaly model is unavailable. Train or restore its checkpoint.'}
+    if not shift_prefix:
+        raise ValueError('At least one observed step is required.')
     readings = torch.from_numpy(np.stack([s['masked_features'] for s in shift_prefix])).float()
     masks = torch.from_numpy(np.stack([s['sensor_mask'] for s in shift_prefix])).float()
-    with torch.no_grad():
-        scores = anomaly_detector(readings[None], edge_index.cpu(), masks[None]).sigmoid()[0, -1]
-    threshold = anomaly_checkpoint['threshold']
-    return {
+    with torch.inference_mode():
+        all_scores = anomaly_detector(readings[None], edge_index, masks[None]).sigmoid()[0].numpy()
+    threshold = float(anomaly_checkpoint['threshold'])
+    result = {
         'status': 'trained_synthetic', 'task': 'current_station_anomaly',
-        'scores': scores.tolist(), 'flagged': (scores >= threshold).tolist(),
+        'scores': all_scores[-1].tolist(),
+        'flagged': (all_scores[-1] >= threshold).tolist(),
         'threshold': threshold, 'steps_observed': len(shift_prefix),
-        'score_note': 'Detection scores, not calibrated probabilities or future warnings.',
+        'score_note': 'Detection scores are uncalibrated and describe current simulated conditions.',
+    }
+    if include_history:
+        result['history_scores'] = all_scores.tolist()
+    return result
+
+
+def observed_values(step_data):
+    """JSON-safe measured readings only; unobserved/invalid readings are null."""
+    values = np.asarray(step_data['masked_features'])
+    mask = np.asarray(step_data['sensor_mask']) > 0
+    return [[float(v) if present and np.isfinite(v) else None
+             for v, present in zip(row, row_mask)]
+            for row, row_mask in zip(values, mask)]
+
+
+def build_state(step):
+    prefix = shift_data[:step + 1]
+    detection = run_trained_anomaly(prefix, include_history=True)
+    ready = detection['status'] == 'trained_synthetic'
+    observations = observed_values(prefix[-1])
+    measured = sum(value is not None for row in observations for value in row)
+    queues = [row[0] for row in observations if row[0] is not None]
+    history = []
+    for index, sample in enumerate(prefix):
+        scores = detection['history_scores'][index] if ready else None
+        history.append({
+            'step': index, 'elapsedMinutes': index * 16,
+            'flaggedCount': sum(s >= detection['threshold'] for s in scores) if ready else None,
+            'scores': scores,
+        })
+    hour, minute = divmod(8 * 60 + step * 16, 60)
+    return {
+        'status': 'ok', 'source': 'synthetic', 'step': step, 'totalSteps': len(shift_data),
+        'elapsedMinutes': step * 16, 'timestamp': f'{hour:02d}:{minute:02d}',
+        'observations': observations, 'modelStatus': detection['status'],
+        'threshold': detection.get('threshold'),
+        'scores': detection.get('scores'), 'flagged': detection.get('flagged'),
+        'summary': {
+            'observedStations': sum(any(v is not None for v in row) for row in observations),
+            'flaggedStations': sum(detection['flagged']) if ready else None,
+            'sensorCoverage': measured / (len(stations) * len(FEATURE_NAMES)),
+            'meanObservedQueue': float(np.mean(queues)) if queues else None,
+        },
+        'history': history,
+        'predictions': {'model_status': detection['status'],
+                        'anomaly_score': detection.get('scores')},
     }
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# ROUTES
-# ═══════════════════════════════════════════════════════════════════════════════
+def validation_payload():
+    if anomaly_detector is None:
+        return {'status': 'not_trained', 'metrics': None, 'robustness': None}
+    if anomaly_report is None:
+        return {'status': 'report_unavailable', 'metrics': None, 'robustness': robustness_report}
+    return {
+        'status': 'trained_synthetic', 'task': 'current_station_anomaly',
+        'metrics': anomaly_report['detector']['test'],
+        'baseline': anomaly_report['linear_baseline']['test'],
+        'split_counts': anomaly_report['split_counts'],
+        'parameters': anomaly_report['detector']['parameters'],
+        'limitations': anomaly_report['limitations'], 'checkpoint_sha256': checkpoint_hash,
+        'robustness': robustness_report,
+    }
 
-@app.route('/')
+
+@app.get('/')
 def index():
     return render_template('index.html')
 
 
-@app.route('/api/config')
+@app.get('/api/config')
 def api_config():
-    """Return static configuration (station list, graph topology, etc.)."""
-    station_list = []
-    for s in stations:
-        station_list.append({
-            'id': s.id,
-            'name': s.name,
-            'short': s.short_name,
-            'zone': s.zone.value,
-            'instrumentation': s.instrumentation.value,
-            'vintage': s.vintage.value,
-            'takt': s.takt_time_sec,
-            'maintWindows': s.maint_windows_per_year,
-            'sensorMask': s.sensor_mask,
-            'pos': positions.get(s.id, [0, 0]),
-        })
-
-    edges = []
-    for u, v, d in G.edges(data=True):
-        edges.append({'source': u, 'target': v, 'type': d.get('type', 'forward')})
-
     return jsonify({
-        'stations': station_list,
-        'edges': edges,
-        'featureNames': FEATURE_NAMES,
-        'riskLabels': RISK_LABELS,
-        'riskColors': RISK_COLORS,
-        'zoneColors': {z.value: c for z, c in ZONE_COLORS.items()},
-        'totalParams': total_params,
-        'modelStatus': 'untrained_demo',
-        'anomalyDetectorStatus': 'trained_synthetic' if anomaly_detector is not None else 'not_trained',
-        'scenarios': [
-            {'name': s.name, 'category': s.category, 'onset': s.onset_step,
-             'stations': s.affected_stations, 'description': s.description}
-            for s in DEFAULT_SCENARIOS
-        ],
+        'source': 'synthetic', 'session': 'SIM-042', 'stepMinutes': 16,
+        'stations': [{'id': s.id, 'name': s.name, 'short': s.short_name,
+                      'zone': s.zone.value, 'instrumentation': s.instrumentation.value,
+                      'vintage': s.vintage.value, 'takt': s.takt_time_sec,
+                      'sensorMask': s.sensor_mask} for s in stations],
+        'edges': [{'source': u, 'target': v, 'type': d['type']} for u, v, d in graph.edges(data=True)],
+        'features': [{'key': 'throughput_target_fraction' if i == 7 else key,
+                      'name': name, 'unit': unit, 'decimals': decimals,
+                      'multiplier': 100 if i == 7 else 1}
+                     for i, (key, (name, unit, decimals)) in enumerate(zip(FEATURE_NAMES, FEATURES))],
+        'modelStatus': 'trained_synthetic' if anomaly_detector is not None else 'not_trained',
+        'threshold': float(anomaly_checkpoint['threshold']) if anomaly_checkpoint else None,
+        'capabilities': [{**c, 'status': ('trained_synthetic' if anomaly_detector is not None else 'not_trained')}
+                         if i == 0 else c for i, c in enumerate(CAPABILITIES)],
     })
 
 
-@app.route('/api/state')
+@app.get('/api/state')
 def api_state():
-    """Return current twin state with predictions."""
-    global current_step
-
-    if current_step >= len(shift_data):
-        current_step = len(shift_data) - 1
-
-    step_data = shift_data[current_step]
-    predictions = run_inference(step_data)
-
-    return jsonify({
-        'step': current_step,
-        'totalSteps': len(shift_data),
-        'predictions': predictions,
-        'timestamp': f"Shift T+{current_step * 16}min",
-    })
+    with state_lock:
+        return jsonify(build_state(current_step))
 
 
-@app.route('/api/timeline')
+@app.get('/api/timeline')
 def api_timeline():
-    """Return the full timeline of predictions accumulated so far."""
-    return jsonify({
-        'timeline': timeline,
-        'currentStep': current_step,
-    })
+    with state_lock:
+        return jsonify({'timeline': build_state(current_step)['history'], 'currentStep': current_step})
 
 
-@app.route('/api/anomaly')
+@app.get('/api/anomaly')
 def api_anomaly():
-    """Trained current-station detection using the observed shift prefix only."""
-    return jsonify(run_trained_anomaly(shift_data[:current_step + 1]))
+    with state_lock:
+        return jsonify(run_trained_anomaly(shift_data[:current_step + 1]))
 
 
-@app.route('/api/anomaly/validation')
-def api_anomaly_validation():
-    """Frozen held-out metrics tied to the exact loaded checkpoint."""
-    if anomaly_detector is None:
-        return jsonify({'status': 'not_trained', 'metrics': None})
-    if anomaly_report is None:
-        return jsonify({'status': 'report_unavailable', 'metrics': None})
-    return jsonify({'status': 'trained_synthetic', 'metrics': anomaly_report['detector']['test'],
-                    'baseline': anomaly_report['linear_baseline']['test'],
-                    'split_counts': anomaly_report['split_counts'],
-                    'parameters': anomaly_report['detector']['parameters'],
-                    'limitations': anomaly_report['limitations']})
-
-
-@app.route('/api/step', methods=['POST'])
-def api_step():
-    """Advance simulation by one time step."""
-    global current_step, h_states
-
-    if current_step < len(shift_data) - 1:
-        current_step += 1
-        step_data = shift_data[current_step]
-        predictions = run_inference(step_data)
-
-        timeline.append({
-            'step': current_step,
-            'queue': predictions['queue'],
-            'risk_class': predictions['risk_class'],
-            'anomaly_score': predictions['anomaly_score'],
-            'confidence': predictions['confidence'],
-            'active_scenarios': predictions['active_scenarios'],
-        })
-
-        return jsonify({'status': 'ok', 'step': current_step, 'predictions': predictions})
-    else:
-        return jsonify({'status': 'end_of_shift', 'step': current_step})
-
-
-@app.route('/api/reset', methods=['POST'])
-def api_reset():
-    """Reset simulation to step 0."""
-    global current_step, h_states, timeline
-    current_step = 0
-    h_states = None
-    timeline.clear()
-    return jsonify({'status': 'ok', 'step': 0})
-
-
-@app.route('/api/whatif', methods=['POST'])
-def api_whatif():
-    """
-    Run a what-if simulation.
-    Body: {"interventions": {station_id: {feature_idx: new_value, ...}, ...}}
-    """
-    return jsonify({
-        'status': 'not_trained',
-        'message': 'Intervention estimates require a trained and independently validated model.',
-    }), 409
-
-
-@app.route('/api/validation')
+@app.get('/api/validation')
+@app.get('/api/anomaly/validation')
 def api_validation():
-    """
-    Report that validation is unavailable without a trained checkpoint.
-    """
-    return jsonify({
-        'status': 'not_trained',
-        'message': 'No trained checkpoint is supplied. Validation metrics are unavailable.',
-        'metrics': None,
-    })
+    return jsonify(validation_payload())
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
+@app.post('/api/step')
+def api_step():
+    global current_step
+    with state_lock:
+        ended = current_step == len(shift_data) - 1
+        current_step = min(current_step + 1, len(shift_data) - 1)
+        payload = build_state(current_step)
+        if ended:
+            payload['status'] = 'end_of_shift'
+        return jsonify(payload)
+
+
+@app.post('/api/seek')
+def api_seek():
+    global current_step
+    body = request.get_json(silent=True)
+    step = body.get('step') if isinstance(body, dict) else None
+    if type(step) is not int or not 0 <= step < len(shift_data):
+        return jsonify({'error': 'Choose a whole step between 0 and 29.'}), 400
+    with state_lock:
+        current_step = step
+        return jsonify(build_state(current_step))
+
+
+@app.post('/api/reset')
+def api_reset():
+    global current_step
+    with state_lock:
+        current_step = 0
+        return jsonify(build_state(current_step))
+
+
+@app.post('/api/whatif')
+def api_whatif():
+    return jsonify({'status': 'not_trained',
+                    'message': 'Intervention effects require separate training and validation.'}), 409
+
+
+@app.get('/api/snapshot.csv')
+def api_snapshot():
+    with state_lock:
+        state = build_state(current_step)
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['session', 'step', 'simulated_time', 'station_id', 'station', 'zone',
+                     'anomaly_score', 'flagged',
+                     *['throughput_target_fraction' if i == 7 else key
+                       for i, key in enumerate(FEATURE_NAMES)]])
+    for station, values in zip(stations, state['observations']):
+        score = state['scores'][station.id] if state['scores'] is not None else ''
+        flag = state['flagged'][station.id] if state['flagged'] is not None else ''
+        writer.writerow(['SIM-042', state['step'], state['timestamp'], station.id,
+                         station.name, station.zone.value, score, flag,
+                         *['' if value is None else value for value in values]])
+    return Response(output.getvalue(), mimetype='text/csv',
+                    headers={'Content-Disposition': f'attachment; filename=digitaltwin-step-{state["step"]:02d}.csv'})
+
+
+@app.get('/api/evaluation.json')
+def api_evaluation_export():
+    return Response(json.dumps(validation_payload(), indent=2), mimetype='application/json',
+                    headers={'Content-Disposition': 'attachment; filename=digitaltwin-evaluation.json'})
+
 
 if __name__ == '__main__':
-    print("\n" + "=" * 60)
-    print("  DigitalTwin.ai Dashboard")
-    print("  Open http://localhost:5001 in your browser")
-    print("=" * 60 + "\n")
-    app.run(host='0.0.0.0', port=5001, debug=False)
+    print('DigitalTwin · local monitoring dashboard at http://127.0.0.1:5001')
+    app.run(host='127.0.0.1', port=5001, debug=False)

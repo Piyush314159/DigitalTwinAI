@@ -30,7 +30,8 @@ class ShiftDataset:
     manifests: list
 
 
-def make_dataset(seeds, steps=30):
+def make_dataset(seeds, steps=30, *, severity_range=(0.35, 1.0),
+                 fault_count_range=(1, 4), healthy_probability=0.25):
     """Generate independent complete shifts; labels never enter model features.
 
     These are new configurations of the SAME simulator, not evidence of
@@ -38,13 +39,17 @@ def make_dataset(seeds, steps=30):
     """
     if steps < 12:
         raise ValueError("At least 12 steps are needed for varied fault onsets.")
+    if not (0 <= healthy_probability <= 1 and 0 <= severity_range[0] < severity_range[1] <= 1):
+        raise ValueError("Invalid severity range or healthy-shift probability.")
+    if not (1 <= fault_count_range[0] < fault_count_range[1]):
+        raise ValueError("Fault counts must be a positive half-open range.")
     stations, _, _ = build_assembly_graph()
     readings, masks, targets, manifests = [], [], [], []
     categories = ("equipment_wear", "environmental", "operator", "upstream_quality")
     for seed in seeds:
         rng = np.random.default_rng(int(seed))
         scenarios = []
-        count = 0 if rng.random() < 0.25 else int(rng.integers(1, 4))
+        count = 0 if rng.random() < healthy_probability else int(rng.integers(*fault_count_range))
         for index in range(count):
             category = str(rng.choice(categories))
             pool = range(13, 24) if category == "environmental" else (
@@ -54,7 +59,7 @@ def make_dataset(seeds, steps=30):
                 name=f"{category}_{index}", category=category,
                 affected_stations=[int(rng.choice(list(pool)))],
                 onset_step=int(rng.integers(2, steps - 8)),
-                severity=float(rng.uniform(0.35, 1.0)),
+                severity=float(rng.uniform(*severity_range)),
             ))
         sim = ProductionSimulator(stations, scenarios=scenarios, seed=int(seed),
                                   shift_duration_steps=steps)

@@ -3,381 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="DigitalTwin.ai — Spatio-Temporal Graph Intelligence for Vehicle Assembly Lines. Real-time predictive monitoring dashboard.">
-    <title>DigitalTwin.ai — Assembly Line Digital Twin Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css">
+    <meta name="description" content="DigitalTwin assembly-line monitoring. Explore observed station telemetry, trained anomaly detections and independent synthetic evaluation results.">
+    <meta name="theme-color" content="#15251f">
+    <title>DigitalTwin — Operations</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2315251f'/%3E%3Cpath d='M8 9h9l7 7-7 7H8z' fill='none' stroke='%23c1d7bb' stroke-width='2'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
 <body>
-<div id="training-status" role="status" style="padding:12px 20px;background:#422006;color:#fef3c7">Simulated telemetry · See anomaly training status below. The original queue, defect-risk, virtual-sensor and confidence heads are untrained. Business values are illustrative assumptions.</div>
-
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     HEADER
-     ═══════════════════════════════════════════════════════════════════════════ -->
-<header class="header">
-    <div class="header-brand">
-        <span class="header-logo">🏭 DigitalTwin.ai</span>
-        <span class="header-subtitle">Spatio-Temporal Graph Intelligence for Assembly Lines</span>
-    </div>
-    <div class="header-status">
-        <div class="status-badge live">LIVE TWIN</div>
-        <div id="notification" class="status-badge" style="display:none"></div>
-        <span style="font-size:0.75rem;color:var(--text-muted)">Accenture Innovation Challenge 2026 · Piyush Maji</span>
-    </div>
-</header>
-
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     SIMULATION CONTROLS
-     ═══════════════════════════════════════════════════════════════════════════ -->
-<div class="sim-controls">
-    <button id="btn-step" class="sim-btn">⏭ Step</button>
-    <button id="btn-autoplay" class="sim-btn primary">▶ Auto-Play</button>
-    <button id="btn-reset" class="sim-btn danger">↺ Reset</button>
-    <div class="sim-progress">
-        <div class="progress-bar">
-            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+<svg class="icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-overview" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="i-stations" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></symbol>
+    <symbol id="i-validation" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6Z"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="i-method" viewBox="0 0 24 24"><path d="M5 3h10l4 4v14H5Z"/><path d="M14 3v5h5M8 12h8M8 16h6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="i-step" viewBox="0 0 24 24"><path d="m5 5 10 7-10 7ZM19 5v14"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v6m0 3h.01"/></symbol>
+</svg>
+<a class="skip-link" href="#main">Skip to dashboard</a>
+<div class="app-shell">
+    <aside class="sidebar" aria-label="Workspace navigation">
+        <a href="#overview" class="brand" aria-label="DigitalTwin home">
+            <svg class="brand-mark" viewBox="0 0 34 34" aria-hidden="true"><path d="M5 8h13l11 9-11 9H5Z"/><path d="M12 8v18m6-18v18"/></svg>
+            <span>DigitalTwin<span class="brand-subtitle">OPERATIONS WORKSPACE</span></span>
+        </a>
+        <div class="workspace-label">ASSEMBLY / 01</div>
+        <nav class="nav-list" aria-label="Main">
+            <button type="button" class="nav-item active" data-view="overview" aria-current="page"><svg class="icon"><use href="#i-overview"/></svg>Overview</button>
+            <button type="button" class="nav-item" data-view="stations"><svg class="icon"><use href="#i-stations"/></svg>Stations<span class="nav-count">40</span></button>
+            <button type="button" class="nav-item" data-view="validation"><svg class="icon"><use href="#i-validation"/></svg>Model validation</button>
+            <button type="button" class="nav-item" data-view="methodology"><svg class="icon"><use href="#i-method"/></svg>Methodology</button>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="workspace-status"><span class="status-dot" id="sidebar-model-dot"></span><span id="sidebar-model-state">Connecting</span></div>
+            <p>Local simulation environment</p>
+            <div class="sidebar-footer"><span>GAT + GRU</span><span class="mono">v1.0</span></div>
         </div>
-        <span class="progress-text" id="progress-text">Step 0/29 — T+0min</span>
+    </aside>
+
+    <div class="workspace">
+        <header class="topbar">
+            <div class="breadcrumb"><span>Workspace</span><span class="separator">/</span><strong>Assembly line</strong></div>
+            <div class="topbar-right"><span class="source-tag"><span></span>Simulated data</span><span class="session-id mono">SIM-042</span></div>
+        </header>
+        <main id="main" tabindex="-1">
+            <div id="error-banner" class="error-banner" role="alert" hidden></div>
+            <div class="page-heading">
+                <div><div class="eyebrow" id="page-eyebrow">OPERATIONS / OVERVIEW</div><h1 id="page-title">Assembly line overview</h1><p id="page-description">Current conditions across 40 stations in three production zones.</p></div>
+                <a class="button button-outline" id="export-link" href="/api/snapshot.csv"><svg class="icon"><use href="#i-download"/></svg><span id="export-label">Export snapshot</span></a>
+            </div>
+
+            <section class="replay-bar" aria-label="Simulation controls" id="replay-controls">
+                <div class="replay-title"><span class="status-dot"></span><strong>Shift replay</strong><span id="replay-time" class="mono">08:00</span></div>
+                <div class="replay-track"><label class="sr-only" for="step-slider">Simulation step</label><input id="step-slider" type="range" min="0" max="29" value="0" step="1"><span id="step-label" class="mono">00 / 29</span></div>
+                <div class="replay-actions">
+                    <button type="button" id="btn-reset" class="button icon-button" aria-label="Reset shift" title="Reset shift"><svg class="icon"><use href="#i-reset"/></svg></button>
+                    <button type="button" id="btn-step" class="button button-outline" aria-label="Advance one step"><svg class="icon"><use href="#i-step"/></svg><span>Step</span></button>
+                    <button type="button" id="btn-play" class="button button-dark"><svg class="icon"><use href="#i-play"/></svg><span>Play shift</span></button>
+                </div>
+            </section>
+
+            <section id="view-overview" class="view" aria-label="Overview">
+                <div class="metrics-strip" id="overview-metrics" aria-live="polite"><div class="loading-state">Loading station observations…</div></div>
+                <div class="overview-grid">
+                    <section class="panel flow-panel">
+                        <div class="panel-heading"><div><h2>Production flow</h2><p>Body construction · Paint shop · Final assembly</p></div><span class="label-pill">40 stations</span></div>
+                        <div class="flow-toolbar"><div class="legend"><span><i class="dot dot-normal"></i>Below threshold</span><span><i class="dot dot-flagged"></i>Flagged</span></div><label class="checkbox-label"><input type="checkbox" id="show-feedback">Feedback paths</label></div>
+                        <div class="flow-scroll" id="flow-map" aria-label="Interactive assembly-line map"></div>
+                        <div class="panel-foot"><span id="flow-caption">42 forward links · 14 feedback links</span><span>Select a station to inspect<svg class="icon"><use href="#i-arrow"/></svg></span></div>
+                    </section>
+                    <section class="panel alerts-panel">
+                        <div class="panel-heading"><div><h2>Stations to review</h2><p>Flagged by the trained detector</p></div><span class="count-pill" id="alert-count">—</span></div>
+                        <div id="alerts-list" class="alerts-list" aria-live="polite"></div>
+                        <div class="alert-note"><svg class="icon"><use href="#i-circle"/></svg><p>Detection scores describe current conditions. They are not failure probabilities.</p></div>
+                    </section>
+                    <section class="panel trend-panel">
+                        <div class="panel-heading"><div><h2>Detection activity</h2><p>Flagged stations at each observed step</p></div><span class="chart-unit">STATIONS</span></div>
+                        <div id="activity-chart" class="chart-container"></div>
+                        <div class="panel-foot"><span>16 minutes per step</span><span id="activity-caption">Shift observations</span></div>
+                    </section>
+                    <section class="panel detail-panel" id="station-detail" aria-label="Selected station"></section>
+                </div>
+                <div class="context-note"><svg class="icon"><use href="#i-validation"/></svg><p>Trained on synthetic shifts. Monitoring uses measured readings and the saved anomaly model; forecasting and intervention estimates are unavailable.</p><button class="text-button" type="button" data-view="validation">View evaluation<svg class="icon"><use href="#i-arrow"/></svg></button></div>
+            </section>
+
+            <section id="view-stations" class="view" aria-label="Station inventory" hidden>
+                <div class="station-layout">
+                    <section class="panel station-register">
+                        <div class="panel-heading"><div><h2>Station register</h2><p id="station-result-count">40 stations across three zones</p></div></div>
+                        <div class="table-controls">
+                            <div class="search-field"><svg class="icon"><use href="#i-search"/></svg><label class="sr-only" for="station-search">Search stations</label><input type="search" id="station-search" placeholder="Search station or ID"></div>
+                            <label class="sr-only" for="zone-filter">Filter by production zone</label><select id="zone-filter"><option value="all">All zones</option></select>
+                            <label class="sr-only" for="status-filter">Filter by detection status</label><select id="status-filter"><option value="all">All statuses</option><option value="flagged">Flagged</option><option value="below">Below threshold</option></select>
+                        </div>
+                        <div class="table-scroll"><table class="data-table"><thead><tr><th>Station</th><th>Zone</th><th>Status</th><th><button id="sort-score" type="button" aria-label="Sort by detection score">Score <span aria-hidden="true">↓</span></button></th><th>Observed queue</th><th>Sensors</th><th><span class="sr-only">Inspect</span></th></tr></thead><tbody id="station-table-body"></tbody></table></div>
+                        <div class="panel-foot"><span>Queue values are observed, not forecast.</span><span>Score range 0–1</span></div>
+                    </section>
+                    <section class="panel station-inspector" id="station-detail-secondary" aria-label="Station readings"></section>
+                </div>
+            </section>
+
+            <section id="view-validation" class="view" aria-label="Model validation" hidden>
+                <div id="validation-content"><div class="loading-state">Loading saved evaluation…</div></div>
+            </section>
+
+            <section id="view-methodology" class="view" aria-label="Methodology" hidden>
+                <div class="method-grid">
+                    <section class="panel prose-panel"><span class="eyebrow">01 / TASK</span><h2>Detect a condition, then inspect its evidence.</h2><p>The detector identifies current station disturbances from available readings and the assembly graph. Its training target is simulator disturbance severity of at least 0.30.</p><p>An alert is a request to review the station. It does not establish a physical failure or a causal diagnosis.</p><div class="method-equation">Observed readings + sensor mask + graph <span>→</span> Detection score</div></section>
+                    <section class="panel prose-panel"><span class="eyebrow">02 / DATA</span><h2>A controlled simulation environment.</h2><p>Forty stations connect body construction, paint shop and final assembly. Shift scenarios vary the location, timing, severity and combination of injected disturbances.</p><p>Missing readings stay unavailable. Simulator answers and hidden sensor readings are excluded from model inputs and operational status.</p><div class="method-stats"><div><strong>40</strong><span>stations</span></div><div><strong>12</strong><span>features / station</span></div><div><strong>30</strong><span>steps / shift</span></div></div></section>
+                    <section class="panel prose-panel"><span class="eyebrow">03 / EVALUATION</span><h2>Separate complete shifts.</h2><p>128 shifts train the model. 32 validation shifts select the checkpoint and detection threshold. Another 32 shifts supply the original held-out results.</p><p>Additional robustness conditions evaluate the frozen model. The model, training scales and threshold are not adjusted during these evaluations.</p><button type="button" class="text-button" data-view="validation">Explore model validation<svg class="icon"><use href="#i-arrow"/></svg></button></section>
+                    <section class="panel prose-panel"><span class="eyebrow">04 / SCOPE</span><h2>Clear boundaries for each capability.</h2><div id="capability-list" class="capability-list"></div><p class="small-note">All measured results use the same synthetic generator and graph. Real-factory performance and financial savings have not been established.</p></section>
+                </div>
+            </section>
+            <footer class="workspace-footer"><span>DigitalTwin<span class="footer-divider">/</span>Assembly-line research workspace</span><span id="footer-model" class="mono">SYNTHETIC ENVIRONMENT</span></footer>
+        </main>
     </div>
 </div>
-
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     TAB NAVIGATION
-     ═══════════════════════════════════════════════════════════════════════════ -->
-<nav class="tab-nav">
-    <button class="tab-btn active" data-tab="tab-floor">
-        <span class="tab-icon">🔧</span> Floor Supervisor
-    </button>
-    <button class="tab-btn" data-tab="tab-planner">
-        <span class="tab-icon">📊</span> Plant Manager
-    </button>
-    <button class="tab-btn" data-tab="tab-leadership">
-        <span class="tab-icon">💼</span> Leadership
-    </button>
-</nav>
-
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     TAB 1: FLOOR SUPERVISOR — Real-Time Operations
-     ═══════════════════════════════════════════════════════════════════════════ -->
-<div id="tab-floor" class="tab-content active">
-
-    <div class="card mb-lg">
-        <div class="card-header">
-            <h2 class="card-title">Trained Station Anomaly Detector</h2>
-            <span class="card-badge">SYNTHETIC DATA</span>
-        </div>
-        <div class="card-body" id="trained-anomaly-panel" aria-live="polite">
-            Loading anomaly detector status…
-        </div>
-    </div>
-
-    <!-- Assembly Graph + Alerts -->
-    <div class="grid-2 mb-lg">
-        <div class="card grid-span-2" style="grid-column:1/2">
-            <div class="card-header">
-                <h2 class="card-title">🏗️ Assembly Line — Live Graph</h2>
-                <span class="card-badge" style="background:var(--risk-low-bg);color:var(--risk-low)">40 STATIONS</span>
-            </div>
-            <div class="card-body">
-                <div class="graph-container" id="graph-svg"></div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">🚨 Active Alerts</h2>
-            </div>
-            <div class="card-body scroll-container" id="alerts-container">
-                <div class="empty-state">
-                    <div class="empty-state-icon">⏳</div>
-                    <p>Click "Step" or "Auto-Play" to start simulation</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Station Table -->
-    <div class="card mb-lg">
-        <div class="card-header">
-            <h2 class="card-title">📋 Station Status Matrix</h2>
-            <span class="card-badge" style="background:var(--bg-glass);color:var(--text-muted)">ALL STATIONS</span>
-        </div>
-        <div class="card-body">
-            <div class="scroll-container" style="max-height:350px">
-                <table class="station-table" id="station-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Station</th>
-                            <th>Zone</th>
-                            <th>Sensors</th>
-                            <th>Risk</th>
-                            <th>Queue</th>
-                            <th>Anomaly</th>
-                            <th>Confidence</th>
-                        </tr>
-                    </thead>
-                    <tbody id="station-tbody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Virtual Sensing -->
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">👁️ Virtual Sensing — Under-Instrumented Stations</h2>
-            <span class="card-badge" style="background:var(--risk-medium-bg);color:var(--risk-medium)">PARTIAL + MANUAL</span>
-        </div>
-        <div class="card-body">
-            <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:var(--space-md)">
-                GNN neighbor aggregation infers state for stations with incomplete sensor coverage. 
-                Low-confidence stations are flagged for manual inspection.
-            </p>
-            <div class="grid-3" id="virtual-sensing"></div>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     TAB 2: PLANT MANAGER — Shift Planning & Trends
-     ═══════════════════════════════════════════════════════════════════════════ -->
-<div id="tab-planner" class="tab-content">
-
-    <!-- Shift KPIs -->
-    <div class="grid-3 mb-lg" style="grid-template-columns: repeat(6, 1fr)">
-        <div class="kpi-card" id="kpi-high-risk">
-            <div class="kpi-value text-danger">0</div>
-            <div class="kpi-label">High Risk Stations</div>
-            <div class="kpi-delta">—</div>
-        </div>
-        <div class="kpi-card" id="kpi-med-risk">
-            <div class="kpi-value text-warning">0</div>
-            <div class="kpi-label">Medium Risk</div>
-            <div class="kpi-delta">—</div>
-        </div>
-        <div class="kpi-card" id="kpi-avg-queue">
-            <div class="kpi-value text-accent">0</div>
-            <div class="kpi-label">Avg Queue Length</div>
-            <div class="kpi-delta">—</div>
-        </div>
-        <div class="kpi-card" id="kpi-oee">
-            <div class="kpi-value text-success">—</div>
-            <div class="kpi-label">Est. OEE</div>
-            <div class="kpi-delta">—</div>
-        </div>
-        <div class="kpi-card" id="kpi-low-conf">
-            <div class="kpi-value text-warning">0</div>
-            <div class="kpi-label">Low Confidence</div>
-            <div class="kpi-delta">—</div>
-        </div>
-        <div class="kpi-card" id="kpi-anomaly">
-            <div class="kpi-value text-accent">0%</div>
-            <div class="kpi-label">Avg Anomaly Score</div>
-            <div class="kpi-delta">—</div>
-        </div>
-    </div>
-
-    <div class="grid-2 mb-lg">
-        <!-- Risk Heatmap -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">🌡️ Risk Heatmap — Station × Time</h2>
-            </div>
-            <div class="card-body scroll-container" id="risk-heatmap">
-                <div class="empty-state"><div class="empty-state-icon">📊</div><p>Advance simulation to see risk heatmap</p></div>
-            </div>
-        </div>
-
-        <!-- Bottleneck Ranking -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">🔥 Bottleneck Frequency</h2>
-            </div>
-            <div class="card-body" id="bottleneck-chart">
-                <div class="empty-state"><div class="empty-state-icon">📈</div><p>Bottleneck data appears after several steps</p></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="grid-2 mb-lg">
-        <!-- What-If Simulator -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">🧪 What-If Simulator</h2>
-            </div>
-            <div class="card-body">
-                <div class="whatif-form">
-                    <div>
-                        <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:4px">Target Station</label>
-                        <select class="whatif-select" id="whatif-station">
-                            <!-- Populated dynamically -->
-                        </select>
-                    </div>
-                    <div>
-                        <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:4px">Intervention Type</label>
-                        <select class="whatif-select" id="whatif-intervention">
-                            <option value="maintenance">🔧 Perform Maintenance (reset wear + maint timer)</option>
-                            <option value="takt_increase">⏱️ Increase Takt (15% cycle time reduction)</option>
-                            <option value="reroute">🔀 Reroute Batch (reduce queue, boost utilization)</option>
-                        </select>
-                    </div>
-                    <button class="sim-btn primary" id="btn-run-whatif" style="align-self:flex-start">
-                        ▶ Run What-If
-                    </button>
-                </div>
-                <div id="whatif-results"></div>
-            </div>
-        </div>
-
-        <!-- Anomaly Scenarios -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">⚡ Anomaly Scenarios</h2>
-            </div>
-            <div class="card-body scroll-container" id="scenario-status">
-                <div class="empty-state"><p>Scenarios will appear as simulation progresses</p></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     TAB 3: LEADERSHIP — Business Case & ROI
-     ═══════════════════════════════════════════════════════════════════════════ -->
-<div id="tab-leadership" class="tab-content">
-
-    <!-- ROI Cards -->
-    <h2 style="font-size:1.1rem;margin-bottom:var(--space-md);color:var(--text-primary)">💰 Projected Impact (Per Plant, Annually)</h2>
-    <div class="grid-4 mb-lg" id="roi-cards"></div>
-
-    <div class="grid-2 mb-lg">
-        <!-- Validation Metrics -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">✅ Model Validation</h2>
-                <span class="card-badge" style="background:var(--risk-low-bg);color:var(--risk-low)">LIVE METRICS</span>
-            </div>
-            <div class="card-body" id="validation-metrics">
-                <div class="empty-state"><div class="empty-state-icon">📈</div>
-                <p>No trained checkpoint is supplied; validation metrics are unavailable.</p></div>
-            </div>
-        </div>
-
-        <!-- Multi-Plant Scalability -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">🌍 Multi-Plant Rollout Plan</h2>
-            </div>
-            <div class="card-body" id="multi-plant"></div>
-        </div>
-    </div>
-
-    <!-- Phased Roadmap -->
-    <div class="card mb-lg">
-        <div class="card-header">
-            <h2 class="card-title">🗺️ Implementation Roadmap</h2>
-        </div>
-        <div class="card-body">
-            <div class="roadmap">
-                <div class="roadmap-phase">
-                    <div class="roadmap-dot"></div>
-                    <div class="roadmap-title">Phase 1 — Pilot</div>
-                    <div class="roadmap-desc">
-                        Q1-Q2 2027<br>
-                        Single line deployment<br>
-                        40 stations, 60% sensor coverage<br>
-                        Core prediction + virtual sensing<br>
-                        <strong style="color:var(--zone-body)">$150K investment</strong>
-                    </div>
-                </div>
-                <div class="roadmap-phase">
-                    <div class="roadmap-dot"></div>
-                    <div class="roadmap-title">Phase 2 — Single Plant</div>
-                    <div class="roadmap-desc">
-                        Q3-Q4 2027<br>
-                        All lines in pilot plant<br>
-                        Dashboard rollout to all shifts<br>
-                        What-If simulation enabled<br>
-                        <strong style="color:var(--zone-paint)">$400K cumulative</strong>
-                    </div>
-                </div>
-                <div class="roadmap-phase">
-                    <div class="roadmap-dot"></div>
-                    <div class="roadmap-title">Phase 3 — Enterprise</div>
-                    <div class="roadmap-desc">
-                        2028+<br>
-                        Multi-plant federation<br>
-                        Cross-plant benchmarking<br>
-                        Automated intervention recommendations<br>
-                        <strong style="color:var(--zone-final)">$1.2M cumulative</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Technology Architecture -->
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">🧠 Technical Architecture</h2>
-        </div>
-        <div class="card-body">
-            <div class="grid-3">
-                <div style="padding:var(--space-md);background:var(--bg-glass);border-radius:var(--radius-md)">
-                    <h4 style="color:var(--zone-body);font-size:0.85rem;margin-bottom:8px">Data Layer</h4>
-                    <ul style="font-size:0.75rem;color:var(--text-secondary);list-style:none;line-height:1.8">
-                        <li>• OPC-UA / MQTT from modern PLCs</li>
-                        <li>• Edge gateways for legacy serial/analog</li>
-                        <li>• Apache Kafka streaming pipeline</li>
-                        <li>• TimescaleDB time-series storage</li>
-                        <li>• Virtual sensor gap-filling</li>
-                    </ul>
-                </div>
-                <div style="padding:var(--space-md);background:var(--bg-glass);border-radius:var(--radius-md)">
-                    <h4 style="color:var(--zone-paint);font-size:0.85rem;margin-bottom:8px">Intelligence Layer</h4>
-                    <ul style="font-size:0.75rem;color:var(--text-secondary);list-style:none;line-height:1.8">
-                        <li>• Spatio-Temporal GATv2 + GRU</li>
-                        <li>• Masked-node virtual sensing</li>
-                        <li>• Multi-head prediction (5 heads)</li>
-                        <li>• Root-cause attention extraction</li>
-                        <li>• What-If simulation engine</li>
-                    </ul>
-                </div>
-                <div style="padding:var(--space-md);background:var(--bg-glass);border-radius:var(--radius-md)">
-                    <h4 style="color:var(--zone-final);font-size:0.85rem;margin-bottom:8px">Application Layer</h4>
-                    <ul style="font-size:0.75rem;color:var(--text-secondary);list-style:none;line-height:1.8">
-                        <li>• Multi-stakeholder dashboard</li>
-                        <li>• Real-time alerting (floor view)</li>
-                        <li>• Planning tools (manager view)</li>
-                        <li>• ROI / validation (leadership)</li>
-                        <li>• REST API for integration</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════════════════ -->
-
-<script>
-    // Populate what-if station selector after config loads
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-            if (typeof config !== 'undefined' && config && config.stations) {
-                const sel = document.getElementById('whatif-station');
-                if (sel) {
-                    sel.innerHTML = config.stations.map(s =>
-                        `<option value="${s.id}">[${String(s.id).padStart(2,'0')}] ${s.name} (${s.zone})</option>`
-                    ).join('');
-                }
-            }
-        }, 1500);
-    });
-</script>
-<script src="/static/dashboard.js"></script>
-
+<div id="live-announcement" class="sr-only" role="status" aria-live="polite"></div>
 </body>
 </html>

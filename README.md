@@ -42,7 +42,7 @@ This saves `training_outputs/anomaly_detector.pt`, a linear baseline checkpoint,
 
 If setting up a fresh environment, install `requirements.txt` first. No LLM or GPU is required for this milestone. Avoid tuning against this already inspected test split; use a newly reserved evaluation set for a subsequent final comparison.
 
-## Run the dashboard
+## Run the monitoring dashboard
 
 ```bash
 .venv/bin/python app.py
@@ -50,26 +50,61 @@ If setting up a fresh environment, install `requirements.txt` first. No LLM or G
 
 Open **http://localhost:5001**. Restart the app after retraining so it loads the new checkpoint.
 
-- The **Trained Station Anomaly Detector** panel shows current detected stations and frozen held-out metrics for the exact loaded checkpoint.
-- `GET /api/anomaly` uses only the observed shift prefix and replays temporal state from the beginning. Repeated reads do not advance the trained model's memory.
-- `GET /api/anomaly/validation` serves saved test metrics only when their checkpoint hash matches the loaded artifact. It never calculates validation results from the current demo shift.
-- Without the checkpoint, the trained panel explicitly reports `not_trained`.
+- **Overview:** a selectable assembly graph, trained anomaly alerts, observed sensor coverage and queue readings, shift replay and a detection-activity chart. Map colors, alerts and counts use the same model scores and fixed threshold.
+- **Stations:** search and filter by zone or detection status, sort detection scores, inspect observed readings and export a 40-station CSV snapshot. Missing sensors remain unavailable. Throughput is expressed relative to target, not as a measured units-per-hour value.
+- **Model validation:** original held-out metrics, a linear-model comparison, confusion counts and the six-condition robustness evaluation. Export the exact saved results as JSON.
+- **Methodology:** data source, evaluation protocol and explicit availability of each capability.
+- Replay supports stepping, play/pause, reset and seeking in either direction. Model recurrence replays only the observed prefix; repeated reads do not change memory, and future chart points remain unobserved.
+- Without the checkpoint, detection is explicitly unavailable. It is never replaced by random model output or an all-clear status.
+- The dashboard runs locally with Flask and plain HTML/CSS/JavaScript. It has no additional frontend dependencies, external chart service, or LLM requirement.
+
+### Monitoring endpoints
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /api/state` | Observed readings, trained scores, flags and observed history |
+| `POST /api/step`, `/api/reset`, `/api/seek` | Serialized shift replay; seek accepts an integer step 0–29 |
+| `GET /api/anomaly` | Trained scores for the current observed prefix |
+| `GET /api/validation`, `/api/anomaly/validation` | Frozen metrics for the exact loaded checkpoint |
+| `GET /api/snapshot.csv` | Current observed readings and trained flags, without simulator answers |
+| `GET /api/evaluation.json` | Saved evaluation and robustness report |
+
+## Frozen-model robustness evaluation
+
+```bash
+.venv/bin/python evaluate_robustness.py
+```
+
+This evaluates the saved detector and linear baseline **without training or selecting a new threshold**. The extra conditions use seeds separate from the original train/validation/test sets. Sensor challenges reuse the fresh reference shifts for paired comparisons. Each condition has 32 shifts, with 38,400 station-time observations.
+
+| Condition | Detector F1 | Recall | False-positive station-steps | Missed station-steps |
+|---|---:|---:|---:|---:|
+| Fresh simulated shifts | 0.929 | 0.896 | 23 | 71 |
+| 20% additional sensor outages | 0.768 | 0.666 | 46 | 228 |
+| Noisy measurements | 0.916 | 0.890 | 36 | 75 |
+| Weaker disturbances | 0.928 | 0.920 | 37 | 46 |
+| 4–6 concurrent disturbances | 0.935 | 0.917 | 86 | 159 |
+| Healthy shifts | — | — | 12 | 0 |
+
+Additional sensor outages expose the largest measured degradation. F1 and recall are undefined in the all-healthy case; its useful measure is false alarms (12 of 38,400 station-steps). Station-time observations are correlated, and counts do not represent independent factory incidents. No condition establishes real-factory generalization.
+
+See [the robustness report](training_outputs/robustness/report.md), [exact metrics](training_outputs/robustness/metrics.json) and `training_outputs/robustness/predictions.npz`. Model and original training artifacts are preserved. These challenge sets are now inspected; reserve new evaluation data before further tuning.
 
 ## Original prototype status
 
-The original `DigitalTwinGNN` in `model.py` and its queue, defect-risk, virtual-sensor and confidence views still use untrained weights. Their `/api/validation` response remains `not_trained`. The new anomaly detector has its own checkpoint, endpoints and clearly labeled panel; its results do not validate the original heads. `/api/whatif` remains unavailable (HTTP 409).
+The original `DigitalTwinGNN` in `model.py` remains an untrained research architecture. Operational endpoints and the dashboard no longer execute its random heads. Queue forecasting, defect-risk prediction, virtual sensing, confidence calibration and intervention estimates are marked unavailable in the capability view. `/api/validation` now reports the trained anomaly detector's saved results; `/api/whatif` remains unavailable (HTTP 409).
 
-The graph has 40 stations and 56 edges (42 forward, 14 feedback/rework), with 25 fully instrumented, 9 partially instrumented and 6 manual stations. Telemetry is simulated. No sensor savings, predictive lead time, causal root-cause accuracy or financial savings have been established. Dashboard business figures are illustrative assumptions.
+The graph has 40 stations and 56 edges (42 forward, 14 feedback/rework), with 25 fully instrumented, 9 partially instrumented and 6 manual stations. Telemetry is simulated. No sensor savings, predictive lead time, causal root-cause accuracy or financial savings have been established. The monitoring dashboard contains no illustrative savings or rollout claims.
 
 The command-line `demo.py` still demonstrates the original untrained multi-head architecture. PDF/PPTX exports and proposal documents are historical design artifacts, not evidence of trained-model performance. Attention weights alone do not establish causal attribution.
 
 ## Checks
 
 ```bash
-.venv/bin/python -m unittest test_integrity test_anomaly_training -v
+.venv/bin/python -m unittest test_integrity test_anomaly_training test_monitoring -v
 ```
 
-Checks cover missing readings, simulator-answer independence, healthy-shift generation, reproducible split data, isolated graph batches, sequence replay, checkpoint reload, tied-score metrics and API availability states.
+23 checks cover missing readings, simulator-answer independence, healthy-shift generation, reproducible original data, isolated graph batches, sequence replay, checkpoint reload, tied-score metrics, invalid seeks, unavailable-model behavior, CSV units and reproducible frozen-model challenge metrics. Browser verification also covers desktop/mobile layouts, graph selection, feedback paths, replay boundaries, station filters and the downloaded CSV.
 
 ## Next DigitalTwin milestones
 
