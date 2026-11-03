@@ -124,10 +124,15 @@ def main():
     rows = []
     for c in COMPONENTS:
         a, b = reports['mlp']['test']['components'][c['id']], reports['linear']['test']['components'][c['id']]
-        rows.append(f"| {c['name']} | {a['macro_f1']:.3f} | {b['macro_f1']:.3f} | {a['accuracy']:.3f} |")
+        deployed_accuracy = reports[selected]['test']['components'][c['id']]['accuracy']
+        rows.append(f"| {c['name']} | {a['macro_f1']:.3f} | {b['macro_f1']:.3f} | {deployed_accuracy:.3f} |")
     text = '# DigitalTwin — real hydraulic measurements\n\n'+f"Source: {SOURCE_URL}\n\n{manifest['protocol']}\n\n"
     text += f"Cycles: {report['split_counts']}. Deployed model chosen on validation: **{selected}**.\n\n"
-    text += '| Component | MLP macro F1 | Linear macro F1 | MLP accuracy |\n|---|---:|---:|---:|\n'+'\n'.join(rows)+'\n\n'
+    text += '| Component | MLP macro F1 | Linear macro F1 | Deployed accuracy |\n|---|---:|---:|---:|\n'+'\n'.join(rows)+'\n\n'
+    deployed_test = reports[selected]['test']
+    text += (f"Deployed mean component macro F1: {deployed_test['mean_macro_f1']:.3f}. "
+             f"Mean component accuracy: {deployed_test['mean_accuracy']:.2%}. "
+             f"All four components correct: {deployed_test['all_components_correct']:.2%}.\n\n")
     text += '\n'.join('- '+v for v in report['limitations'])+'\n'
     (OUTPUT/'training_report.md').write_text(text)
     print(text)

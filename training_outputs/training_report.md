@@ -6,12 +6,14 @@ Seed 42; 60/20/20 split of all 144 joint condition combinations. Entire combinat
 
 Cycles: {'train': 1371, 'validation': 506, 'test': 328}. Deployed model chosen on validation: **linear**.
 
-| Component | MLP macro F1 | Linear macro F1 | MLP accuracy |
+| Component | MLP macro F1 | Linear macro F1 | Deployed accuracy |
 |---|---:|---:|---:|
 | Cooler | 1.000 | 1.000 | 1.000 |
-| Valve | 0.915 | 0.935 | 0.915 |
-| Pump | 0.988 | 0.996 | 0.991 |
-| Accumulator | 0.701 | 0.869 | 0.710 |
+| Valve | 0.915 | 0.935 | 0.936 |
+| Pump | 0.988 | 0.996 | 0.997 |
+| Accumulator | 0.701 | 0.869 | 0.866 |
+
+Deployed mean component macro F1: 0.950. Mean component accuracy: 94.97%. All four components correct: 80.49%.
 
 - Same physical test rig; not an independent-machine or production-factory validation.
 - Joint condition combinations are held out; this is not a chronological forecast.
