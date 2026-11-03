@@ -4,14 +4,14 @@ Source: https://archive.ics.uci.edu/dataset/447/condition+monitoring+of+hydrauli
 
 Seed 42; 60/20/20 split of all 144 joint condition combinations. Entire combinations, including repeated cycles, stay together.
 
-Cycles: {'train': 1371, 'validation': 506, 'test': 328}. Deployed model chosen on validation: **linear**.
+Cycles: {'train': 1371, 'validation': 506, 'test': 328}. Deployed model: **linear**.
 
-| Component | MLP macro F1 | Linear macro F1 | Deployed accuracy |
-|---|---:|---:|---:|
-| Cooler | 1.000 | 1.000 | 1.000 |
-| Valve | 0.915 | 0.935 | 0.936 |
-| Pump | 0.988 | 0.996 | 0.997 |
-| Accumulator | 0.701 | 0.869 | 0.866 |
+| Component | Linear macro F1 | Deployed accuracy |
+|---|---:|---:|
+| Cooler | 1.000 | 1.000 |
+| Valve | 0.935 | 0.936 |
+| Pump | 0.996 | 0.997 |
+| Accumulator | 0.869 | 0.866 |
 
 Deployed mean component macro F1: 0.950. Mean component accuracy: 94.97%. All four components correct: 80.49%.
 

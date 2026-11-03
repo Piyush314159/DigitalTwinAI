@@ -12,13 +12,13 @@ from hydraulics import OUTPUT, COMPONENTS, FEATURE_NAMES, SOURCE_URL, prepare_da
 from model import HydraulicClassifier, predict, load_model
 
 
-def fit(kind, data, split, epochs, seed):
+def fit(data, split, epochs, seed):
     torch.manual_seed(seed)
     x, y = data['features'], data['targets']
     train, validation = split['train'], split['validation']
     mean, scale = x[train].mean(axis=0), x[train].std(axis=0).clip(1e-4)
-    model = HydraulicClassifier(mean, scale, kind)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.02 if kind=='linear' else 0.003, weight_decay=1e-4)
+    model = HydraulicClassifier(mean, scale)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.02, weight_decay=1e-4)
     losses = []
     for i, c in enumerate(COMPONENTS):
         counts = np.bincount(y[train, i], minlength=len(c['codes']))
@@ -52,7 +52,7 @@ def fit(kind, data, split, epochs, seed):
         else:
             stale += 1
         if epoch == 1 or epoch % 25 == 0:
-            print(f'{kind} epoch {epoch}: validation macro F1 {score:.3f}', flush=True)
+            print(f'linear epoch {epoch}: validation macro F1 {score:.3f}', flush=True)
         if stale >= 35:
             break
     model.load_state_dict(best)
@@ -76,29 +76,22 @@ def main():
     split = grouped_split(data['profile'])
     # All cycles sharing a joint condition combination stay in a single split.
     OUTPUT.mkdir(exist_ok=True)
-    models, fits = {}, {}
-    for kind in ('linear', 'mlp'):
-        models[kind], fits[kind] = fit(kind, data, split, args.epochs, 42)
-    selected = max(('linear', 'mlp'), key=lambda k:fits[k]['validation']['mean_macro_f1'])
-    print('Validation-selected deployment model:', selected, flush=True)
+    selected = 'linear'
+    model, training = fit(data, split, args.epochs, 42)
+    print('Deployment model:', selected, flush=True)
     # Final test labels are first scored after model selection.
     test = split['test']
-    reports, saved = {}, {'targets':data['targets'][test], 'cycle_indices':test}
-    for kind, model in models.items():
-        predictions, scores = predict(model, data['features'][test])
-        reports[kind] = {**fits[kind], 'test':evaluation_metrics(data['targets'][test], predictions)}
-        saved[f'{kind}_predictions'] = predictions
-        for i, c in enumerate(COMPONENTS):
-            saved[f"{kind}_{c['id']}_scores"] = scores[i]
-        checkpoint = {'task':'uci_hydraulic_component_conditions_v1', 'kind':kind,
-                      'feature_names':FEATURE_NAMES, 'dataset_fingerprint':str(data['fingerprint']),
-                      'state_dict':model.state_dict()}
-        torch.save(checkpoint, OUTPUT/f'{kind}.pt')
-        restored, _ = load_model(OUTPUT/f'{kind}.pt')
-        np.testing.assert_array_equal(predict(restored, data['features'][test])[0], predictions)
+    predictions, scores = predict(model, data['features'][test])
+    reports = {selected: {**training, 'test':evaluation_metrics(data['targets'][test], predictions)}}
+    saved = {'targets':data['targets'][test], 'cycle_indices':test,
+             'linear_predictions':predictions}
+    for i, c in enumerate(COMPONENTS):
+        saved[f"linear_{c['id']}_scores"] = scores[i]
     torch.save({'task':'uci_hydraulic_component_conditions_v1', 'kind':selected,
                 'feature_names':FEATURE_NAMES, 'dataset_fingerprint':str(data['fingerprint']),
-                'state_dict':models[selected].state_dict()}, OUTPUT/'model.pt')
+                'state_dict':model.state_dict()}, OUTPUT/'model.pt')
+    restored, _ = load_model(OUTPUT/'model.pt')
+    np.testing.assert_array_equal(predict(restored, data['features'][test])[0], predictions)
     manifest = {name:{'cycle_indices':idx.tolist(), 'cycles':len(idx),
                       'condition_combinations':np.unique(data['profile'][idx,:4],axis=0).tolist()}
                 for name,idx in split.items()}
@@ -109,7 +102,7 @@ def main():
     report = {'task':'four_component_condition_classification', 'source':'real_test_rig',
               'source_url':SOURCE_URL, 'dataset_fingerprint':str(data['fingerprint']),
               'checkpoint_sha256':file_hash(OUTPUT/'model.pt'), 'selected_model':selected,
-              'selection':'Highest mean component macro F1 on validation only. Normalization and class weights fitted on training only.',
+              'selection':'Linear deployment retained after earlier model comparisons. Normalization and class weights fitted on training only.',
               'split_protocol':manifest['protocol'],
               'split_counts':{k:len(v) for k,v in split.items()},
               'sensor_channels':14, 'features':len(FEATURE_NAMES), 'excluded_channels':['CE','CP','SE'],
@@ -123,12 +116,12 @@ def main():
     (OUTPUT/'metrics.json').write_text(json.dumps(report,indent=2)+'\n')
     rows = []
     for c in COMPONENTS:
-        a, b = reports['mlp']['test']['components'][c['id']], reports['linear']['test']['components'][c['id']]
+        b = reports['linear']['test']['components'][c['id']]
         deployed_accuracy = reports[selected]['test']['components'][c['id']]['accuracy']
-        rows.append(f"| {c['name']} | {a['macro_f1']:.3f} | {b['macro_f1']:.3f} | {deployed_accuracy:.3f} |")
+        rows.append(f"| {c['name']} | {b['macro_f1']:.3f} | {deployed_accuracy:.3f} |")
     text = '# DigitalTwin — real hydraulic measurements\n\n'+f"Source: {SOURCE_URL}\n\n{manifest['protocol']}\n\n"
-    text += f"Cycles: {report['split_counts']}. Deployed model chosen on validation: **{selected}**.\n\n"
-    text += '| Component | MLP macro F1 | Linear macro F1 | Deployed accuracy |\n|---|---:|---:|---:|\n'+'\n'.join(rows)+'\n\n'
+    text += f"Cycles: {report['split_counts']}. Deployed model: **{selected}**.\n\n"
+    text += '| Component | Linear macro F1 | Deployed accuracy |\n|---|---:|---:|\n'+'\n'.join(rows)+'\n\n'
     deployed_test = reports[selected]['test']
     text += (f"Deployed mean component macro F1: {deployed_test['mean_macro_f1']:.3f}. "
              f"Mean component accuracy: {deployed_test['mean_accuracy']:.2%}. "

@@ -76,55 +76,17 @@ test('reference requests and CSV exports select the displayed record explicitly'
   assert.equal(element('export-link').href,'/api/evaluation.json');
 });
 
-test('validation shows the retained deployment and separate accumulator evidence',()=>{
+test('validation shows only the retained linear deployment',()=>{
   const {run,context,element}=dashboard();
   const output=path.join(__dirname,'../training_outputs');
-  const experimentFile=path.join(output,'accumulator_experiment/metrics.json');
-  if(!fs.existsSync(experimentFile))return;
   context.reportData=JSON.parse(fs.readFileSync(path.join(output,'metrics.json'),'utf8'));
-  context.experimentData=JSON.parse(fs.readFileSync(experimentFile,'utf8'));
   run(`config={components:Object.entries(reportData.models[reportData.selected_model].test.components)
     .map(([id,m])=>({id,name:id,labels:m.confusion.map((_,i)=>String(i))}))};
-    evaluation={report:reportData,accumulatorExperiment:experimentData};
+    evaluation={report:reportData};
     document.getElementById('matrix-component').value='accumulator';renderValidation();`);
-  assert.match(element('validation-content').innerHTML,/Accumulator upgrade experiment/);
-  assert.match(element('validation-content').innerHTML,/current deployment is retained/);
-  assert.match(element('validation-content').innerHTML,/0\.950/);
-  assert.match(element('validation-content').innerHTML,/0\.207/);
+  const html=element('validation-content').innerHTML;
+  assert.match(html,/Deployed linear classifier/);
+  assert.match(html,/0\.950/);
+  assert.doesNotMatch(html,/Accumulator upgrade experiment|GRU layer comparison|Additional model comparisons/);
   assert.match(element('confusion-matrix').innerHTML,/Recall/);
-});
-
-test('GRU comparison shows actual conditional layer results and distinct evaluation',()=>{
-  const {run,context,element}=dashboard();
-  const file=path.join(__dirname,'../training_outputs/gru_experiment/metrics.json');
-  if(!fs.existsSync(file))return;
-  context.gruData=JSON.parse(fs.readFileSync(file,'utf8'));
-  run('evaluation={gruExperiment:gruData};renderGRUComparison();');
-  const html=element('validation-content').innerHTML;
-  assert.match(html,/GRU layer comparison/);
-  assert.match(html,/different records from the original evaluation/);
-  for(const model of Object.values(context.gruData.models)){
-    assert.ok(html.includes(model.test.mean_macro_f1.toFixed(3)));
-    assert.ok(html.includes(model.validation.mean_macro_f1.toFixed(3)));
-  }
-  if(!context.gruData.layer_decision.two_layers_trained){
-    assert.match(html,/extra layers skipped/);
-    assert.doesNotMatch(html,/<td>GRU · two layers/);
-  }
-});
-
-test('tree comparison shows matched grouped scores and retained deployment',()=>{
-  const {run,context,element}=dashboard();
-  const file=path.join(__dirname,'../training_outputs/tree_experiment/metrics.json');
-  if(!fs.existsSync(file))return;
-  context.treeData=JSON.parse(fs.readFileSync(file,'utf8'));
-  run('evaluation={treeExperiment:treeData};renderTreeComparison();');
-  const html=element('validation-content').innerHTML;
-  assert.match(html,/Boosted-tree comparison/);
-  assert.match(html,/No model was replaced/);
-  assert.match(html,/same-rig comparison/);
-  for(const model of Object.values(context.treeData.models)){
-    assert.ok(html.includes(model.fold_mean_macro_f1.toFixed(3)));
-    assert.ok(html.includes(model.out_of_fold.mean_macro_f1.toFixed(3)));
-  }
 });

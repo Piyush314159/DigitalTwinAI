@@ -23,49 +23,26 @@ app.json = StrictJSONProvider(app)
 torch.set_num_threads(2)
 data = prepare_data()
 model = checkpoint = report = robustness = None
-accumulator_experiment = None
-gru_experiment = None
-tree_experiment = None
 if (OUTPUT/'model.pt').exists():
     model, checkpoint = load_model(OUTPUT/'model.pt')
+    if checkpoint['kind'] != 'linear':
+        raise ValueError('The dashboard uses only the retained linear model. Restore or retrain model.pt.')
     if checkpoint['dataset_fingerprint'] != str(data['fingerprint']):
         raise ValueError('Dataset changed. Retrain the hydraulic model before using these measurements.')
     if (OUTPUT/'metrics.json').exists():
         candidate = json.loads((OUTPUT/'metrics.json').read_text())
         if candidate.get('checkpoint_sha256') == file_hash(OUTPUT/'model.pt') and candidate.get('dataset_fingerprint') == str(data['fingerprint']):
+            selected = candidate['selected_model']
+            if selected != 'linear' or selected not in candidate['models']:
+                raise ValueError('The evaluation report does not describe the retained linear model.')
+            if set(candidate['models']) != {'linear'}:
+                raise ValueError('The evaluation report includes removed model results. Retrain the linear model.')
             report = candidate
     if (OUTPUT/'robustness/metrics.json').exists():
         candidate = json.loads((OUTPUT/'robustness/metrics.json').read_text())
         if candidate.get('checkpoint_sha256') == file_hash(OUTPUT/'model.pt'):
             robustness = candidate
 split_manifest = json.loads((OUTPUT/'split_manifest.json').read_text()) if report else None
-experiment_path = OUTPUT/'accumulator_experiment/metrics.json'
-if experiment_path.exists():
-    candidate = json.loads(experiment_path.read_text())
-    experiment_checkpoint = experiment_path.parent/'model.pt'
-    if (candidate.get('dataset_fingerprint') == str(data['fingerprint']) and experiment_checkpoint.exists()
-            and candidate.get('checkpoint_sha256') == file_hash(experiment_checkpoint)):
-        accumulator_experiment = candidate
-gru_path = OUTPUT/'gru_experiment/metrics.json'
-if gru_path.exists():
-    candidate = json.loads(gru_path.read_text())
-    hashes = candidate.get('checkpoint_sha256',{})
-    protocol_path = gru_path.parent/'protocol.json'
-    if (candidate.get('dataset_fingerprint') == str(data['fingerprint']) and hashes
-            and protocol_path.exists() and file_hash(protocol_path) == candidate.get('protocol_sha256')
-            and all((gru_path.parent/f'{kind}.pt').exists()
-                    and file_hash(gru_path.parent/f'{kind}.pt') == sha for kind,sha in hashes.items())):
-        gru_experiment = candidate
-tree_path = OUTPUT/'tree_experiment/metrics.json'
-if tree_path.exists():
-    candidate = json.loads(tree_path.read_text())
-    protocol_path = tree_path.parent/'protocol.json'
-    predictions_path = tree_path.parent/'out_of_fold_predictions.npz'
-    if (candidate.get('dataset_fingerprint') == str(data['fingerprint'])
-            and protocol_path.exists() and predictions_path.exists()
-            and file_hash(protocol_path) == candidate.get('protocol_sha256')
-            and file_hash(predictions_path) == candidate.get('predictions_sha256')):
-        tree_experiment = candidate
 partitions = {'all':np.arange(len(data['features']))}
 if split_manifest:
     for name in ('train','validation','test'):
@@ -147,8 +124,7 @@ def build_state(position, partition):
 
 def evaluation_payload():
     return {'status':'trained_real_data' if report else 'report_unavailable',
-            'report':report, 'robustness':robustness, 'accumulatorExperiment':accumulator_experiment,
-            'gruExperiment':gru_experiment, 'treeExperiment':tree_experiment}
+            'report':report, 'robustness':robustness}
 
 
 @app.get('/')
