@@ -32,3 +32,6 @@ training_outputs/validation_dashboard.jpg
 *.pt
 *.pth
 *.ckpt
+
+# data
+data/condition+monitoring+of+hydraulic+systems
