@@ -40,7 +40,7 @@ Another location can be supplied through `HYDRAULICS_DATA_DIR`. Preparation auto
 - Native sampling rates are 100 Hz, 10 Hz and 1 Hz. Charts show one-second averages; feature statistics use the original native samples.
 - **CE, CP and SE**, supplied derived channels, are excluded from model inputs.
 - `profile.txt` annotates cooler efficiency, valve condition, internal pump leakage, accumulator pressure condition and whether steady-state conditions were reached. These annotations are **never sensor input features**.
-- There are no missing readings in the supplied dataset. The application abstains if incomplete/non-finite features are provided.
+- There are no missing readings in the supplied dataset. Model inference abstains on incomplete/non-finite features; handling those values throughout the API response is a known issue tracked in [future upgrades](UPGRADES.md).
 
 For each physical sensor, features are the mean, standard deviation, minimum, maximum and six consecutive ten-second means: **140 features per cycle**. Preparation reads one raw row at a time and writes a compact cache in `data/processed/`. This avoids loading the 531 MB of text into memory as one large matrix.
 
@@ -95,7 +95,7 @@ Restart the dashboard after retraining. It checks that the loaded model, cached 
 
 This offline diagnostic removes one physical channel at a time from the held-out measured features and replaces its feature block with **training means**. Model weights stay fixed. It is an artificial sensitivity experiment, not measurements from physical sensor failures, and it generates no synthetic raw signals.
 
-The production policy is stricter: incomplete features produce `insufficient_data`; mean imputation is not silently used for displayed estimates.
+The model policy is stricter: incomplete features produce `insufficient_data`; mean imputation is not silently used for displayed estimates. The API serialization issue for invalid readings is recorded in [future upgrades](UPGRADES.md).
 
 See [the sensitivity report](training_outputs/robustness/report.md) and [exact results](training_outputs/robustness/metrics.json). Now that these test results have been inspected, reserve a new independent evaluation protocol before future model tuning.
 
@@ -105,7 +105,9 @@ See [the sensitivity report](training_outputs/robustness/report.md) and [exact r
 - Classification uses the complete 60-second cycle. It does not establish advance warning, remaining useful life, causal diagnosis or intervention benefit.
 - Softmax outputs are uncalibrated class support, not validated probabilities of physical failure.
 - The component display is a monitoring summary. It does not claim a physical sensor-to-component topology absent from the source metadata.
-- Original proposal documents and archived synthetic experiments in `papers/` are historical material, not evidence for this measured-data model.
+- Original proposal documents in `papers/` are historical material, not evidence for this measured-data model.
+
+Known software issues and planned model improvements are recorded in [UPGRADES.md](UPGRADES.md). They are deferred; the current project remains a local, single-rig research application.
 
 ## Project structure
 
@@ -123,7 +125,8 @@ static/                        # Professional dashboard styling and interactions
 templates/                     # Dashboard HTML
 data/                          # Unchanged download and generated compact cache
 training_outputs/              # Current REAL-data models and evidence
-papers/                        # Historical proposal documents / synthetic archive
+papers/                        # Original historical proposal documents
+UPGRADES.md                    # Deferred software fixes and model improvements
 ```
 
 ## Checks
