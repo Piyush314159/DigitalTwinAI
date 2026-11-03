@@ -20,6 +20,8 @@ let currentState = null;   // Current twin state
 let timelineData = [];     // Accumulated timeline
 let autoPlayInterval = null;
 let isAutoPlaying = false;
+let trainedAnomaly = null;
+let anomalyValidation = null;
 
 const RISK_COLORS = ['#16a34a', '#d97706', '#dc2626'];
 const RISK_LABELS = ['LOW', 'MEDIUM', 'HIGH'];
@@ -44,11 +46,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function loadConfig() {
     const res = await fetch('/api/config');
     config = await res.json();
+    try {
+        const evaluation = await fetch('/api/anomaly/validation');
+        anomalyValidation = await evaluation.json();
+    } catch (_) {
+        anomalyValidation = null;
+    }
 }
 
 async function loadState() {
     const res = await fetch('/api/state');
     currentState = await res.json();
+    await loadTrainedAnomaly();
+}
+
+async function loadTrainedAnomaly() {
+    try {
+        const res = await fetch('/api/anomaly');
+        trainedAnomaly = await res.json();
+    } catch (_) {
+        trainedAnomaly = null;
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -83,6 +101,7 @@ async function advanceStep() {
     if (data.status === 'ok') {
         currentState = { step: data.step, predictions: data.predictions };
         timelineData.push(data.predictions);
+        await loadTrainedAnomaly();
         renderAll();
         updateProgress(data.step, config.stations.length > 0 ? 29 : 29);
     } else if (data.status === 'end_of_shift') {
@@ -149,10 +168,39 @@ function renderAll() {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function renderFloorView() {
+    renderTrainedAnomaly();
     renderAssemblyGraph();
     renderAlerts();
     renderStationTable();
     renderVirtualSensing();
+}
+
+function renderTrainedAnomaly() {
+    const container = document.getElementById('trained-anomaly-panel');
+    const status = document.getElementById('training-status');
+    if (!container) return;
+    if (!trainedAnomaly || trainedAnomaly.status !== 'trained_synthetic') {
+        container.textContent = trainedAnomaly?.message || 'Trained detector is unavailable.';
+        return;
+    }
+    status.textContent = 'Anomaly detector trained on simulated data · Original queue, defect-risk, virtual-sensor and confidence views remain untrained. Intervention benefits are unvalidated; business values are illustrative.';
+    const flagged = trainedAnomaly.flagged
+        .map((isFlagged, i) => ({isFlagged, station: config.stations[i], score: trainedAnomaly.scores[i]}))
+        .filter(s => s.isFlagged).sort((a, b) => b.score - a.score);
+    const evaluation = anomalyValidation?.status === 'trained_synthetic' ? anomalyValidation : null;
+    const m = evaluation?.metrics;
+    const baseline = evaluation?.baseline;
+    container.innerHTML = `
+        ${m ? `<div class="grid-3 mb-lg">
+            <div class="kpi-card"><div class="kpi-value text-accent">${m.f1.toFixed(3)}</div><div class="kpi-label">Held-out anomaly F1</div></div>
+            <div class="kpi-card"><div class="kpi-value">${m.precision.toFixed(3)}</div><div class="kpi-label">Precision</div></div>
+            <div class="kpi-card"><div class="kpi-value">${m.recall.toFixed(3)}</div><div class="kpi-label">Recall</div></div>
+        </div><p>Local linear baseline F1: ${baseline.f1.toFixed(3)} · ${evaluation.split_counts.test} separate simulated test shifts.</p>` : '<p>Saved evaluation report is unavailable.</p>'}
+        <p style="margin:12px 0">Current step: ${flagged.length} flagged station${flagged.length === 1 ? '' : 's'} · Threshold ${trainedAnomaly.threshold.toFixed(2)}.</p>
+        ${flagged.length ? `<table class="station-table"><thead><tr><th>Station</th><th>Detection score</th></tr></thead><tbody>
+            ${flagged.map(s => `<tr><td>${s.station.name}</td><td class="font-mono">${s.score.toFixed(3)}</td></tr>`).join('')}
+        </tbody></table>` : '<p>No station exceeds the selected detection threshold.</p>'}
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:12px">Detects current simulated disturbances. Scores are uncalibrated. These results do not establish real-factory accuracy or advance warning. The views below show the original untrained prototype.</p>`;
 }
 
 function renderAssemblyGraph() {

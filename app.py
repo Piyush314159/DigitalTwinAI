@@ -19,6 +19,7 @@ Project: Accenture Innovation Challenge 2026
 import os
 import json
 import time
+import hashlib
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -31,6 +32,7 @@ from assembly_line import (
 )
 from simulator import ProductionSimulator, DEFAULT_SCENARIOS, to_torch_tensors
 from model import DigitalTwinGNN, load_model, prediction_arrays
+from anomaly import DEFAULT_CHECKPOINT, load_detector
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # APP SETUP
@@ -47,6 +49,20 @@ print_assembly_stats(stations, G)
 
 model, total_params, trainable_params = load_model(DEVICE)
 print(f"  ✓ Model loaded: {total_params:,} parameters on {DEVICE}")
+
+# The trained single-task detector is separate from the original untrained heads.
+anomaly_detector = None
+anomaly_checkpoint = None
+anomaly_report = None
+if DEFAULT_CHECKPOINT.is_file():
+    anomaly_detector, anomaly_checkpoint = load_detector()
+    report_path = DEFAULT_CHECKPOINT.with_name('metrics.json')
+    if report_path.is_file():
+        candidate = json.loads(report_path.read_text())
+        checkpoint_hash = hashlib.sha256(DEFAULT_CHECKPOINT.read_bytes()).hexdigest()
+        if candidate.get('checkpoint_sha256') == checkpoint_hash:
+            anomaly_report = candidate
+    print("  ✓ Trained synthetic-data anomaly detector loaded")
 
 simulator = ProductionSimulator(stations, shift_duration_steps=30)
 shift_data = simulator.generate_shift()
@@ -83,6 +99,27 @@ def run_inference(step_data, use_mask=True):
         'model_status': 'untrained_demo',
         'features': step_data['features'].tolist(),
         'active_scenarios': step_data['active_scenarios'],
+    }
+
+
+def run_trained_anomaly(shift_prefix):
+    """Replay observed readings once per step; repeated reads are idempotent.
+
+    Simulator severity, scenario names and true missing-sensor readings never
+    enter this function's inputs to the model. Recurrence starts fresh per shift.
+    """
+    if anomaly_detector is None:
+        return {'status': 'not_trained', 'message': 'Run train_anomaly.py to train the anomaly detector.'}
+    readings = torch.from_numpy(np.stack([s['masked_features'] for s in shift_prefix])).float()
+    masks = torch.from_numpy(np.stack([s['sensor_mask'] for s in shift_prefix])).float()
+    with torch.no_grad():
+        scores = anomaly_detector(readings[None], edge_index.cpu(), masks[None]).sigmoid()[0, -1]
+    threshold = anomaly_checkpoint['threshold']
+    return {
+        'status': 'trained_synthetic', 'task': 'current_station_anomaly',
+        'scores': scores.tolist(), 'flagged': (scores >= threshold).tolist(),
+        'threshold': threshold, 'steps_observed': len(shift_prefix),
+        'score_note': 'Detection scores, not calibrated probabilities or future warnings.',
     }
 
 
@@ -126,6 +163,7 @@ def api_config():
         'zoneColors': {z.value: c for z, c in ZONE_COLORS.items()},
         'totalParams': total_params,
         'modelStatus': 'untrained_demo',
+        'anomalyDetectorStatus': 'trained_synthetic' if anomaly_detector is not None else 'not_trained',
         'scenarios': [
             {'name': s.name, 'category': s.category, 'onset': s.onset_step,
              'stations': s.affected_stations, 'description': s.description}
@@ -160,6 +198,26 @@ def api_timeline():
         'timeline': timeline,
         'currentStep': current_step,
     })
+
+
+@app.route('/api/anomaly')
+def api_anomaly():
+    """Trained current-station detection using the observed shift prefix only."""
+    return jsonify(run_trained_anomaly(shift_data[:current_step + 1]))
+
+
+@app.route('/api/anomaly/validation')
+def api_anomaly_validation():
+    """Frozen held-out metrics tied to the exact loaded checkpoint."""
+    if anomaly_detector is None:
+        return jsonify({'status': 'not_trained', 'metrics': None})
+    if anomaly_report is None:
+        return jsonify({'status': 'report_unavailable', 'metrics': None})
+    return jsonify({'status': 'trained_synthetic', 'metrics': anomaly_report['detector']['test'],
+                    'baseline': anomaly_report['linear_baseline']['test'],
+                    'split_counts': anomaly_report['split_counts'],
+                    'parameters': anomaly_report['detector']['parameters'],
+                    'limitations': anomaly_report['limitations']})
 
 
 @app.route('/api/step', methods=['POST'])

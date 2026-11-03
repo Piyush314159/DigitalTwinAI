@@ -142,7 +142,8 @@ class ProductionSimulator:
     ):
         self.stations = stations
         self.num_stations = len(stations)
-        self.scenarios = scenarios or DEFAULT_SCENARIOS
+        # An empty list explicitly requests a healthy shift.
+        self.scenarios = DEFAULT_SCENARIOS if scenarios is None else scenarios
         self.rng = np.random.RandomState(seed)
         self.shift_duration = shift_duration_steps
         self.sensor_mask = get_sensor_mask_tensor(stations)
@@ -161,7 +162,7 @@ class ProductionSimulator:
             'features'        : np.ndarray [num_stations, 12] — raw feature values
             'masked_features' : np.ndarray [num_stations, 12] — with sensor gaps as NaN
             'sensor_mask'     : np.ndarray [num_stations, 12] — boolean observability mask
-            'ground_truth_anomaly' : np.ndarray [num_stations] — 0/1 anomaly labels
+            'ground_truth_anomaly' : np.ndarray [num_stations] — simulated severity in [0, 1]
             'active_scenarios'     : list of active AnomalyScenario names
         """
         features = np.zeros((self.num_stations, NUM_FEATURES), dtype=np.float32)

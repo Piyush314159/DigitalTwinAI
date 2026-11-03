@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<div role="status" style="padding:12px 20px;background:#422006;color:#fef3c7">Untrained prototype · Simulated telemetry · Risk and confidence outputs are illustrative. Validation and intervention estimates are unavailable. ROI figures are assumptions, not measured savings.</div>
+<div id="training-status" role="status" style="padding:12px 20px;background:#422006;color:#fef3c7">Simulated telemetry · See anomaly training status below. The original queue, defect-risk, virtual-sensor and confidence heads are untrained. Business values are illustrative assumptions.</div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════════
      HEADER
@@ -62,6 +62,16 @@
      TAB 1: FLOOR SUPERVISOR — Real-Time Operations
      ═══════════════════════════════════════════════════════════════════════════ -->
 <div id="tab-floor" class="tab-content active">
+
+    <div class="card mb-lg">
+        <div class="card-header">
+            <h2 class="card-title">Trained Station Anomaly Detector</h2>
+            <span class="card-badge">SYNTHETIC DATA</span>
+        </div>
+        <div class="card-body" id="trained-anomaly-panel" aria-live="polite">
+            Loading anomaly detector status…
+        </div>
+    </div>
 
     <!-- Assembly Graph + Alerts -->
     <div class="grid-2 mb-lg">
