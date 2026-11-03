@@ -23,11 +23,21 @@ The CNN was close overall but had lower out-of-fold accumulator F1 than linear (
 - [x] The sidebar says `MODEL UNAVAILABLE` when there is no valid checkpoint.
 - [x] The dashboard validation page and evaluation export show only the retained linear model and its sensor-removal diagnostic.
 
-## Next model experiment
+## Multirate TCN experiment completed
 
-A **small temporal convolutional network (TCN)** is the most relevant deep-learning candidate to test next. This is a proposal, not a proven improvement. The [UCI dataset](https://archive.ics.uci.edu/dataset/447/condition+monitoring+of+hydraulic+systems) has 60-second cycles from sensors sampled at 100, 10 and 1 Hz. The removed CNN used only one-second averages plus summary features; a new model could preserve more of the measured pressure, power and flow dynamics.
+A **small temporal convolutional network (TCN)** was tested against the retained linear architecture on the same three grouped folds. The [UCI dataset](https://archive.ics.uci.edu/dataset/447/condition+monitoring+of+hydraulic+systems) has 60-second cycles from sensors sampled at 100, 10 and 1 Hz. Unlike the removed CNN's one-second averages, this experiment preserves pressure/power block means and flow at 10 Hz, alongside native 1 Hz temperature/vibration and the 140 measured-sample summaries.
 
-Keep the design understandable and CPU-sized: two or three short residual convolution blocks with 16–32 channels, separate handling of sensor rates, pooled outputs and four component-condition heads. Compare it against a newly fitted linear baseline on identical grouped folds. Choose settings inside each training fold; report per-component macro F1, accumulator class recalls, all-four-correct rate, training time and parameter count. Do not deploy it solely because it is deeper. TCNs are a plausible sequence-model family based on [Bai, Kolter and Koltun's study](https://arxiv.org/abs/1803.01271); that study does not establish performance on this hydraulic rig.
+The TCN has two residual temporal blocks and **12,558 parameters**. It ran on CPU with two threads. Training-only channel normalization and class weights were used. Inner grouped validation chose training epochs; outer validation groups were scored afterward. The frozen protocol, exact predictions, fold metrics and [report](training_outputs/tcn_experiment/report.md) are retained.
+
+| Same three-fold protocol | Linear, refitted | Multirate TCN |
+|---|---:|---:|
+| Mean of fold macro F1 | 0.8957 | **0.9449** |
+| Out-of-fold accumulator macro F1 | 0.7266 | **0.8739** |
+| All four conditions correct | 68.39% | **82.22%** |
+
+TCN led on all three outer folds. Most of the gain was on fold 3, where inner validation selected only 24 epochs for linear. A **post-hoc stronger-baseline check** refitted linear for its original 250-epoch maximum on each fold and reached **0.9156** fold-mean macro F1. TCN still led, but this check is exploratory because it was added after viewing the first outer-fold results. It is saved as `linear_250_diagnostic.json` and exact predictions beside the TCN report.
+
+The active dashboard checkpoint remains linear and its original 0.950 test score is unchanged. These are different splits and must not be directly ranked. All 2,205 cycles come from the previously studied rig. The TCN result is promising internal evidence, **not independent-machine validation**. The dashboard labels it as research. TCNs are a plausible sequence-model family based on [Bai, Kolter and Koltun's study](https://arxiv.org/abs/1803.01271); that paper does not establish performance on this particular rig.
 
 Before another architecture, inspect accumulator misclassifications and the original measured channels. This may identify a simpler feature improvement. Keep labels out of inputs and preserve condition-combination grouping.
 

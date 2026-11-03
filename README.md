@@ -48,7 +48,7 @@ For each physical sensor, features are the mean, standard deviation, minimum, ma
 
 - **Overview:** four documented component-condition estimates, a review list, selectable measured signal and cycle statistics.
 - **Sensors:** the 14 physical input channels, native rates and units, search/filter controls, and recorded traces.
-- **Model validation:** deployed linear-model metrics, confusion matrices and sensor-removal sensitivity. Historical comparison results are summarized in UPGRADES.md.
+- **Model validation:** deployed linear-model metrics, confusion matrices, sensor-removal sensitivity and a separately labeled TCN research comparison. Historical weaker candidates are summarized in UPGRADES.md.
 - **Dataset & method:** source attribution, preprocessing, split protocol and limitations.
 - **Cycle replay:** next, play/pause, reset, seek and a choice of test/validation/training/all recorded cycles. Cycle numbers refer to source-row indices; absolute recording timestamps are not supplied or invented.
 - **Reference labels:** optional, explicitly requested annotations, shown separately from estimates and excluded from inference.
@@ -94,7 +94,26 @@ Restart the dashboard after retraining. It checks that the loaded model, cached 
 
 A small MLP, a nearest-cycle accumulator classifier, a one-layer GRU, boosted trees and a two-block CNN were tested on measured data. None established an improvement over a matched linear baseline. The experimental implementations, checkpoints and generated experiment files have been removed. [UPGRADES.md](UPGRADES.md) keeps the scores and explains their different evaluation protocols.
 
-The CNN was nearly tied with linear on four-fold mean macro F1 (0.7717 versus 0.7719) but weaker on accumulator F1. This does not show whether a deeper network would help. A compact temporal convolutional network that retains more of the source signal is a possible future experiment, with no promised score improvement.
+The CNN was nearly tied with linear on four-fold mean macro F1 (0.7717 versus 0.7719) but weaker on accumulator F1. This did not show whether a deeper network would help. It motivated the multirate experiment below.
+
+## Multirate TCN research experiment
+
+```bash
+.venv/bin/python -m scripts.compare_tcn
+```
+
+This optional experiment uses **only the downloaded real measurements**. It streams the raw files into a compact, fingerprint-checked cache in `data/processed/tcn_multirate.npz` (about 23 MB). Pressure and motor power are reduced from 100 Hz to 10 Hz using ten-sample block means; flow stays at its native 10 Hz, and temperature/vibration stay at their native 1 Hz. A small two-block temporal convolutional network combines these sequences with the existing 140 summary features. It has **12,558 parameters** and runs on CPU with two threads; the complete comparison took about 4–5 minutes here.
+
+Three outer folds keep every joint condition combination together. Both architectures are trained from scratch on the same outer training cycles. An inner grouped partition chooses each model's training length; the model is then refitted on the full outer training fold. The scores below are **internal cross-validation**, not a fresh independent-machine test.
+
+| Model | Fold-mean macro F1 | Out-of-fold accumulator F1 | All four correct |
+|---|---:|---:|---:|
+| Linear, refitted | 0.8957 | 0.7266 | 68.39% |
+| Multirate TCN | **0.9449** | **0.8739** | **82.22%** |
+
+TCN led on all three folds, but much of the gain came from one fold where the linear model's inner validation chose only 24 training epochs. A **post-hoc sensitivity check** trained linear for its original 250-epoch maximum on each fold; that stronger baseline averaged **0.9156** macro F1, still below TCN's **0.9449**. Because this check followed the first result, it is not a new unbiased test. The [TCN report](training_outputs/tcn_experiment/report.md), protocol, exact out-of-fold predictions and sensitivity check are saved in `training_outputs/tcn_experiment/`.
+
+The dashboard shows this as a research comparison. **Live estimates still use the retained linear checkpoint.** All cycles come from the previously explored UCI rig, and the original deployed model's 0.950 test score uses a different split. The TCN does not establish performance on another machine, advance failure warning or remaining useful life.
 
 ## Sensor-removal sensitivity
 
@@ -127,10 +146,12 @@ model.py                       # Retained linear classifier only
 scripts/
   train_hydraulics.py           # Real-data training
   evaluate_robustness.py        # Frozen-model sensor-removal diagnostic
+  compare_tcn.py                # CPU multirate research comparison
 tests/
   test_hydraulics.py            # Provenance, splitting, normalization and reload
   test_monitoring.py            # API, abstention, replay and exports
   test_dashboard.cjs            # Missing-signal rendering and record selection
+  test_tcn.py                   # Measured sequence and grouped-score integrity
 static/                        # Professional dashboard styling and interactions
 templates/                     # Dashboard HTML
 data/                          # Unchanged download and generated compact cache

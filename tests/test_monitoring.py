@@ -138,7 +138,10 @@ class MonitoringTests(unittest.TestCase):
         self.assertEqual(evaluation['report']['selected_model'],app.checkpoint['kind'])
         self.assertEqual(set(evaluation['report']['models']),{'linear'})
         self.assertEqual(evaluation['robustness']['checkpoint_sha256'],app.report['checkpoint_sha256'])
-        self.assertEqual(set(evaluation),{'status','report','robustness'})
+        self.assertEqual(set(evaluation),{'status','report','robustness','tcnExperiment'})
+        if app.tcn_experiment:
+            self.assertEqual(evaluation['tcnExperiment']['dataset_fingerprint'],str(app.data['fingerprint']))
+            self.assertEqual(evaluation['tcnExperiment']['decision'],'research_only_retain_deployment')
         self.assertEqual(self.client.get('/api/evaluation.json').status_code,200)
 
 

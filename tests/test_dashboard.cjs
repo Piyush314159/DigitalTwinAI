@@ -90,3 +90,18 @@ test('validation shows only the retained linear deployment',()=>{
   assert.doesNotMatch(html,/Accumulator upgrade experiment|GRU layer comparison|Additional model comparisons/);
   assert.match(element('confusion-matrix').innerHTML,/Recall/);
 });
+
+test('TCN research scores are shown separately from active linear validation',()=>{
+  const {run,context,element}=dashboard();
+  const file=path.join(__dirname,'../training_outputs/tcn_experiment/metrics.json');
+  if(!fs.existsSync(file))return;
+  context.tcnData=JSON.parse(fs.readFileSync(file,'utf8'));
+  run('evaluation={tcnExperiment:tcnData};renderTCNComparison();');
+  const html=element('validation-content').innerHTML;
+  assert.match(html,/Multirate TCN research/);
+  assert.match(html,/deployed linear model and its original test result remain unchanged/);
+  for(const model of Object.values(context.tcnData.models)){
+    assert.ok(html.includes(model.fold_mean_macro_f1.toFixed(3)));
+  }
+  assert.match(html,/independent-machine validation/);
+});

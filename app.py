@@ -9,7 +9,7 @@ from flask import Flask, Response, jsonify, render_template, request
 from flask.json.provider import DefaultJSONProvider
 from werkzeug.exceptions import BadRequest
 
-from hydraulics import OUTPUT, SENSORS, COMPONENTS, SOURCE_URL, prepare_data, file_hash
+from hydraulics import CACHE, OUTPUT, SENSORS, COMPONENTS, SOURCE_URL, prepare_data, file_hash
 from model import load_model, predict
 
 class StrictJSONProvider(DefaultJSONProvider):
@@ -23,6 +23,7 @@ app.json = StrictJSONProvider(app)
 torch.set_num_threads(2)
 data = prepare_data()
 model = checkpoint = report = robustness = None
+tcn_experiment = None
 if (OUTPUT/'model.pt').exists():
     model, checkpoint = load_model(OUTPUT/'model.pt')
     if checkpoint['kind'] != 'linear':
@@ -42,6 +43,18 @@ if (OUTPUT/'model.pt').exists():
         candidate = json.loads((OUTPUT/'robustness/metrics.json').read_text())
         if candidate.get('checkpoint_sha256') == file_hash(OUTPUT/'model.pt'):
             robustness = candidate
+tcn_path = OUTPUT/'tcn_experiment/metrics.json'
+if tcn_path.exists():
+    candidate = json.loads(tcn_path.read_text())
+    protocol_path = tcn_path.parent/'protocol.json'
+    predictions_path = tcn_path.parent/'out_of_fold_predictions.npz'
+    signal_cache = CACHE.parent/'tcn_multirate.npz'
+    if (candidate.get('dataset_fingerprint') == str(data['fingerprint'])
+            and protocol_path.exists() and predictions_path.exists() and signal_cache.exists()
+            and file_hash(protocol_path) == candidate.get('protocol_sha256')
+            and file_hash(predictions_path) == candidate.get('predictions_sha256')
+            and file_hash(signal_cache) == candidate.get('signal_cache_sha256')):
+        tcn_experiment = candidate
 split_manifest = json.loads((OUTPUT/'split_manifest.json').read_text()) if report else None
 partitions = {'all':np.arange(len(data['features']))}
 if split_manifest:
@@ -124,7 +137,8 @@ def build_state(position, partition):
 
 def evaluation_payload():
     return {'status':'trained_real_data' if report else 'report_unavailable',
-            'report':report, 'robustness':robustness}
+            'report':report, 'robustness':robustness,
+            'tcnExperiment':tcn_experiment}
 
 
 @app.get('/')
