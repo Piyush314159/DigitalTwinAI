@@ -1,0 +1,2 @@
+# Optional tree comparison; the dashboard and existing PyTorch models do not require this.
+scikit-learn>=1.8,<2

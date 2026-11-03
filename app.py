@@ -24,6 +24,8 @@ torch.set_num_threads(2)
 data = prepare_data()
 model = checkpoint = report = robustness = None
 accumulator_experiment = None
+gru_experiment = None
+tree_experiment = None
 if (OUTPUT/'model.pt').exists():
     model, checkpoint = load_model(OUTPUT/'model.pt')
     if checkpoint['dataset_fingerprint'] != str(data['fingerprint']):
@@ -44,6 +46,26 @@ if experiment_path.exists():
     if (candidate.get('dataset_fingerprint') == str(data['fingerprint']) and experiment_checkpoint.exists()
             and candidate.get('checkpoint_sha256') == file_hash(experiment_checkpoint)):
         accumulator_experiment = candidate
+gru_path = OUTPUT/'gru_experiment/metrics.json'
+if gru_path.exists():
+    candidate = json.loads(gru_path.read_text())
+    hashes = candidate.get('checkpoint_sha256',{})
+    protocol_path = gru_path.parent/'protocol.json'
+    if (candidate.get('dataset_fingerprint') == str(data['fingerprint']) and hashes
+            and protocol_path.exists() and file_hash(protocol_path) == candidate.get('protocol_sha256')
+            and all((gru_path.parent/f'{kind}.pt').exists()
+                    and file_hash(gru_path.parent/f'{kind}.pt') == sha for kind,sha in hashes.items())):
+        gru_experiment = candidate
+tree_path = OUTPUT/'tree_experiment/metrics.json'
+if tree_path.exists():
+    candidate = json.loads(tree_path.read_text())
+    protocol_path = tree_path.parent/'protocol.json'
+    predictions_path = tree_path.parent/'out_of_fold_predictions.npz'
+    if (candidate.get('dataset_fingerprint') == str(data['fingerprint'])
+            and protocol_path.exists() and predictions_path.exists()
+            and file_hash(protocol_path) == candidate.get('protocol_sha256')
+            and file_hash(predictions_path) == candidate.get('predictions_sha256')):
+        tree_experiment = candidate
 partitions = {'all':np.arange(len(data['features']))}
 if split_manifest:
     for name in ('train','validation','test'):
@@ -125,7 +147,8 @@ def build_state(position, partition):
 
 def evaluation_payload():
     return {'status':'trained_real_data' if report else 'report_unavailable',
-            'report':report, 'robustness':robustness, 'accumulatorExperiment':accumulator_experiment}
+            'report':report, 'robustness':robustness, 'accumulatorExperiment':accumulator_experiment,
+            'gruExperiment':gru_experiment, 'treeExperiment':tree_experiment}
 
 
 @app.get('/')

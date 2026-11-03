@@ -48,7 +48,8 @@ For each physical sensor, features are the mean, standard deviation, minimum, ma
 
 - **Overview:** four documented component-condition estimates, a review list, selectable measured signal and cycle statistics.
 - **Sensors:** the 14 physical input channels, native rates and units, search/filter controls, and recorded traces.
-- **Model validation:** component metrics, confusion matrices, linear/neural comparison, sensor-removal sensitivity and a separately reported accumulator experiment.
+- **Model validation:** component metrics, confusion matrices, linear/neural comparison, sensor-removal sensitivity and separately reported accumulator and GRU experiments.
+- **Additional model research:** the validation page also shows the grouped boosted-tree comparison separately from the original deployed-model test.
 - **Dataset & method:** source attribution, preprocessing, split protocol and limitations.
 - **Cycle replay:** next, play/pause, reset, seek and a choice of test/validation/training/all recorded cycles. Cycle numbers refer to source-row indices; absolute recording timestamps are not supplied or invented.
 - **Reference labels:** optional, explicitly requested annotations, shown separately from estimates and excluded from inference.
@@ -105,6 +106,43 @@ The candidate did **not** improve validation performance: accumulator macro F1 w
 
 See [the experiment report](training_outputs/accumulator_experiment/training_report.md). This is a re-reservation within previously explored, same-rig data; it is not independent-machine evidence. Re-running reproduces an inspected experiment and does not create a fresh test. Further tuning needs another declared evaluation protocol or genuinely independent measurements.
 
+## GRU layer comparison
+
+```bash
+.venv/bin/python -m scripts.compare_gru
+```
+
+This completed CPU experiment compares the current linear architecture, fitted from scratch, with a **one-layer, 32-unit GRU**. The GRU receives 60 ordered time points × 14 physical sensor channels from the existing one-second averages. It resets its hidden state for every cycle. Its 5,070 parameters include a final output layer for the four conditions. Channel scaling and class weights use training cycles only.
+
+The protocol was fixed before training. Seed 20261104 excludes both previously inspected test sets, then assigns the remaining 92 joint condition combinations to **55 / 18 / 19 training / validation / test groups**, or **804 / 424 / 413 cycles**. Each candidate uses the same cycles. The linear model uses its original 140 native-sample summary features; the GRU uses the averaged signal sequences, so their input representations differ.
+
+| Model in this experiment | Parameters | Validation macro F1 | Test macro F1 | All four correct on test |
+|---|---:|---:|---:|---:|
+| Linear architecture, refitted | 1,974 | **0.8012** | **0.7029** | **35.84%** |
+| GRU, one layer × 32 units | 5,070 | 0.5490 | 0.6483 | 14.29% |
+
+The predeclared rule permits a two-layer GRU only if one layer beats the refitted linear model on validation mean component macro F1. **That condition was not met, so the second layer was not trained.** Checkpoints and the layer decision were saved before test scoring. The one-layer GRU trained in about 12 seconds on this machine; runtime varies.
+
+All files stay in `training_outputs/gru_experiment/`. [The comparison report](training_outputs/gru_experiment/report.md), `protocol.json`, `selection.json` and exact test predictions document the result. The active dashboard model and its original **0.950** test macro F1 remain unchanged. That original result uses a different 328-cycle test and is not directly comparable with this table. This new split is an internal comparison within previously explored, same-rig data, not independent-machine evidence. One seed and one split do not measure variability across runs. Re-running reproduces an inspected experiment; changing the frozen settings causes an error.
+
+## Boosted-tree comparison
+
+This optional, CPU-only experiment tests a fixed, compact histogram gradient-boosted tree model against the **same linear architecture used by the dashboard**, refitted from scratch. Both use the 140 summary features computed from measured cycles. The tree comparison needs scikit-learn only when you run it; the dashboard and existing PyTorch models do not import that package.
+
+```bash
+.venv/bin/python -m pip install -r requirements-experiments.txt
+.venv/bin/python -m scripts.compare_trees
+```
+
+The four grouped folds cover **1,228 development cycles / 73 condition combinations**. All 977 cycles in the three previously inspected test partitions are excluded. Within each outer fold, the linear model chooses its training epoch on a separate inner grouped validation, then refits on the full outer training fold. The boosted trees use one fixed setting and no random internal early-stopping split. Both models receive the same outer training records and are scored on the same validation records.
+
+| Model | Mean across folds, macro F1 | Out-of-fold macro F1 | Out-of-fold accumulator F1 | All four correct |
+|---|---:|---:|---:|---:|
+| Linear architecture, refitted | **0.7719** | **0.8182** | **0.5154** | **47.64%** |
+| Small boosted trees | 0.7433 | 0.7839 | 0.3662 | 29.72% |
+
+Boosted trees trailed linear on **all four folds**. The original active model remains unchanged. The [report](training_outputs/tree_experiment/report.md), `protocol.json`, `metrics.json` and `out_of_fold_predictions.npz` preserve settings, partitions, fold scores and exact predictions. This is an internal comparison on the same rig. Its scores cannot be directly compared with the original deployed model's 0.950 score on a different test protocol, and it does not establish generalization to another machine.
+
 ## Sensor-removal sensitivity
 
 ```bash
@@ -137,8 +175,12 @@ scripts/
   train_hydraulics.py           # Real-data training
   evaluate_robustness.py        # Frozen-model sensor-removal diagnostic
   compare_accumulator.py        # Separate, frozen accumulator experiment
+  compare_gru.py                # Conditional one-/two-layer GRU comparison
+  compare_trees.py              # Grouped CPU boosted-tree comparison
 tests/
   test_hydraulics.py            # Provenance, splitting, normalization and reload
+  test_gru.py                   # Sequence order, memory reset and comparison integrity
+  test_trees.py                 # Group isolation and exact cross-validation scores
   test_monitoring.py            # API, abstention, replay and exports
   test_dashboard.cjs            # Missing-signal rendering and record selection
 static/                        # Professional dashboard styling and interactions
@@ -147,6 +189,7 @@ data/                          # Unchanged download and generated compact cache
 training_outputs/              # Current REAL-data models and evidence
 papers/                        # Original historical proposal documents
 UPGRADES.md                    # Completed upgrades and remaining research needs
+requirements-experiments.txt   # Optional tree-comparison dependency
 ```
 
 ## Checks

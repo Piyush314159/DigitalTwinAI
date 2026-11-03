@@ -140,6 +140,12 @@ class MonitoringTests(unittest.TestCase):
         if app.accumulator_experiment:
             self.assertEqual(evaluation['accumulatorExperiment']['decision'],'retain_existing_deployment')
             self.assertEqual(evaluation['accumulatorExperiment']['dataset_fingerprint'],str(app.data['fingerprint']))
+        if app.gru_experiment:
+            self.assertEqual(evaluation['gruExperiment']['dataset_fingerprint'],str(app.data['fingerprint']))
+            self.assertEqual(evaluation['gruExperiment']['selected_model'],app.gru_experiment['selected_model'])
+        if app.tree_experiment:
+            self.assertEqual(evaluation['treeExperiment']['dataset_fingerprint'],str(app.data['fingerprint']))
+            self.assertEqual(evaluation['treeExperiment']['decision'],'research_only_retain_deployment')
         self.assertEqual(self.client.get('/api/evaluation.json').status_code,200)
 
 

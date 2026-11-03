@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from torch import nn
 
-from hydraulics import COMPONENTS, FEATURE_NAMES
+from hydraulics import COMPONENTS, FEATURE_NAMES, SENSORS
 
 
 class HydraulicClassifier(nn.Module):
@@ -47,6 +47,31 @@ class HydraulicClassifier(nn.Module):
         return torch.cat(results).numpy()
 
 
+class HydraulicGRU(nn.Module):
+    """One complete measured cycle per sequence; no memory crosses cycles."""
+    def __init__(self, mean, scale, layers=1, hidden_size=32):
+        super().__init__()
+        if layers not in (1,2):
+            raise ValueError('This bounded experiment supports one or two GRU layers.')
+        self.kind = f'gru_{layers}'
+        self.layers, self.hidden_size = layers, hidden_size
+        self.register_buffer('mean',torch.as_tensor(mean,dtype=torch.float32).clone())
+        self.register_buffer('scale',torch.as_tensor(scale,dtype=torch.float32).clone())
+        self.gru = nn.GRU(len(SENSORS),hidden_size,num_layers=layers,batch_first=True,
+                          dropout=.1 if layers>1 else 0)
+        self.output = nn.Linear(hidden_size,sum(len(c['codes']) for c in COMPONENTS))
+
+    def forward(self, sequences):
+        if sequences.ndim!=3 or tuple(sequences.shape[1:])!=(60,len(SENSORS)):
+            raise ValueError('GRU inputs must be batches of 60 time points by 14 physical channels.')
+        if not torch.isfinite(sequences).all():
+            raise ValueError('Incomplete measured sequence: condition estimation is unavailable.')
+        normalized=((sequences-self.mean)/self.scale).clamp(-8,8)
+        # Omitting an initial hidden state gives each cycle its own zero state.
+        _,hidden=self.gru(normalized)
+        return self.output(hidden[-1]).split([len(c['codes']) for c in COMPONENTS],dim=-1)
+
+
 def with_accumulator_neighbors(linear, features, targets, neighbors, columns):
     model = HydraulicClassifier(linear.mean,linear.scale,'linear_knn',len(features),columns,neighbors)
     model.network.load_state_dict(linear.network.state_dict())
@@ -72,9 +97,20 @@ def load_model(path):
     checkpoint = torch.load(path, map_location='cpu', weights_only=True)
     if checkpoint.get('task') != 'uci_hydraulic_component_conditions_v1':
         raise ValueError('This checkpoint is not a real hydraulic condition model.')
-    if checkpoint['feature_names'] != FEATURE_NAMES:
-        raise ValueError('Checkpoint feature schema mismatch.')
     state = checkpoint['state_dict']
+    if checkpoint['kind'] in ('gru_1','gru_2'):
+        if (checkpoint.get('sensor_ids') != [s['id'] for s in SENSORS]
+                or checkpoint.get('sequence_length') != 60
+                or checkpoint.get('input_kind') != 'sequence_1s'
+                or checkpoint.get('layers') != int(checkpoint['kind'][-1])):
+            raise ValueError('Checkpoint measured-sequence schema mismatch.')
+        model=HydraulicGRU(np.zeros(len(SENSORS)),np.ones(len(SENSORS)),
+                           checkpoint['layers'],checkpoint['hidden_size'])
+        model.load_state_dict(state)
+        model.eval()
+        return model,checkpoint
+    if checkpoint.get('feature_names') != FEATURE_NAMES:
+        raise ValueError('Checkpoint feature schema mismatch.')
     extra = ({'reference_count':len(state['reference_targets']),
               'reference_columns':state['reference_columns'].tolist(),
               'neighbors':checkpoint['neighbors']} if checkpoint['kind']=='linear_knn' else {})
