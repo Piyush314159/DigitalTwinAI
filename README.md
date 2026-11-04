@@ -6,7 +6,11 @@
 
 Replay recorded cycles, inspect physical signals, and evaluate four component conditions in a local research dashboard.
 
-**PyTorch · Flask · NumPy · Vanilla JavaScript · CPU training & inference**
+[![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](model.py)
+[![Flask](https://img.shields.io/badge/Flask-17271F?style=for-the-badge&logo=flask&logoColor=white)](app.py)
+[![NumPy](https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white)](hydraulics.py)
+[![Vanilla JavaScript](https://img.shields.io/badge/Vanilla_JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](static/dashboard.js)
+[![CPU training and inference](https://img.shields.io/badge/CPU-Training_%26_Inference-315C45?style=for-the-badge)](#quick-start)
 
 [Dashboard preview](#dashboard-preview) · [Quick start](#quick-start) · [Model results](#model-results) · [How it works](#how-it-works) · [Independent evaluation](#independent-recording-evaluation) · [Roadmap](UPGRADES.md)
 
