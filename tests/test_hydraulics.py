@@ -47,10 +47,10 @@ class HydraulicDataTests(unittest.TestCase):
         indices=np.concatenate(list(split.values()))
         np.testing.assert_array_equal(np.sort(indices),np.arange(2205))
 
-    def test_normalizer_is_fit_only_to_training_cycles(self):
+    def test_legacy_linear_normalizer_is_fit_only_to_its_training_cycles(self):
         indices=app.partitions['train'];x=app.data['features'][indices]
-        np.testing.assert_allclose(app.model.mean.numpy(),x.mean(axis=0))
-        np.testing.assert_allclose(app.model.scale.numpy(),x.std(axis=0).clip(1e-4))
+        np.testing.assert_allclose(app.linear_model.mean.numpy(),x.mean(axis=0))
+        np.testing.assert_allclose(app.linear_model.scale.numpy(),x.std(axis=0).clip(1e-4))
 
     def test_condition_codes_match_original_annotations(self):
         for i,c in enumerate(COMPONENTS):
@@ -60,7 +60,7 @@ class HydraulicDataTests(unittest.TestCase):
     def test_checkpoint_reload_reproduces_predictions(self):
         restored,meta=load_model(OUTPUT/'model.pt')
         x=app.data['features'][app.partitions['test'][:8]]
-        a,sa=predict(app.model,x);b,sb=predict(restored,x)
+        a,sa=predict(app.linear_model,x);b,sb=predict(restored,x)
         np.testing.assert_array_equal(a,b)
         for p,q in zip(sa,sb):
             np.testing.assert_array_equal(p,q)
@@ -92,7 +92,7 @@ class HydraulicDataTests(unittest.TestCase):
         for name in ('profile.txt','VS1.txt','PS1.txt'):
             self.assertEqual(file_hash(directory/name),manifest[name]['sha256'])
 
-    def test_deployment_selection_uses_validation_metric(self):
+    def test_legacy_linear_report_is_preserved(self):
         self.assertEqual(app.report['selected_model'],'linear')
         self.assertEqual(set(app.report['models']),{'linear'})
 

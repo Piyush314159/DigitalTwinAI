@@ -94,7 +94,7 @@ class TCNEvidenceTests(unittest.TestCase):
                                                         saved[f'{kind}_predictions'][validation]),
                                      scores[kind]['validation'])
         self.assertEqual(file_hash(OUTPUT / 'model.pt'), app.report['checkpoint_sha256'])
-        self.assertEqual(app.checkpoint['kind'], 'linear')
+        self.assertEqual(app.checkpoint['kind'], 'tcn')
 
 
 if __name__ == '__main__':

@@ -76,32 +76,41 @@ test('reference requests and CSV exports select the displayed record explicitly'
   assert.equal(element('export-link').href,'/api/evaluation.json');
 });
 
-test('validation shows only the retained linear deployment',()=>{
+test('validation identifies the primary TCN and its grouped research score',()=>{
   const {run,context,element}=dashboard();
   const output=path.join(__dirname,'../training_outputs');
   context.reportData=JSON.parse(fs.readFileSync(path.join(output,'metrics.json'),'utf8'));
-  run(`config={components:Object.entries(reportData.models[reportData.selected_model].test.components)
+  context.tcnData=JSON.parse(fs.readFileSync(path.join(output,'tcn_experiment/metrics.json'),'utf8'));
+  context.active={kind:'tcn',checkpoint_sha256:'c332d3abf40d3afa',parameters:12558,training_cycles:2205,training_epochs:33};
+  run(`config={components:Object.entries(tcnData.models.tcn.out_of_fold.components)
     .map(([id,m])=>({id,name:id,labels:m.confusion.map((_,i)=>String(i))}))};
-    evaluation={report:reportData};
+    evaluation={report:reportData,tcnExperiment:tcnData,activeModel:active};
     document.getElementById('matrix-component').value='accumulator';renderValidation();`);
   const html=element('validation-content').innerHTML;
-  assert.match(html,/Deployed linear classifier/);
+  assert.match(html,/Primary multirate TCN/);
+  assert.match(html,/0\.945/);
+  assert.match(html,/trained on all 2,205 UCI cycles/);
+  assert.match(html,/not a test score for the full-data checkpoint/);
+  assert.match(html,/Earlier linear test/);
   assert.match(html,/0\.950/);
-  assert.doesNotMatch(html,/Accumulator upgrade experiment|GRU layer comparison|Additional model comparisons/);
   assert.match(element('confusion-matrix').innerHTML,/Recall/);
 });
 
-test('TCN research scores are shown separately from active linear validation',()=>{
+test('matched TCN and linear scores remain separate from the old split',()=>{
   const {run,context,element}=dashboard();
-  const file=path.join(__dirname,'../training_outputs/tcn_experiment/metrics.json');
-  if(!fs.existsSync(file))return;
-  context.tcnData=JSON.parse(fs.readFileSync(file,'utf8'));
-  run('evaluation={tcnExperiment:tcnData};renderTCNComparison();');
+  const output=path.join(__dirname,'../training_outputs');
+  context.tcnData=JSON.parse(fs.readFileSync(path.join(output,'tcn_experiment/metrics.json'),'utf8'));
+  context.reportData=JSON.parse(fs.readFileSync(path.join(output,'metrics.json'),'utf8'));
+  context.active={kind:'tcn',checkpoint_sha256:'c332d3abf40d3afa',parameters:12558,training_cycles:2205,training_epochs:33};
+  run(`config={components:Object.entries(tcnData.models.tcn.out_of_fold.components)
+    .map(([id,m])=>({id,name:id,labels:m.confusion.map((_,i)=>String(i))}))};
+    evaluation={report:reportData,tcnExperiment:tcnData,activeModel:active};
+    document.getElementById('matrix-component').value='accumulator';renderValidation();`);
   const html=element('validation-content').innerHTML;
-  assert.match(html,/Multirate TCN research/);
-  assert.match(html,/deployed linear model and its original test result remain unchanged/);
+  assert.match(html,/Matched architecture comparison/);
   for(const model of Object.values(context.tcnData.models)){
     assert.ok(html.includes(model.fold_mean_macro_f1.toFixed(3)));
   }
-  assert.match(html,/independent-machine validation/);
+  assert.match(html,/Independent-machine validation is still pending/);
+  assert.match(html,/not directly comparable/);
 });

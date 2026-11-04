@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 import numpy as np
 import app
+from scripts.compare_tcn import predict_tcn
 
 
 class MonitoringTests(unittest.TestCase):
@@ -16,11 +17,17 @@ class MonitoringTests(unittest.TestCase):
     def test_state_uses_real_cycles_and_all_four_components(self):
         state=self.client.get('/api/state').json
         self.assertEqual(state['source'],'real_test_rig')
-        self.assertEqual(state['totalRecords'],len(app.partitions['test']))
-        self.assertEqual(state['cycle'],int(app.partitions['test'][0])+1)
+        self.assertEqual(state['totalRecords'],len(app.partitions['all']))
+        self.assertEqual(state['cycle'],1)
         self.assertEqual(len(state['observations']),14)
         self.assertEqual(len(state['conditions']),4)
         self.assertEqual(state,self.client.get('/api/state').json)
+
+    def test_active_tcn_uses_measured_sequences_for_condition_estimates(self):
+        state=self.client.get('/api/state',query_string={'partition':'all','position':7}).json
+        predicted=predict_tcn(app.model,app.data,app.high_signals,app.low_signals,np.array([7]))
+        self.assertEqual([item['class_index'] for item in state['conditions']],predicted[0].tolist())
+        self.assertEqual(self.client.get('/api/config').json['modelKind'],'tcn')
 
     def test_profile_labels_do_not_affect_predictions_or_sensor_readings(self):
         expected=self.client.get('/api/state').json
@@ -60,7 +67,7 @@ class MonitoringTests(unittest.TestCase):
         self.assertEqual(self.client.post('/api/step',json={'partition':'all','position':0}).json['cycle'],2)
 
     def test_invalid_positions_and_partitions_do_not_mutate_state(self):
-        for value in (-1,len(app.partitions['test']),True,None,1.2,'1'):
+        for value in (-1,len(app.partitions[app.DEFAULT_PARTITION]),True,None,1.2,'1'):
             self.assertEqual(self.client.post('/api/seek',json={'position':value}).status_code,400)
             self.assertEqual(self.client.get('/api/state').json['position'],0)
         for value in ('unknown',[],None):
@@ -73,7 +80,7 @@ class MonitoringTests(unittest.TestCase):
         self.assertEqual(first['cycle'],8)
         for client in (self.client,other):
             self.assertEqual(client.get('/api/state').json['position'],0)
-            self.assertEqual(client.get('/api/config').json['defaultPartition'],'test')
+            self.assertEqual(client.get('/api/config').json['defaultPartition'],'all')
         self.assertEqual(other.post('/api/step',json={'partition':'test','position':2}).json['position'],3)
         self.assertEqual(self.client.get('/api/state',query_string=selected).json['cycle'],8)
         self.assertEqual(self.client.get('/api/reference',query_string=selected).json['cycle'],8)
@@ -82,7 +89,7 @@ class MonitoringTests(unittest.TestCase):
         self.assertEqual(other.get('/api/state').json['position'],0)
 
     def test_nonfinite_readings_produce_strict_json_and_empty_csv_cells(self):
-        cycle=int(app.partitions['test'][0])
+        cycle=int(app.partitions[app.DEFAULT_PARTITION][0])
         for invalid in (np.nan,np.inf,-np.inf):
             with self.subTest(invalid=invalid):
                 changed={**app.data,'features':app.data['features'].copy(),'traces':app.data['traces'].copy()}
@@ -105,7 +112,7 @@ class MonitoringTests(unittest.TestCase):
 
     def test_missing_trace_alone_also_abstains(self):
         changed={**app.data,'traces':app.data['traces'].copy()}
-        changed['traces'][app.partitions['test'][0],1,0]=np.nan
+        changed['traces'][app.partitions[app.DEFAULT_PARTITION][0],1,0]=np.nan
         with patch.object(app,'data',changed):
             state=self.client.get('/api/state').json
         self.assertEqual(state['modelStatus'],'insufficient_data')
@@ -114,7 +121,7 @@ class MonitoringTests(unittest.TestCase):
     def test_invalid_get_selections_are_rejected_for_readings_labels_and_exports(self):
         for path in ('/api/state','/api/reference','/api/snapshot.csv'):
             for selection in ({'partition':'unknown'},{'position':'NaN'},{'position':'1.5'},
-                              {'position':'-1'},{'position':len(app.partitions['test'])}):
+                              {'position':'-1'},{'position':len(app.partitions[app.DEFAULT_PARTITION])}):
                 self.assertEqual(self.client.get(path,query_string=selection).status_code,400)
 
     def test_reference_labels_are_separate_explicit_annotations(self):
@@ -135,10 +142,12 @@ class MonitoringTests(unittest.TestCase):
     def test_evaluation_is_real_data_and_matches_model(self):
         evaluation=self.client.get('/api/validation').json
         self.assertEqual(evaluation['report']['source'],'real_test_rig')
-        self.assertEqual(evaluation['report']['selected_model'],app.checkpoint['kind'])
+        self.assertEqual(evaluation['report']['selected_model'],app.linear_checkpoint['kind'])
         self.assertEqual(set(evaluation['report']['models']),{'linear'})
         self.assertEqual(evaluation['robustness']['checkpoint_sha256'],app.report['checkpoint_sha256'])
-        self.assertEqual(set(evaluation),{'status','report','robustness','tcnExperiment'})
+        self.assertEqual(set(evaluation),{'status','activeModel','report','robustness','tcnExperiment'})
+        self.assertEqual(evaluation['activeModel']['kind'],'tcn')
+        self.assertFalse(evaluation['activeModel']['independent_score_available'])
         if app.tcn_experiment:
             self.assertEqual(evaluation['tcnExperiment']['dataset_fingerprint'],str(app.data['fingerprint']))
             self.assertEqual(evaluation['tcnExperiment']['decision'],'research_only_retain_deployment')

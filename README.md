@@ -2,9 +2,9 @@
 
 # DigitalTwinAI
 
-**Hydraulic condition monitoring from real sensor measurements.**
+**Real measurements. Transparent evaluation. A workspace you can inspect.**
 
-Replay recorded cycles, inspect physical signals, and evaluate four component conditions in a local research dashboard.
+[![DigitalTwinAI: measured PS1 pressure from source cycle 211, with 2,205 cycles, 14 channels, four component tasks and 60-second windows](docs/assets/readme-cover.svg)](#dashboard-preview)
 
 [![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](model.py)
 [![Flask](https://img.shields.io/badge/Flask-17271F?style=for-the-badge&logo=flask&logoColor=white)](app.py)
@@ -16,23 +16,31 @@ Replay recorded cycles, inspect physical signals, and evaluate four component co
 
 </div>
 
-DigitalTwinAI turns the UCI hydraulic test-rig recordings into an inspectable condition-monitoring application. The dashboard combines measured traces, component estimates, historical replay, and reproducible evaluation. It runs locally with three Python dependencies.
+DigitalTwinAI is a local hydraulic condition-monitoring dashboard built around measured UCI test-rig recordings. Replay a cycle, inspect its sensor signals, compare recorded labels with estimates, and trace every reported score to saved evaluation artifacts.
 
-| Measurements | Inputs | Predictions | Active model |
-|---|---|---|---|
-| **2,205** recorded cycles | **14** physical channels | **4** component conditions | **1,974** parameter linear classifier |
-| 60 seconds per cycle | Pressure, flow, temperature, power, vibration | Cooler, valve, pump, accumulator | 140 sensor summary features |
+<table>
+<tr>
+<td width="33%"><a href="#quick-start"><img src="docs/assets/nav-launch.svg" alt="Run the dashboard: installation, training and browser launch" width="100%"></a></td>
+<td width="33%"><a href="#model-results"><img src="docs/assets/nav-results.svg" alt="Inspect model results: grouped TCN comparison and historical linear baseline" width="100%"></a></td>
+<td width="33%"><a href="#independent-recording-evaluation"><img src="docs/assets/nav-independent.svg" alt="Test independent data: recording format and frozen evaluation workflow" width="100%"></a></td>
+</tr>
+</table>
 
-> **Research status:** The deployed linear model scores **0.950 mean component macro F1** on its original grouped test split. A compact TCN achieved **0.9449** in a separate three-fold comparison. These protocols differ; their headline scores cannot be directly ranked. Independent-machine validation is still pending.
+> **Research status:** The active TCN architecture averaged **0.9449 mean component macro F1** across three grouped research folds. The active checkpoint was subsequently trained on all 2,205 cycles, so this is **not a separate test score for those exact weights**. The older linear model scored **0.950** on a different split; the headline scores cannot be directly ranked. Independent-machine validation is pending.
 
 ## Dashboard preview
 
-Actual application captures from **4 November 2026**, with the trained linear checkpoint loaded. The overview and sensor views show source cycle **211**, the first record in the held-out test partition. Click a screenshot to view it at full size.
+Actual captures from **4 November 2026**, with the active multirate TCN loaded. The overview and sensor pages show source cycle **211**. The cover chart uses its actual PS1 one-second averages. Open a page below, then click its screenshot to view it at full size. The original linear test subset shown in replay is part of the full-data TCN training set.
+
+<details open>
+<summary><strong>01 / Overview</strong> — cycle replay, component estimates and measured pressure</summary>
 
 [![DigitalTwinAI overview: historical replay, four component estimates, review list and measured pressure trace](docs/screenshots/overview.jpg)](docs/screenshots/overview.jpg)
 
+</details>
+
 <details>
-<summary><strong>Explore the sensor page</strong> — channel search, filters and measured traces</summary>
+<summary><strong>02 / Sensor explorer</strong> — channel search, filters and measured traces</summary>
 
 Inspect all 14 physical inputs, their units and native sample rates. Select a channel to inspect its cycle statistics and recorded trace.
 
@@ -41,16 +49,16 @@ Inspect all 14 physical inputs, their units and native sample rates. Select a ch
 </details>
 
 <details>
-<summary><strong>Explore model validation</strong> — component scores, confusion matrices and TCN research</summary>
+<summary><strong>03 / Model validation</strong> — component scores, confusion matrices and TCN research</summary>
 
-The page presents the deployed model's results, channel-removal sensitivity, and a separately labeled experimental TCN comparison.
+The current page presents the primary TCN's grouped research results, component confusion matrices and a matched linear comparison.
 
-[![Model validation with deployed linear scores, confusion matrix, sensor-removal sensitivity and experimental TCN comparison](docs/screenshots/validation.jpg)](docs/screenshots/validation.jpg)
+[![Model validation with grouped TCN research scores, class confusion matrix and matched linear comparison](docs/screenshots/validation.jpg)](docs/screenshots/validation.jpg)
 
 </details>
 
 <details>
-<summary><strong>Explore dataset & method</strong> — provenance, preprocessing and evaluation boundaries</summary>
+<summary><strong>04 / Dataset & method</strong> — provenance, preprocessing and evaluation boundaries</summary>
 
 Source attribution, input definitions, grouped splitting and research limitations are available inside the application.
 
@@ -66,7 +74,7 @@ Source attribution, input definitions, grouped splitting and research limitation
 .venv/bin/python app.py
 ```
 
-Open **[http://127.0.0.1:5001](http://127.0.0.1:5001)**. The dashboard starts at the first held-out test record. Replay navigates historical measurements; it is not a live equipment connection.
+Open **[http://127.0.0.1:5001](http://127.0.0.1:5001)**. The dashboard starts at the first recorded cycle. All 2,205 cycles were used to train the active TCN checkpoint; replay is historical, not a live equipment connection or a held-out TCN test.
 
 <details>
 <summary><strong>First-time setup on macOS / Linux</strong></summary>
@@ -103,14 +111,16 @@ Keep the original download intact. Preparation locates the single complete set o
 export HYDRAULICS_DATA_DIR="/absolute/path/to/extracted/files"
 ```
 
-**3. Train and generate the sensitivity report**
+**3. Train and prepare the TCN**
 
 ```bash
 .venv/bin/python -m scripts.train_hydraulics
 .venv/bin/python -m scripts.evaluate_robustness
+.venv/bin/python -m scripts.compare_tcn
+.venv/bin/python -m scripts.external_validation prepare
 ```
 
-Training saves the active checkpoint and evaluation artifacts in `training_outputs/`. Downloaded data, generated caches and model checkpoints are excluded from Git, so a fresh clone needs this step. The optional TCN experiment has its own [command below](#experimental-multirate-tcn).
+The first two commands preserve the historical linear baseline and its sensitivity diagnostic. The comparison produces grouped TCN research evidence; the final command fits the active TCN on all UCI cycles. Downloaded data, generated caches and model checkpoints are excluded from Git, so a fresh clone needs these steps. CPU training took several minutes here.
 
 **4. Start the dashboard**
 
@@ -132,6 +142,8 @@ py -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 .venv\Scripts\python.exe -m scripts.train_hydraulics
 .venv\Scripts\python.exe -m scripts.evaluate_robustness
+.venv\Scripts\python.exe -m scripts.compare_tcn
+.venv\Scripts\python.exe -m scripts.external_validation prepare
 .venv\Scripts\python.exe app.py
 ```
 
@@ -145,17 +157,17 @@ For data stored elsewhere, set `$env:HYDRAULICS_DATA_DIR = "C:\path\to\extracted
 |---|---|
 | **Overview** | Review four condition estimates, flagged components, a selectable measured signal, and cycle statistics. |
 | **Sensors** | Search or filter physical channels and inspect their original-sample statistics and recorded traces. |
-| **Model validation** | Inspect component scores, switch confusion matrices, examine sensor sensitivity and read the experimental TCN comparison. |
+| **Model validation** | Inspect grouped TCN research scores, class confusion matrices and the matched linear comparison. |
 | **Dataset & method** | Review data attribution, model inputs, evaluation protocol and limitations. |
 | **Cycle replay** | Play, pause, step, reset or seek within test, validation, training or all recorded cycles. Each tab keeps its own selection. |
 | **Recorded labels** | Opt in to reference annotations displayed separately from model estimates. Labels are excluded from inference. |
 | **Exports** | Download the selected cycle's sensor statistics and predictions as CSV, or the saved evaluation as JSON. |
 
-Try this short walkthrough: choose a test cycle, inspect **PS1** and **FS1**, enable **Show recorded labels**, then open **Model validation** and select **Accumulator** in the confusion matrix. This connects individual predictions with the task's measured weaknesses.
+Try this short walkthrough: choose a recorded cycle, inspect **PS1** and **FS1**, enable **Show recorded labels**, then open **Model validation** and select **Accumulator** in the confusion matrix. This connects individual predictions with the task's measured weaknesses.
 
 ## Model results
 
-### Deployed linear classifier
+### Historical linear baseline
 
 All cycles sharing a joint four-component condition combination stay in one partition. Seed 42 assigns the 144 combinations to **86 training / 29 validation / 29 test groups**, containing **1,371 / 506 / 328 cycles**. Scaling and class weights use training cycles only; validation selects the training checkpoint.
 
@@ -167,7 +179,7 @@ Mean component accuracy is **94.97%**; all four conditions are correct together 
 
 Inspect the [training report](training_outputs/training_report.md), [exact metrics](training_outputs/metrics.json), and [split manifest](training_outputs/split_manifest.json). This is a same-rig test of unseen condition combinations. The dataset does not supply independent run identifiers or absolute recording timestamps.
 
-### Experimental multirate TCN
+### Primary multirate TCN
 
 ```bash
 .venv/bin/python -m scripts.compare_tcn
@@ -184,7 +196,7 @@ Both architectures train from scratch on the **same three outer grouped folds**.
 
 TCN led on all three folds. Much of the improvement came from fold 3, where inner validation chose only 24 linear training epochs. A **post-hoc diagnostic** trained linear for 250 epochs on each fold and reached **0.9156** fold mean macro F1. TCN still led, but that diagnostic followed inspection of the first results and is exploratory.
 
-These folds reuse the previously studied rig. **The TCN is a research candidate; dashboard estimates use the linear checkpoint.** Its 0.9449 cross-validation result cannot be directly ranked against the deployed model's original 0.950 test score. See the [TCN report](training_outputs/tcn_experiment/report.md), [frozen protocol](training_outputs/tcn_experiment/protocol.json), and [longer-trained linear diagnostic](training_outputs/tcn_experiment/linear_250_diagnostic.json).
+The dashboard now uses the **full-data TCN checkpoint** for condition estimates. It was fitted for 33 epochs on all 2,205 UCI cycles after the three-fold comparison. The 0.9449 figure describes separate fold-fitted TCNs, **not an independent test of that full-data checkpoint**. The earlier linear checkpoint and its 0.950 score are retained as historical evidence under a different protocol. See the [TCN report](training_outputs/tcn_experiment/report.md), [frozen protocol](training_outputs/tcn_experiment/protocol.json), and [longer-trained linear diagnostic](training_outputs/tcn_experiment/linear_250_diagnostic.json).
 
 <details>
 <summary><strong>Earlier candidates and sensor sensitivity</strong></summary>
@@ -199,7 +211,7 @@ For actual dashboard estimates, incomplete cycles cause the application to withh
 
 ## Independent recording evaluation
 
-Two **frozen comparison candidates** can now be fitted on all 2,205 UCI development cycles. TCN training length is the median (33 epochs) of its three saved inner-fold choices; linear uses the stronger 250-epoch diagnostic setting. Both use the same training cycles. This leaves the active dashboard checkpoint untouched. The checkpoints and any later external results are local generated artifacts, ignored by Git.
+Two **frozen comparison candidates** are fitted on all 2,205 UCI development cycles. TCN training length is the median (33 epochs) of its three saved inner-fold choices; linear uses the stronger 250-epoch diagnostic setting. Both use the same training cycles. The TCN candidate powers the dashboard. The checkpoints and any later external results are local generated artifacts, ignored by Git.
 
 <details>
 <summary><strong>Prepare candidates and evaluate new recordings</strong> — commands, file format and provenance</summary>
@@ -239,16 +251,18 @@ This writes an immutable JSON report, readable report and exact predictions in `
 flowchart LR
     A[Recorded physical sensor files] --> B[Validate samples and fingerprint source]
     B --> C[140 summary features per cycle]
-    C --> D[Linear classifier]
+    B --> F[10 Hz and 1 Hz sensor sequences]
+    C --> D[Multirate TCN]
+    F --> D
     D --> E[Four component estimates]
-    B --> F[Measured trace cache]
+    B --> J[Measured trace cache]
     E --> G[Flask API and dashboard]
-    F --> G
+    J --> G
     H[Separate condition annotations] --> I[Grouped evaluation and optional reference labels]
     E --> I
 ```
 
-Each sensor contributes its mean, standard deviation, minimum, maximum and six consecutive ten-second means. These statistics use native samples; dashboard traces show one-second averages. Raw files are streamed and hashed, and caches are checked against their source fingerprint. The app checks checkpoint and report identity before presenting saved model metrics.
+Each sensor contributes its mean, standard deviation, minimum, maximum and six consecutive ten-second means. These statistics use native samples; dashboard traces show one-second averages. Raw files are streamed and hashed, and caches are checked against their source fingerprint. The app checks checkpoint and research-report identity before presenting model metrics.
 
 The TCN uses pressure and power block averages at **10 Hz**, native **10 Hz** flow, and native **1 Hz** temperature and vibration, plus the summary features. Reducing 100 Hz signals by block averaging can lose high-frequency transients.
 
@@ -270,13 +284,14 @@ The supplied derived channels **CE, CP and SE** are excluded from model inputs. 
 
 | Task | Command / artifact |
 |---|---|
-| Train the active linear model | `.venv/bin/python -m scripts.train_hydraulics` |
-| Generate channel sensitivity results | `.venv/bin/python -m scripts.evaluate_robustness` |
-| Run the optional TCN comparison | `.venv/bin/python -m scripts.compare_tcn` |
-| Freeze external evaluation candidates | `.venv/bin/python -m scripts.external_validation prepare` |
+| Train the historical linear baseline | `.venv/bin/python -m scripts.train_hydraulics` |
+| Generate historical linear channel sensitivity | `.venv/bin/python -m scripts.evaluate_robustness` |
+| Reproduce the grouped TCN comparison | `.venv/bin/python -m scripts.compare_tcn` |
+| Train and freeze the active TCN and external candidates | `.venv/bin/python -m scripts.external_validation prepare` |
 | Score compatible new recordings | `.venv/bin/python -m scripts.external_validation evaluate /absolute/path/to/new-recordings` |
-| Active checkpoint | `training_outputs/model.pt` — generated locally, ignored by Git |
-| Exact test predictions | `training_outputs/test_predictions.npz` |
+| Active checkpoint | `training_outputs/external_validation/tcn_full.pt` — generated locally, ignored by Git |
+| Historical linear checkpoint | `training_outputs/model.pt` — generated locally, ignored by Git |
+| Historical linear test predictions | `training_outputs/test_predictions.npz` |
 | Exact TCN comparison predictions | `training_outputs/tcn_experiment/out_of_fold_predictions.npz` |
 
 <details>
@@ -320,15 +335,17 @@ Invalid or incomplete readings become JSON `null`, gaps in charts, and empty CSV
 DigitalTwinAI/
 ├── app.py                      # Dashboard and record-selection API
 ├── hydraulics.py               # Data preparation, provenance, splitting and metrics
-├── model.py                    # Active linear classifier
+├── model.py                    # Historical linear classifier and baseline loader
 ├── scripts/
 │   ├── train_hydraulics.py      # Real-data training and evaluation
 │   ├── evaluate_robustness.py   # Frozen-model channel sensitivity
-│   ├── compare_tcn.py           # Optional multirate TCN experiment
-│   └── external_validation.py   # Frozen candidates and new-recording evaluation
+│   ├── compare_tcn.py           # Multirate TCN architecture and grouped research comparison
+│   └── external_validation.py   # Active TCN fit and new-recording evaluation
 ├── templates/                  # Dashboard HTML
 ├── static/                     # CSS and browser interactions
-├── docs/screenshots/            # Actual dashboard captures used in this README
+├── docs/
+│   ├── assets/                 # README cover and clickable navigation tiles
+│   └── screenshots/            # Actual dashboard captures
 ├── tests/                      # Python and JavaScript checks
 ├── data/                       # Original download and rebuildable caches
 ├── training_outputs/           # Checkpoint, reports, splits and exact predictions
@@ -345,13 +362,22 @@ DigitalTwinAI/
 | Symptom | What to check |
 |---|---|
 | Dataset cannot be found | Extract the download; ensure `profile.txt` and all 14 physical-channel files share one directory. Set `HYDRAULICS_DATA_DIR` if needed. |
-| Estimates are unavailable | Run the linear training command to create `training_outputs/model.pt`, then restart the app. |
+| Estimates are unavailable | Run the four setup commands above to create the matched TCN checkpoint and comparison evidence, then restart the app. |
 | Dataset/checkpoint mismatch | Confirm the intended raw files, then retrain and regenerate the sensitivity report before restarting. |
-| Sensitivity or TCN panel is absent | Generate that experiment locally. The TCN panel also checks its source cache, protocol and prediction hashes. |
+| TCN validation is unavailable | Regenerate the grouped comparison and matching full-data checkpoint. The app checks their source cache, protocol and prediction hashes. |
 | Port 5001 is occupied | Run `.venv/bin/python -m flask --app app run --host 127.0.0.1 --port 5002`, then open `http://127.0.0.1:5002`. |
 | Python or JavaScript checks fail on a fresh clone | Prepare the dataset and required model/experiment artifacts; install Node for the JavaScript checks. |
 
 </details>
+
+## Project progress
+
+- [x] Real-data preparation, provenance checks and a local replay dashboard.
+- [x] Grouped evaluation of linear and compact TCN architectures.
+- [x] A frozen evaluation workflow for compatible external recordings.
+- [ ] Independent-machine results from a new labeled collection.
+
+[Read the upgrade history and next research steps →](UPGRADES.md)
 
 ## Scope and next steps
 

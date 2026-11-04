@@ -2,7 +2,7 @@
 
 ## Current model
 
-The dashboard and routine training use **one linear classifier** on 140 measured-sensor summary features. Its 1,974-parameter checkpoint is `training_outputs/model.pt`. The original 328-cycle held-out test has mean component macro F1 **0.950** and all four conditions correct together **80.49%**. The checkpoint hash and raw UCI measurements were unchanged during cleanup.
+The dashboard now uses the **multirate TCN** (12,558 parameters) on real measured sequences plus 140 summary features. Its full-data checkpoint is `training_outputs/external_validation/tcn_full.pt`, fitted on all 2,205 UCI cycles. The earlier 1,974-parameter linear classifier remains in `training_outputs/model.pt` as a historical baseline. Its original 328-cycle held-out test scored **0.950** mean component macro F1 and **80.49%** all-four-correct; that protocol differs from the TCN comparison. The original checkpoint and raw UCI measurements remain unchanged.
 
 Underperforming MLP, nearest-cycle, GRU, boosted-tree and CNN integrations, experiment scripts, checkpoints, tests and generated experiment folders were removed. The table below retains only the conclusions needed to explain that choice. Its rows use different evaluation partitions and must not be compared across rows.
 
@@ -21,7 +21,7 @@ The CNN was close overall but had lower out-of-fold accumulator F1 than linear (
 - [x] Invalid or incomplete sensor readings become JSON `null` and chart gaps. The dashboard withholds estimates for an incomplete cycle; CSV exports leave unavailable values empty.
 - [x] Browser tabs keep separate replay selections. API requests carry the selected partition and record position.
 - [x] The sidebar says `MODEL UNAVAILABLE` when there is no valid checkpoint.
-- [x] The dashboard validation page separates the deployed linear model and sensor-removal diagnostic from the experimental TCN comparison.
+- [x] The dashboard uses the full-data TCN for predictions and labels its three-fold scores as research evidence. The earlier linear test and sensor-removal diagnostic remain historical.
 
 ## Multirate TCN experiment completed
 
@@ -37,13 +37,13 @@ The TCN has two residual temporal blocks and **12,558 parameters**. It ran on CP
 
 TCN led on all three outer folds. Most of the gain was on fold 3, where inner validation selected only 24 epochs for linear. A **post-hoc stronger-baseline check** refitted linear for its original 250-epoch maximum on each fold and reached **0.9156** fold-mean macro F1. TCN still led, but this check is exploratory because it was added after viewing the first outer-fold results. It is saved as `linear_250_diagnostic.json` and exact predictions beside the TCN report.
 
-The active dashboard checkpoint remains linear and its original 0.950 test score is unchanged. These are different splits and must not be directly ranked. All 2,205 cycles come from the previously studied rig. The TCN result is promising internal evidence, **not independent-machine validation**. The dashboard labels it as research. TCNs are a plausible sequence-model family based on [Bai, Kolter and Koltun's study](https://arxiv.org/abs/1803.01271); that paper does not establish performance on this particular rig.
+The dashboard now applies a TCN fitted on all 2,205 UCI cycles. The three-fold score describes separate fold-fitted models, not an independent test of this final checkpoint. The original linear 0.950 test score uses a different split and must not be directly ranked against 0.9449. All cycles come from the previously studied rig. The TCN result is promising internal evidence, **not independent-machine validation**. TCNs are a plausible sequence-model family based on [Bai, Kolter and Koltun's study](https://arxiv.org/abs/1803.01271); that paper does not establish performance on this particular rig.
 
 Before another architecture, inspect accumulator misclassifications and the original measured channels. This may identify a simpler feature improvement. Keep labels out of inputs and preserve condition-combination grouping.
 
 ## Upgrades that require additional data
 
-- [x] **External evaluation path prepared.** `scripts/external_validation.py` fits frozen linear and TCN candidates on the same full UCI development data, then scores a new labeled collection without refitting. It requires provenance, complete sensor cycles, all condition classes and no exact UCI cycle overlap. See README for the input format.
+- [x] **External evaluation path prepared.** `scripts/external_validation.py` fits frozen linear and TCN candidates on the same full UCI development data; the TCN candidate powers the dashboard. The evaluator scores a new labeled collection without refitting. It requires provenance, complete sensor cycles, all condition classes and no exact UCI cycle overlap. See README for the input format.
 - [ ] **Independent-machine validation result.** Obtain measurements from another hydraulic machine or independently documented later run, with machine/run IDs and source/license. Confirm physical quantities, sensor placement, units, sampling rates, cycle length and condition-code mapping before testing. Another shuffle of the current UCI rig is not independent evidence.
 - [ ] **Future-condition prediction or remaining useful life.** Obtain ordered, timestamped runs with future condition or failure events and a defined prediction horizon. Use only readings available before the horizon and hold out complete runs or machines. Current full-cycle labels support condition classification only.
 

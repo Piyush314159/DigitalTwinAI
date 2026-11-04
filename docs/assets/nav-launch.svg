@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="384" height="134" viewBox="0 0 384 134" role="img" aria-labelledby="title desc">
+<title id="title">Run the dashboard</title><desc id="desc">Install · train · open in your browser</desc>
+<rect x=".5" y=".5" width="383" height="133" rx="12" fill="#F4F7F1" stroke="#D8E3D3"/>
+<g font-family="Arial,Helvetica,sans-serif"><text x="24" y="33" font-size="11" letter-spacing="2" font-weight="700" fill="#5B7552">01 / EXPLORE</text>
+<text x="24" y="72" font-size="22" font-weight="700" letter-spacing="-.5" fill="#1C3325">Run the dashboard</text>
+<text x="24" y="102" font-size="13" fill="#52634F">Install · train · open in your browser</text></g>
+<circle cx="343" cy="32" r="13" fill="#E4EEDC"/><path d="M338 32h10m-4-4 4 4-4 4" fill="none" stroke="#315A3D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
