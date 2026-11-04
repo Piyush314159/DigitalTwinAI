@@ -38,3 +38,7 @@ data/condition+monitoring+of+hydraulic+systems
 
 # Rebuildable real-data feature cache
 /data/processed/
+
+# Separately collected recordings and local external evaluation results
+/data/external/
+/training_outputs/external_validation/

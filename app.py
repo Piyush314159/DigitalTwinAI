@@ -10,7 +10,9 @@ from flask.json.provider import DefaultJSONProvider
 from werkzeug.exceptions import BadRequest
 
 from hydraulics import CACHE, OUTPUT, SENSORS, COMPONENTS, SOURCE_URL, prepare_data, file_hash
-from model import load_model, predict
+from model import load_model
+from scripts.compare_tcn import HIGH_SENSORS, LOW_SENSORS, measured_multirate
+from scripts.external_validation import MANIFEST, _read_candidates, load_candidates
 
 class StrictJSONProvider(DefaultJSONProvider):
     def dumps(self, obj, **kwargs):
@@ -23,12 +25,12 @@ app.json = StrictJSONProvider(app)
 torch.set_num_threads(2)
 data = prepare_data()
 model = checkpoint = report = robustness = None
+linear_model = linear_checkpoint = active_model_info = None
+high_signals = low_signals = None
 tcn_experiment = None
 if (OUTPUT/'model.pt').exists():
-    model, checkpoint = load_model(OUTPUT/'model.pt')
-    if checkpoint['kind'] != 'linear':
-        raise ValueError('The dashboard uses only the retained linear model. Restore or retrain model.pt.')
-    if checkpoint['dataset_fingerprint'] != str(data['fingerprint']):
+    linear_model, linear_checkpoint = load_model(OUTPUT/'model.pt')
+    if linear_checkpoint['dataset_fingerprint'] != str(data['fingerprint']):
         raise ValueError('Dataset changed. Retrain the hydraulic model before using these measurements.')
     if (OUTPUT/'metrics.json').exists():
         candidate = json.loads((OUTPUT/'metrics.json').read_text())
@@ -55,6 +57,21 @@ if tcn_path.exists():
             and file_hash(predictions_path) == candidate.get('predictions_sha256')
             and file_hash(signal_cache) == candidate.get('signal_cache_sha256')):
         tcn_experiment = candidate
+if MANIFEST.exists():
+    frozen = _read_candidates()
+    if frozen['training_dataset_fingerprint'] != str(data['fingerprint']):
+        raise ValueError('The TCN checkpoint was trained on a different UCI download.')
+    if (tcn_experiment is None or frozen['comparison_metrics_sha256'] != file_hash(tcn_path)):
+        raise ValueError('The TCN checkpoint lacks matching comparison evidence.')
+    _, model = load_candidates(frozen)
+    high_signals, low_signals = measured_multirate(data)
+    checkpoint = {'kind': 'tcn', 'dataset_fingerprint': str(data['fingerprint'])}
+    active_model_info = {'kind': 'tcn', 'checkpoint_sha256': frozen['candidates']['tcn']['sha256'],
+                         'parameters': frozen['candidates']['tcn']['parameters'],
+                         'training_cycles': frozen['training_cycles'],
+                         'training_epochs': frozen['candidates']['tcn']['epochs'],
+                         'evaluation_protocol': 'three_grouped_folds_same_rig',
+                         'independent_score_available': False}
 split_manifest = json.loads((OUTPUT/'split_manifest.json').read_text()) if report else None
 partitions = {'all':np.arange(len(data['features']))}
 if split_manifest:
@@ -63,7 +80,7 @@ if split_manifest:
         if len(np.unique(indices)) != len(indices) or np.any(indices < 0) or np.any(indices >= len(data['features'])):
             raise ValueError('Invalid split manifest.')
         partitions[name] = indices
-DEFAULT_PARTITION = 'test' if 'test' in partitions else 'all'
+DEFAULT_PARTITION = 'all' if model is not None else ('test' if 'test' in partitions else 'all')
 
 
 def replay_selection(values=None, reset=False):
@@ -94,13 +111,19 @@ def measured_value(value):
     return float(value) if np.isfinite(value) else None
 
 
-def estimate_conditions(features):
+def estimate_conditions(features, high=None, low=None):
     """Accept sensor features only. Condition annotations cannot enter inference."""
     if model is None:
         return {'status':'not_trained', 'conditions':[]}
-    if not np.isfinite(features).all():
+    if (high is None or low is None or not np.isfinite(features).all()
+            or not np.isfinite(high).all() or not np.isfinite(low).all()):
         return {'status':'insufficient_data', 'conditions':[]}
-    predicted, scores = predict(model, np.asarray(features, dtype=np.float32).reshape(1,-1))
+    with torch.inference_mode():
+        heads = model(torch.as_tensor(features, dtype=torch.float32).reshape(1, -1),
+                      torch.as_tensor(high, dtype=torch.float32).reshape(1, len(HIGH_SENSORS), 600),
+                      torch.as_tensor(low, dtype=torch.float32).reshape(1, len(LOW_SENSORS), 60))
+        scores = [head.softmax(dim=-1).numpy() for head in heads]
+        predicted = np.column_stack([head.argmax(axis=1) for head in scores])
     conditions = []
     for i,c in enumerate(COMPONENTS):
         label = int(predicted[0,i])
@@ -117,9 +140,15 @@ def build_state(position, partition):
     traces = data['traces'][cycle]
     invalid_channels = [s['id'] for i,s in enumerate(SENSORS)
                         if not np.isfinite(features[i*10:(i+1)*10]).all()
-                        or not np.isfinite(traces[i]).all()]
+                        or not np.isfinite(traces[i]).all()
+                        or (high_signals is not None and s in HIGH_SENSORS
+                            and not np.isfinite(high_signals[cycle, HIGH_SENSORS.index(s)]).all())
+                        or (low_signals is not None and s in LOW_SENSORS
+                            and not np.isfinite(low_signals[cycle, LOW_SENSORS.index(s)]).all())]
     prediction = ({'status':'insufficient_data', 'conditions':[]} if invalid_channels
-                  else estimate_conditions(features))
+                  else estimate_conditions(features,
+                                           high_signals[cycle] if high_signals is not None else None,
+                                           low_signals[cycle] if low_signals is not None else None))
     observations = []
     for i,s in enumerate(SENSORS):
         values = features[i*10:i*10+4]
@@ -136,7 +165,8 @@ def build_state(position, partition):
 
 
 def evaluation_payload():
-    return {'status':'trained_real_data' if report else 'report_unavailable',
+    return {'status':'trained_real_data' if model is not None and tcn_experiment else 'report_unavailable',
+            'activeModel':active_model_info,
             'report':report, 'robustness':robustness,
             'tcnExperiment':tcn_experiment}
 

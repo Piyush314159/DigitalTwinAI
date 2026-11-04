@@ -21,7 +21,7 @@ The CNN was close overall but had lower out-of-fold accumulator F1 than linear (
 - [x] Invalid or incomplete sensor readings become JSON `null` and chart gaps. The dashboard withholds estimates for an incomplete cycle; CSV exports leave unavailable values empty.
 - [x] Browser tabs keep separate replay selections. API requests carry the selected partition and record position.
 - [x] The sidebar says `MODEL UNAVAILABLE` when there is no valid checkpoint.
-- [x] The dashboard validation page and evaluation export show only the retained linear model and its sensor-removal diagnostic.
+- [x] The dashboard validation page separates the deployed linear model and sensor-removal diagnostic from the experimental TCN comparison.
 
 ## Multirate TCN experiment completed
 
@@ -43,7 +43,8 @@ Before another architecture, inspect accumulator misclassifications and the orig
 
 ## Upgrades that require additional data
 
-- [ ] **Independent-machine validation.** Obtain measurements from another hydraulic machine or independently documented run, with machine/run IDs and source/license. Check physical quantities, units, sampling rates, cycle length and condition-code mapping before testing. Another shuffle of the current UCI rig is not independent evidence.
+- [x] **External evaluation path prepared.** `scripts/external_validation.py` fits frozen linear and TCN candidates on the same full UCI development data, then scores a new labeled collection without refitting. It requires provenance, complete sensor cycles, all condition classes and no exact UCI cycle overlap. See README for the input format.
+- [ ] **Independent-machine validation result.** Obtain measurements from another hydraulic machine or independently documented later run, with machine/run IDs and source/license. Confirm physical quantities, sensor placement, units, sampling rates, cycle length and condition-code mapping before testing. Another shuffle of the current UCI rig is not independent evidence.
 - [ ] **Future-condition prediction or remaining useful life.** Obtain ordered, timestamped runs with future condition or failure events and a defined prediction horizon. Use only readings available before the horizon and hold out complete runs or machines. Current full-cycle labels support condition classification only.
 
 No external-machine, advance-warning or remaining-life performance is claimed with the current data.
